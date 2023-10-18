@@ -1,0 +1,43 @@
+.buttons {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+    margin-block: .5rem;
+    
+    label {
+        width: 8.5rem;
+    }
+}
+
+button {
+    &[data-action="add"], &.add, &.remove {
+        padding: 0;
+        margin: 0 auto;
+        border-radius: var(--border-radius);
+        aspect-ratio: 1;
+    }
+    
+    &[data-action="add"] {
+        width: 2.5rem;
+    }
+    
+    &.add, &.remove {
+        width: 1.75rem;
+    }
+    
+    &[data-action="add"]::after, &.add::after {
+        content: '+';
+    }
+    
+    &[data-action="add"]::after {
+        font-size: 2rem;
+    }
+    
+    &.add::after {
+        font-size: 1.375rem;
+    }
+    
+    &.remove::after {
+        content: '✖';
+    }
+}

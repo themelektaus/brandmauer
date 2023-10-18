@@ -1,0 +1,20 @@
+::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+    
+    &-track {
+        background: #333;
+    }
+    
+    &-thumb {
+        background: #555;
+        
+        &:hover {
+            background: #666;
+        }
+    }
+    
+    &-corner {
+        background: none;
+    }
+}

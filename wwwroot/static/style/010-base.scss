@@ -1,0 +1,16 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    background-color: var(--body__background-color);
+    min-height: 100vh;
+    margin: 0;
+    overflow-y: scroll;
+}
+
+body, input, textarea, button, select {
+    color: var(--body__text-color);
+    font-family: Rubik;
+    font-size: 1em;
+    line-height: 1;
+}

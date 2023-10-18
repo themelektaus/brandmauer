@@ -1,0 +1,57 @@
+<div data-page="reverseproxyroutes">
+    <div class="title">
+        <h2>
+            <i class="fas fa-arrow-right-arrow-left"></i>
+            <span>Reverse Proxy</span>
+        </h2>
+        <button data-action="saveAll" disabled>Save</button>
+        <button data-action="cancelAll" disabled>Cancel</button>
+    </div>
+    <div class="content">
+        <div class="list-header" style="grid-template-columns: 1fr 4fr; ">
+            <div>Name</div>
+            <div>Info</div>
+        </div>
+        <div class="list" data-bind="reverseproxyroutes">
+            <div class="item">
+                <div style="grid-template-columns: 1fr 4fr; ">
+                    <div data-bind="htmlName"></div>
+                    <div data-bind="htmlInfo"></div>
+                </div>
+                <div>
+                    <input type="checkbox" data-bind="enabled">
+                    <div class="field">
+                        <label>Name</label>
+                        <input type="text" data-bind="name">
+                        <button data-action="delete">Delete</button>
+                    </div>
+                    <div class="field">
+                        <label>Source Hosts</label>
+                        <ul class="block" data-bind="sourceHostReferences">
+                            <li>
+                                <div class="flex-rows">
+                                    <select data-bind="id" data-options="hosts" data-type="number"></select>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="field">
+                        <label>Source Domains</label>
+                        <ul class="group group-string-values" data-bind="sourceDomains">
+                            <li>
+                                <input data-bind="value" />
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="field">
+                        <label>Target</label>
+                        <input type="text" data-bind="target">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <button data-action="add"></button>
+    </div>
+</div>

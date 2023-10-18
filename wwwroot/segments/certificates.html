@@ -1,0 +1,82 @@
+<div data-page="certificates">
+    <div class="title">
+        <h2>
+            <i class="fas fa-key"></i>
+            <span>Certificates</span>
+        </h2>
+        <button data-action="saveAll" disabled>Save</button>
+        <button data-action="cancelAll" disabled>Cancel</button>
+    </div>
+    <div class="content">
+        <div class="list-header" style="grid-template-columns: 1fr 2fr; ">
+            <div>Name</div>
+            <div>Domains</div>
+        </div>
+        <div class="list" data-bind="certificates">
+            <div class="item">
+                <div style="grid-template-columns: 1fr 2fr; ">
+                    <div data-bind="htmlName"></div>
+                    <div data-bind="htmlInfo"></div>
+                </div>
+                <div>
+                    <input type="checkbox" data-bind="enabled">
+                    <div class="field">
+                        <label>Name</label>
+                        <input type="text" data-bind="name">
+                        <button data-action="delete">Delete</button>
+                    </div>
+                    <div class="field">
+                        <label>Domains</label>
+                        <ul class="group group-string-values" data-bind="domains">
+                            <li>
+                                <input data-bind="value" />
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="field">
+                        <label>Valid</label>
+                        <div data-bind="isValid" data-value>
+                            <i class="true fa-solid fa-square-check"></i>
+                            <i class="false fa-regular fa-square"></i>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Let's Encrypt</label>
+                        <div data-bind="isLetsEncrypt" data-value>
+                            <i class="true fa-solid fa-square-check"></i>
+                            <i class="false fa-regular fa-square"></i>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Staging</label>
+                        <div data-bind="isLetsEncryptStaging" data-value>
+                            <i class="true fa-solid fa-square-check"></i>
+                            <i class="false fa-regular fa-square"></i>
+                        </div>
+                    </div>
+                    <div class="buttons" data-bind="identifier.id" data-value>
+                        <label>Update</label>
+                        <button data-action="updateCertificate"
+                                data-letsEncrypt="false"
+                                data-staging="false">
+                            Self Signed
+                        </button>
+                        <button data-action="updateCertificate"
+                                data-lets-encrypt="true"
+                                data-staging="true">
+                            Let's Encrypt (Staging)
+                        </button>
+                        <button data-action="updateCertificate"
+                                data-lets-encrypt="true"
+                                data-staging="false">
+                            Let's Encrypt
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <button data-action="add"></button>
+    </div>
+</div>

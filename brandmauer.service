@@ -1,0 +1,16 @@
+[Unit]
+Description=Brandmauer
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+WorkingDirectory=/app/brandmauer
+ExecStartPre=/bin/chmod -R 777 /app/brandmauer/Brandmauer
+ExecStart=/app/brandmauer/Brandmauer
+
+[Install]
+WantedBy=multi-user.target

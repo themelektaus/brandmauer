@@ -1,0 +1,67 @@
+<div data-page="services">
+    <div class="title">
+        <h2>
+            <i class="fas fa-bell-concierge"></i>
+            <span>Services</span>
+        </h2>
+        <button data-action="saveAll" disabled>Save</button>
+        <button data-action="cancelAll" disabled>Cancel</button>
+    </div>
+    <div class="content">
+        <div class="list-header" style="grid-template-columns: 1fr 4fr; ">
+            <div>Name</div>
+            <div>Ports</div>
+        </div>
+        <div class="list" data-bind="services">
+            <div class="item">
+                <div style="grid-template-columns: 1fr 4fr; ">
+                    <div data-bind="htmlName"></div>
+                    <div data-bind="htmlInfo"></div>
+                </div>
+                <div>
+                    <div class="field">
+                        <label>Name</label>
+                        <input type="text" data-bind="name">
+                        <button data-action="delete">Delete</button>
+                    </div>
+                    <div class="field">
+                        <label>Ports</label>
+                        <ul class="group-list" data-bind="ports">
+                            <li class="group port">
+                                <div class="flex-rows">
+                                    <div class="field">
+                                        <label>Area</label>
+                                        <select data-bind="area" data-type="number">
+                                            <option value="3">Any</option>
+                                            <option value="1" selected>Single</option>
+                                            <option value="2">Range</option>
+                                        </select>
+                                    </div>
+                                    <div class="field">
+                                        <label>Start</label>
+                                        <input type="number" value="1" min="1" max="65535" data-bind="start">
+                                    </div>
+                                    <div class="field">
+                                        <label>End</label>
+                                        <input type="number" value="65535" min="1" max="65535" data-bind="end">
+                                    </div>
+                                    <div class="field">
+                                        <label>Protocol</label>
+                                        <select data-bind="protocol" data-type="number">
+                                            <option value="1">ICMP</option>
+                                            <option value="6" selected>TCP</option>
+                                            <option value="17">UDP</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <button data-action="add"></button>
+    </div>
+</div>

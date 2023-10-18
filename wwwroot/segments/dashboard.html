@@ -1,0 +1,60 @@
+<div data-page="dashboard">
+    <div class="title">
+        <h2>
+            <i class="fas fa-dashboard"></i>
+            <span>Dashboard</span>
+        </h2>
+    </div>
+    <div class="content flex-rows">
+        <h3>Informations</h3>
+        <div class="field">
+            <label>Name</label>
+            <input data-bind="name" readonly>
+        </div>
+        <div class="field">
+            <label>Last modified</label>
+            <input data-bind="newestFile.timestamp" readonly>
+        </div>
+        <div class="field">
+            <label>Process</label>
+            <input data-bind="process.path" readonly>
+        </div>
+        <div class="field" data-object="database">
+            <label>Database</label>
+            <input data-bind="path" readonly>
+        </div>
+        
+        <h3>Update</h3>
+        <div class="field">
+            <label>Remote</label>
+            <input data-bind="update.remoteVersion" readonly>
+        </div>
+        <div class="field">
+            <label>Downloaded</label>
+            <input data-bind="update.downloadedVersion" readonly>
+        </div>
+        <div class="field">
+            <label>Installed</label>
+            <input data-bind="update.installedVersion" readonly>
+        </div>
+        <div style="display: flex; gap: .5rem; ">
+            <div style="flex: 1; "></div>
+            <button data-action="updateCheck">Check</button>
+            <button data-action="updateDownload">Download</button>
+            <button data-action="updateInstall" disabled>Install</button>
+            <div style="flex: 1; "></div>
+        </div>
+
+        <!--
+        <h3>Web Frontend Files</h3>
+        <div class="field">
+            <label></label>
+            <ul class="flex-rows" data-bind="wwwroot" readonly>
+                <li class="flex-rows">
+                    <input data-bind="path" readonly>
+                </li>
+            </ul>
+        </div>
+        -->
+    </div>
+</div>

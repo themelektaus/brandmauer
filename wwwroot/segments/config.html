@@ -1,0 +1,31 @@
+<div data-page="config">
+    <div class="title">
+        <h2>
+            <i class="fas fa-gear"></i>
+            <span>Config</span>
+        </h2>
+        <button data-action="saveConfig" disabled>Save</button>
+        <button data-action="cancelConfig" disabled>Cancel</button>
+    </div>
+    <div class="content flex-rows">
+        
+        <h3>Let's Encrypt</h3>
+        <div class="field">
+            <label>Account</label>
+            <input placeholder="admin@example.com" data-bind="letsEncryptAccountMailAddress" />
+        </div>
+        
+        <h3>Reverse Proxy</h3>
+        <div class="field">
+            <label></label>
+            <input type="checkbox" data-bind="reverseProxyLogging" />
+            <div>Logging</div>
+        </div>
+        
+        <h3>Notes</h3>
+        <div class="field">
+            <label></label>
+            <textarea data-bind="notes" style="max-width: 44rem; "></textarea>
+        </div>
+    </div>
+</div>

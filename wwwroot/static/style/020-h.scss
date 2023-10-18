@@ -1,0 +1,23 @@
+h1 {
+    padding: 1rem 1.25rem;
+    background-color: var(--h1__background-color);
+    color: white;
+    letter-spacing: .015em;
+    display: flex;
+    gap: 2.625rem;
+    
+    & > i {
+        &::before, &::after {
+            position: absolute;
+        }
+    }
+}
+
+h1, h2, h3 {
+    margin: 0;
+}
+
+h3 {
+    margin-top: 2rem;
+    margin-bottom: .5rem;
+}

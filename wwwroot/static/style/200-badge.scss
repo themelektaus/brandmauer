@@ -1,0 +1,49 @@
+.badges {
+    &-group {
+        display: flex;
+        align-self: stretch;
+    }
+    
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+    padding-right: .5rem;
+    
+    &-end {
+        display: flex;
+        flex: 0;
+        align-self: flex-end;
+    }
+}
+
+.badge {
+    display: block;
+    width: max-content;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    padding: 0 .5rem;
+    display: flex;
+    gap: .5rem;
+    flex: none;
+    background-color: #456;
+    
+    &:has(> span) {
+        padding: 0 0 0 .5rem;
+    }
+    
+    & > span {
+        display: block;
+        padding: 0 .375rem;
+        background-color: #0008;
+    }
+    
+    &-rule-direction {
+        background-color: #555;
+    }
+    
+    &-nat-host,
+    &-rule-host,
+    &-reverseproxy-source-host {
+        background-color: #473;
+    }
+}

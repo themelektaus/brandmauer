@@ -1,0 +1,53 @@
+input, textarea, button, select {
+    background-color: var(--input__background-color);
+    border: none;
+    outline: none;
+    padding: .5rem;
+    border-radius: var(--border-radius);
+    display: block;
+    transition: opacity 150ms;
+}
+
+button {
+    cursor: pointer;
+    padding: .5rem .75rem;
+    background-color: #347;
+    
+    &:not(:disabled):hover {
+        filter: brightness(1.1);
+    }
+    
+    &[data-action="saveAll"],
+    &[data-action="saveConfig"] {
+        background-color: #373;
+    }
+    
+    &[data-action="delete"],
+    &.remove {
+        background-color: #632;
+    }
+}
+
+textarea {
+    background-color: var(--menu-item__background-color);
+    height: 20rem;
+    line-height: 1.5;
+    resize: none;
+}
+
+input:not(:disabled):focus,
+input:not(:disabled):hover,
+select:not(:disabled):focus,
+select:not(:disabled):hover,
+button:not(:disabled):active {
+    filter: brightness(1.4);
+}
+
+select {
+    padding: .45rem .25rem;
+}
+
+input[type="checkbox"] {
+    width: 1.125rem;
+    height: 1.5rem;
+}

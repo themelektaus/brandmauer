@@ -1,0 +1,42 @@
+.field {
+    display: grid;
+    grid-template-columns: 9rem 1fr;
+    gap: .5rem;
+}
+
+.field label,
+.buttons label {
+    text-align: right;
+    margin-top: .625rem;
+    margin-right: .5rem;
+}
+
+.field label + * {
+    flex: 1;
+}
+
+.field:has(> label + * + button) {
+    grid-template-columns: 9rem 1fr 0fr;
+}
+
+.field:has(> label + input[type="checkbox"] + a) {
+    grid-template-columns: 9rem 0fr 1fr;
+    align-items: center;
+}
+
+.field:has(> label + input[type="checkbox"] + a) > label,
+.field:has(> label + input[type="checkbox"] + a) > label + * {
+    margin: 0;
+}
+
+.field label + input[type="checkbox"] {
+    margin-top: .375rem;
+}
+
+.field label + input[type="checkbox"] + div {
+    margin-top: .625rem;
+}
+
+.field:has(label + input[type="checkbox"] + div) {
+    grid-template-columns: 8rem 0fr 1fr;
+}
