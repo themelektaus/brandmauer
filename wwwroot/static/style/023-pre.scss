@@ -1,0 +1,14 @@
+pre {
+    display: block;
+    font-family: DejaVu;
+    font-size: .9em;
+    line-height: 1.25;
+    padding: 1rem;
+    background-color: var(--group__background-color);
+    border-radius: var(--border-radius);
+    margin: 0 auto;
+    overflow: hidden scroll;
+    width: 37rem;
+    max-width: 100%;
+    max-height: calc(100vh - 20rem);
+}

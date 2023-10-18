@@ -1,0 +1,14 @@
+.block {
+    background-color: var(--group__background-color);
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    padding: .5rem;
+    
+    li {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+    }
+}

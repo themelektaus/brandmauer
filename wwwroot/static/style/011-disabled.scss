@@ -1,0 +1,26 @@
+*:disabled,
+body[disabled] * {
+    pointer-events: none;
+}
+
+*:disabled {
+    opacity: .5;
+}
+
+body[disabled] {
+    input, textarea, button, select {
+        opacity: .5;
+    }
+}
+
+main:has(.dirty) {
+    [data-action="updateCertificate"] {
+        opacity: .5;
+    }
+}
+
+button:disabled,
+main:has(.dirty) [data-action="updateCertificate"] {
+    cursor: default;
+    pointer-events: none;
+}

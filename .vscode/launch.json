@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Watch",
+            "type": "f5anything",
+            "request": "launch",
+            "command": "dotnet watch run --project ${workspaceFolder}/Brandmauer.csproj",
+            "terminalName": "Watch",
+            "showTerminal": true
+        },
+    ]
+}

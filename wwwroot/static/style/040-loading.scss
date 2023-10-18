@@ -1,0 +1,12 @@
+.loading {
+    background: url(../res/loading.svg) no-repeat;
+    background-size: 6rem;
+    position: fixed;
+    left: var(--menu-width);
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    pointer-events: none;
+    background-position: center;
+}

@@ -1,0 +1,42 @@
+.menu {
+    background-color: var(--menu__background-color);
+    padding: 1rem 0 0;
+    width: var(--menu-width);
+    
+    & > * {
+        padding: .75rem 3rem;
+        cursor: pointer;
+        background-color: var(--menu-item__background-color);
+        
+        &:hover, &.active {
+            background-color: var(--menu-item__background-color__hover);
+        }
+        
+        &:active {
+            background-color: var(--menu-item__background-color__active);
+        }
+        
+        &.dirty::after {
+            font-family: "Font Awesome 6 Free";
+            font-weight: bold;
+            content: "\f06d";
+            position: absolute;
+            right: 1rem;
+            animation-name: fire-3;
+            animation-duration: .53s;
+            animation-iteration-count: infinite;
+            animation-timing-function: ease-in-out;
+        }
+    
+        & > i {
+            position: absolute;
+            transform: translate(-50%, 0);
+            left: 1.75rem;
+        }
+    }
+    
+    & + div {
+        flex: 1;
+        padding: 1rem;
+    }
+}
