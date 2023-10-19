@@ -51,14 +51,19 @@ public static class ExtensionMethods
         @this.Add($"{prefix}{item}{suffix}");
     }
 
-    static readonly JsonSerializerOptions jsonOptions = new()
-    {
-        WriteIndented = true,
-        IgnoreReadOnlyProperties = true,
-    };
+    static JsonSerializerOptions jsonOptions;
 
     public static string ToJson<T>(this T @this)
     {
+        if (jsonOptions is null)
+        {
+            jsonOptions = new()
+            {
+                WriteIndented = true,
+                IgnoreReadOnlyProperties = true,
+            };
+            jsonOptions.Converters.Add(new ExceptionConverter());
+        }
         return JsonSerializer.Serialize(@this, jsonOptions);
     }
 
