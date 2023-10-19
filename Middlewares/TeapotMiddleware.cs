@@ -18,7 +18,12 @@ public class TeapotMiddleware
     readonly int[] statusCodeBreakers = [];
     readonly Dictionary<int, string> status = new();
 
-    public TeapotMiddleware(RequestDelegate next, string htmlFile, int[] statusCodeBreakers, Action<Configuration> setup)
+    public TeapotMiddleware(
+        RequestDelegate next,
+        string htmlFile,
+        int[] statusCodeBreakers,
+        Action<Configuration> setup
+    )
     {
         this.next = next;
         this.statusCodeBreakers = statusCodeBreakers;

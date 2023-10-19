@@ -15,18 +15,28 @@ using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.X509;
 
-using RSAExtensions = System.Security.Cryptography.X509Certificates.RSACertificateExtensions;
+using RSAExtensions
+    = System.Security.Cryptography.X509Certificates.RSACertificateExtensions;
 
-using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
-using X509KeyStorageFlags = System.Security.Cryptography.X509Certificates.X509KeyStorageFlags;
+using X509Certificate2
+    = System.Security.Cryptography.X509Certificates.X509Certificate2;
+
+using X509KeyStorageFlags
+    = System.Security.Cryptography.X509Certificates.X509KeyStorageFlags;
+
+using RegionInfo = System.Globalization.RegionInfo;
 
 namespace Brandmauer;
 
 public static class CertificateUtils
 {
-    public static readonly ThreadsafeObject<Dictionary<string, string>> acmeChallenges = new(new());
+    public static readonly ThreadsafeObject<Dictionary<string, string>>
+        acmeChallenges = new(new());
 
-    public static X509Certificate2 CreateSelfSigned(Certificate ca, params string[] domains)
+    public static X509Certificate2 CreateSelfSigned(
+        Certificate ca,
+        params string[] domains
+    )
     {
         if (ca is null)
             return null;
@@ -42,7 +52,11 @@ public static class CertificateUtils
         );
     }
 
-    public static async Task<X509Certificate2> RequestLetsEncryptAsync(string accountMailAddress, bool staging, params string[] domains)
+    public static async Task<X509Certificate2> RequestLetsEncryptAsync(
+        string accountMailAddress,
+        bool staging,
+        params string[] domains
+    )
     {
         if (domains.Length == 0)
             return null;
@@ -56,7 +70,11 @@ public static class CertificateUtils
             accountKey
         );
 
-        Console.WriteLine($"[ACME] Creating new account: \"{accountMailAddress}\"{(staging ? " (STAGING)" : "")}");
+        Console.WriteLine(
+            $"[ACME] Creating new account: \"{accountMailAddress}\"{(
+                staging ? " (STAGING)" : ""
+            )}"
+        );
 
         await acmeContext.NewAccount(accountMailAddress, true);
 
@@ -100,7 +118,7 @@ public static class CertificateUtils
         var order = await orderContext.Finalize(
             new CsrInfo
             {
-                CountryName = System.Globalization.RegionInfo.CurrentRegion.TwoLetterISORegionName,
+                CountryName = RegionInfo.CurrentRegion.TwoLetterISORegionName,
                 Organization = Utils.Name,
             },
             certKey
@@ -137,7 +155,9 @@ public static class CertificateUtils
             if (!File.Exists(caFile))
             {
                 using var httpClient = new HttpClient();
-                var response = await httpClient.GetAsync($"https://letsencrypt.org/certs/staging/{caFileName}");
+                var response = await httpClient.GetAsync(
+                    $"https://letsencrypt.org/certs/staging/{caFileName}"
+                );
                 var bytes = await response.Content.ReadAsByteArrayAsync();
                 await File.WriteAllBytesAsync(caFile, bytes);
             }
@@ -236,7 +256,12 @@ public static class CertificateUtils
 
         generator.SetPublicKey(subjectKeyPair.Public);
 
-        AddAuthorityKeyIdentifier(generator, issuerDN, issuerKeyPair, issuerSerialNumber);
+        AddAuthorityKeyIdentifier(
+            generator,
+            issuerDN,
+            issuerKeyPair,
+            issuerSerialNumber
+        );
         AddSubjectKeyIdentifier(generator, subjectKeyPair);
         AddBasicConstraints(generator, isCertificateAuthority);
 
@@ -251,7 +276,10 @@ public static class CertificateUtils
 #pragma warning restore CS0618
     }
 
-    static AsymmetricCipherKeyPair GenerateKeyPair(SecureRandom random, int strength)
+    static AsymmetricCipherKeyPair GenerateKeyPair(
+        SecureRandom random,
+        int strength
+    )
     {
         var parameters = new KeyGenerationParameters(random, strength);
         var generator = new RsaKeyPairGenerator();
@@ -270,7 +298,9 @@ public static class CertificateUtils
             oid: X509Extensions.AuthorityKeyIdentifier.Id,
             critical: false,
             extensionValue: new AuthorityKeyIdentifier(
-                SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(issuerKeyPair.Public),
+                SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(
+                    issuerKeyPair.Public
+                ),
                 new GeneralNames(new GeneralName(issuerDN)),
                 issuerSerialNumber
             )
@@ -344,7 +374,11 @@ public static class CertificateUtils
         var friendlyName = certificate.SubjectDN.ToString();
         var certificateEntry = new X509CertificateEntry(certificate);
         store.SetCertificateEntry(friendlyName, certificateEntry);
-        store.SetKeyEntry(friendlyName, new AsymmetricKeyEntry(subjectKeyPair.Private), [certificateEntry]);
+        store.SetKeyEntry(
+            friendlyName,
+            new AsymmetricKeyEntry(subjectKeyPair.Private),
+            [certificateEntry]
+        );
         using var stream = new MemoryStream();
         store.Save(stream, [], random);
         return new X509Certificate2(

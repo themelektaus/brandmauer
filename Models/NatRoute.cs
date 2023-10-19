@@ -19,7 +19,8 @@ public class NatRoute : Model, IOnDeserialize
                 builder.AppendBadge(
                     "nat",
                     "translation",
-                    $"{translation.Protocol.ToString().ToLower()}: {translation.SourcePort}",
+                    $"{translation.Protocol.ToString().ToLower()}: "
+                        + translation.SourcePort,
                     $"{translation.TargetPort}"
                 );
 
@@ -44,6 +45,8 @@ public class NatRoute : Model, IOnDeserialize
 
     public void OnDeserialize(Database database)
     {
-        Host = database.Hosts.FirstOrDefault(x => x.Identifier.Id == HostReference.Id);
+        Host = database.Hosts.FirstOrDefault(
+            x => x.Identifier.Id == HostReference.Id
+        );
     }
 }

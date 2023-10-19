@@ -10,9 +10,18 @@ public class ReverseProxyRoute : Model, IOnDeserialize
         {
             var builder = new StringBuilder();
 
-            builder.Append($"<div class=\"badges badges-top{(SourceHosts.Count == 0 ? " display-none" : "")}\">");
+            var displayNone = SourceHosts.Count == 0 ? " display-none" : "";
+            var classes = $"badges badges-top{displayNone}";
+            builder.Append($"<div class=\"{classes}\">");
+
             foreach (var host in SourceHosts)
-                builder.AppendBadge("reverseproxy", "source-host", "Source Host", host);
+                builder.AppendBadge(
+                    "reverseproxy",
+                    "source-host",
+                    "Source Host",
+                    host
+                );
+
             builder.Append("</div>");
 
             builder.Append("<div class=\"badges-group\">");
@@ -20,8 +29,15 @@ public class ReverseProxyRoute : Model, IOnDeserialize
             if (SourceDomains.Count > 0)
             {
                 builder.Append("<div class=\"badges\" style=\"flex: 1; \">");
+
                 foreach (var domain in SourceDomains)
-                    builder.AppendBadge("reverseproxy", "source-domain", domain, null);
+                    builder.AppendBadge(
+                        "reverseproxy",
+                        "source-domain",
+                        domain,
+                        null
+                    );
+
                 builder.Append("</div>");
             }
 
@@ -49,6 +65,8 @@ public class ReverseProxyRoute : Model, IOnDeserialize
 
     public void OnDeserialize(Database database)
     {
-        SourceHosts = database.Hosts.Where(x => SourceHostReferences.Any(y => y.Id == x.Identifier.Id)).ToList();
+        SourceHosts = database.Hosts
+            .Where(x => SourceHostReferences.Any(y => y.Id == x.Identifier.Id))
+            .ToList();
     }
 }

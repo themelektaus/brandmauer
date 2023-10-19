@@ -36,7 +36,9 @@ public class IpTablesNat
             goto Return;
         }
 
-        if (!Utils.TryGetIpAddress(natRoule.Host.Addresses[0].Value, out var destinationIpAddress))
+        var address = natRoule.Host.Addresses[0].Value;
+        
+        if (!Utils.TryGetIpAddress(address, out var destinationIpAddress))
         {
             basePrerouting.errors.Add("destination is not a ip address");
             preroutings.Add(basePrerouting);
@@ -87,8 +89,10 @@ public class IpTablesNat
             }
             else
             {
+                var targetPort = translation.TargetPort;
+                
                 prerouting.destinationPort = translation.SourcePort.ToString();
-                prerouting.destination = $"{destinationIpAddress}:{translation.TargetPort}";
+                prerouting.destination = $"{destinationIpAddress}:{targetPort}";
             }
 
             preroutings.Add(prerouting);

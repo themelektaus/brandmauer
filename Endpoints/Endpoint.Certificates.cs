@@ -8,7 +8,8 @@ public static partial class Endpoint
 {
     public static class Certificates
     {
-        static readonly string exportedCertificatesFolder = Path.Combine("Data", "Exported Certificates");
+        static readonly string exportedCertificatesFolder
+            = Path.Combine("Data", "Exported Certificates");
 
         public static IResult GetAll()
         {
@@ -44,7 +45,7 @@ public static partial class Endpoint
         {
             Database.Use(x =>
             {
-                var index = x.Certificates.FindIndex(x => x.Identifier.Id == data.Identifier.Id);
+                var index = x.Certificates.FindIndex(data.IsReferenceOf);
                 x.Certificates[index] = x.Replace(x.Certificates[index], data);
                 x.Save();
             });
@@ -106,7 +107,11 @@ public static partial class Endpoint
             );
         }
 
-        public static async Task<IResult> Update(long id, bool? letsEncrypt = false, bool? staging = true)
+        public static async Task<IResult> Update(
+            long id,
+            bool? letsEncrypt = false,
+            bool? staging = true
+        )
         {
             var certificate = Certificate.Get(id);
             if (certificate is null)
@@ -118,15 +123,26 @@ public static partial class Endpoint
 
             if (letsEncrypt ?? false)
             {
-                var accountMailAddress = Database.Use(x => x.Config.LetsEncryptAccountMailAddress);
+                var accountMailAddress = Database.Use(
+                    x => x.Config.LetsEncryptAccountMailAddress
+                );
 
-                pfxCert = await CertificateUtils.RequestLetsEncryptAsync(accountMailAddress, staging ?? true, domains);
+                pfxCert = await CertificateUtils.RequestLetsEncryptAsync(
+                    accountMailAddress,
+                    staging ?? true,
+                    domains
+                );
+                
                 if (pfxCert is null)
                     return Results.StatusCode(500);
             }
             else
             {
-                var ca = Database.Use(x => x.Certificates.FirstOrDefault(x => x.HasAuthority));
+                var ca = Database.Use(
+                    x => x.Certificates.FirstOrDefault(
+                        x => x.HasAuthority
+                    )
+                );
 
                 pfxCert = CertificateUtils.CreateSelfSigned(ca, domains);
                 if (pfxCert is null)

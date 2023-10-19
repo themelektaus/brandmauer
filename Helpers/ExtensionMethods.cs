@@ -38,7 +38,12 @@ public static class ExtensionMethods
         @this.AddIfNotNull("", item);
     }
 
-    public static void AddIfNotNull(this IList<string> @this, string prefix, string item, string suffix = "")
+    public static void AddIfNotNull(
+        this IList<string> @this,
+        string prefix,
+        string item,
+        string suffix = ""
+    )
     {
         if (item is null)
             return;
@@ -77,7 +82,11 @@ public static class ExtensionMethods
         return string.Join(separator, @this);
     }
 
-    public static string JoinWrap<T>(this IEnumerable<T> @this, string prefix, string suffix)
+    public static string JoinWrap<T>(
+        this IEnumerable<T> @this,
+        string prefix,
+        string suffix
+    )
     {
         return $"{prefix}{@this.Join($"{suffix}{prefix}")}{suffix}";
     }
@@ -95,7 +104,9 @@ public static class ExtensionMethods
             var hostEntry = Dns.GetHostEntry(@this);
 
             var ipAddress = hostEntry.AddressList
-                .OrderByDescending(x => x.AddressFamily == AddressFamily.InterNetwork)
+                .OrderByDescending(
+                    x => x.AddressFamily == AddressFamily.InterNetwork
+                )
                 .FirstOrDefault();
 
             if (ipAddress is not null)
@@ -120,9 +131,16 @@ public static class ExtensionMethods
         return ip;
     }
 
-    public static StringBuilder AppendBadge(this StringBuilder @this, string type, string property, object text, object suffix)
+    public static StringBuilder AppendBadge(
+        this StringBuilder @this,
+        string type,
+        string property,
+        object text,
+        object suffix
+    )
     {
-        @this.Append($"<span class=\"badge badge-{type} badge-{type}-{property}\">");
+        var classes = $"badge badge-{type} badge-{type}-{property}";
+        @this.Append($"<span class=\"{classes}\">");
         @this.Append(text);
         if (suffix is not null)
         {
@@ -148,7 +166,9 @@ public static class ExtensionMethods
         return $"{days} days";
     }
 
-    public static Dictionary<string, string> ToDictonary(this X500DistinguishedName @this)
+    public static Dictionary<string, string> ToDictonary(
+        this X500DistinguishedName @this
+    )
     {
         var keyValues = new Dictionary<string, string>();
         foreach (var part in @this.Name.Split(','))

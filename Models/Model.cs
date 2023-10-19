@@ -45,4 +45,9 @@ public abstract class Model : IDisposable
 
         return $"<span data-id=\"{Identifier.Id}\"></span>";
     }
+
+    public bool IsReferenceOf(Model other)
+    {
+        return Identifier.Id == other.Identifier.Id;
+    }
 }

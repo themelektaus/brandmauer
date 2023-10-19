@@ -11,9 +11,13 @@ public static partial class Endpoint
 
             static object GetFileInfo(FileInfo file)
             {
-                var path = file?.FullName ?? "";
-                var timestamp = file?.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss") ?? "";
-                return new { path, timestamp };
+                return new
+                {
+                    path = file?.FullName ?? "",
+                    timestamp = file?
+                        .LastWriteTime
+                        .ToString("yyyy-MM-dd HH:mm:ss") ?? ""
+                };
             }
 
             var databaseFile = new FileInfo(Database.databaseFile);
@@ -50,8 +54,11 @@ public static partial class Endpoint
             {
                 if (output == "text")
                 {
-                    var newLine = Enumerable.Repeat(Environment.NewLine, 5).Join();
-                    var text = requests.Select(x => x.ToString()).Join(newLine) + newLine;
+                    var newLine = Enumerable.Repeat(Utils.NL, 5).Join();
+                    var text = requests
+                        .Select(x => x.ToString())
+                        .Join(newLine) + newLine;
+
                     result = Results.Text(text);
                     goto Result;
                 }

@@ -42,12 +42,20 @@ public static class FileUtils
 
     public static string[] GetAllFolders(string folder)
     {
-        return Directory.GetDirectories(folder, "*", SearchOption.AllDirectories);
+        return Directory.GetDirectories(
+            folder,
+            "*",
+            SearchOption.AllDirectories
+        );
     }
 
     public static string[] GetAllFiles(string folder)
     {
-        return Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories);
+        return Directory.GetFiles(
+            folder,
+            "*.*",
+            SearchOption.AllDirectories
+        );
     }
 
     public static void CreateFile(string path)

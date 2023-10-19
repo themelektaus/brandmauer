@@ -47,8 +47,17 @@ public class Rule : Model, IOnDeserialize
 
     public void OnDeserialize(Database database)
     {
-        Hosts = database.Hosts.Where(x => HostReferences.Any(y => y.Id == x.Identifier.Id)).ToList();
-        Services = database.Services.Where(x => ServiceReferences.Any(y => y.Id == x.Identifier.Id)).ToList();
+        Hosts = database.Hosts.Where(
+            x => HostReferences.Any(
+                y => y.Id == x.Identifier.Id
+            )
+        ).ToList();
+
+        Services = database.Services.Where(
+            x => ServiceReferences.Any(
+                y => y.Id == x.Identifier.Id
+            )
+        ).ToList();
     }
 
     public bool TryGetSource(out string sourceArg)
@@ -100,8 +109,9 @@ public class Rule : Model, IOnDeserialize
                         return true;
 
                 if (servicePort.Area == Service.Port._Area.Range)
-                    if (servicePort.Start <= translation.SourcePort && translation.SourcePort <= servicePort.End)
-                        return true;
+                    if (servicePort.Start <= translation.SourcePort)
+                        if (translation.SourcePort <= servicePort.End)
+                            return true;
             }
         }
 

@@ -8,7 +8,8 @@ namespace Brandmauer;
 
 public class FrontendMiddleware(RequestDelegate next)
 {
-    static readonly FileExtensionContentTypeProvider contentTypeProvider = new();
+    static readonly FileExtensionContentTypeProvider contentTypeProvider
+        = new();
 
     const string WWWROOT = "wwwroot";
     const string INDEX_HTML = "index.html";
@@ -31,14 +32,21 @@ public class FrontendMiddleware(RequestDelegate next)
 
     static string GetWwwRootFile(string path)
     {
-        return Path.Combine([GetWwwRootFolder(), .. path.TrimStart('/').Split('/')]);
+        return Path.Combine([
+            GetWwwRootFolder(),
+            .. path.TrimStart('/').Split('/')
+        ]);
     }
 
     public async Task Invoke(HttpContext context)
     {
         Utils.LogIn<FrontendMiddleware>(context);
 
-        static async Task SetAsync(HttpContext context, string contentType, string content)
+        static async Task SetAsync(
+            HttpContext context,
+            string contentType,
+            string content
+        )
         {
             var response = context.Response;
             response.ContentType = contentType;
@@ -57,25 +65,56 @@ public class FrontendMiddleware(RequestDelegate next)
 
         if (path == "/" || path == $"/{INDEX_HTML}")
         {
-            var content = (await File.ReadAllTextAsync(Path.Combine(GetWwwRootFolder(), INDEX_HTML)))
-                .Replace($"<!--{TITLE}-->", Utils.Name);
+            var content = await File.ReadAllTextAsync(
+                Path.Combine(GetWwwRootFolder(), INDEX_HTML)
+            );
+            content = content.Replace($"<!--{TITLE}-->", Utils.Name);
 
             StringBuilder builder = new();
+            string folder;
+            IEnumerable<FileInfo> files;
 
             builder.Clear();
-            foreach (var file in new DirectoryInfo(Path.Combine(GetStaticFolder(), STYLE)).EnumerateFiles().OrderBy(x => x.Name))
-                builder.AppendLine($"<link rel=\"stylesheet\" href=\"{STATIC}/{STYLE}/{file.Name}\">");
-            content = content.Replace($"<!--{STATIC}: {STYLE}-->", builder.ToString().TrimEnd());
+            folder = Path.Combine(GetStaticFolder(), STYLE);
+            files = new DirectoryInfo(folder).EnumerateFiles();
 
-            builder.Clear();
-            foreach (var file in new DirectoryInfo(Path.Combine(GetStaticFolder(), SCRIPT)).EnumerateFiles().OrderBy(x => x.Name))
-                builder.AppendLine($"<script src=\"{STATIC}/{SCRIPT}/{file.Name}\" defer></script>");
-            content = content.Replace($"<!--{STATIC}: {SCRIPT}-->", builder.ToString().TrimEnd());
-
-            foreach (var file in new DirectoryInfo(Path.Combine(GetWwwRootFolder(), SEGMENTS)).EnumerateFiles())
+            foreach (var file in files.OrderBy(x => x.Name))
             {
+                var href = $"{STATIC}/{STYLE}/{file.Name}";
+                builder.AppendLine(
+                    $"<link rel=\"stylesheet\" href=\"{href}\">"
+                );
+            }
+
+            content = content.Replace(
+                $"<!--{STATIC}: {STYLE}-->",
+                builder.ToString().TrimEnd()
+            );
+
+            builder.Clear();
+            folder = Path.Combine(GetStaticFolder(), SCRIPT);
+            files = new DirectoryInfo(folder).EnumerateFiles();
+
+            foreach (var file in files.OrderBy(x => x.Name))
+            {
+                var src = $"{STATIC}/{SCRIPT}/{file.Name}";
+                builder.AppendLine(
+                    $"<script src=\"{src}\" defer></script>"
+                );
+            }
+
+            content = content.Replace(
+                $"<!--{STATIC}: {SCRIPT}-->",
+                builder.ToString().TrimEnd()
+            );
+
+            folder = Path.Combine(GetWwwRootFolder(), SEGMENTS);
+            files = new DirectoryInfo(folder).EnumerateFiles();
+            foreach (var file in files)
+            {
+                var name = Path.GetFileNameWithoutExtension(file.Name);
                 content = content.Replace(
-                    $"<!--segment: {Path.GetFileNameWithoutExtension(file.Name)}-->",
+                    $"<!--segment: {name}-->",
                     File.ReadAllText(file.FullName)
                 );
             }

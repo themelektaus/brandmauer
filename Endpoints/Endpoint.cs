@@ -42,17 +42,47 @@ public static partial class Endpoint
         app.MapPut($"{API}/natroutes", NatRoutes.Put);
         app.MapDelete($"{API}/natroutes/{{id}}", NatRoutes.Delete);
 
-        app.MapGet($"{API}/iptables", IpTables.Get);         // ?output=<script|stdout|stderr|data>
-        app.MapGet($"{API}/build/preview", Build.Preview);
-        app.MapGet($"{API}/build/dirty", Build.Dirty);
-        app.MapGet($"{API}/build/apply", Build.Apply);       // ?output=<script|stdout|stderr|data>
-        app.MapGet($"{API}/build/clear", Build.Clear);       // ?output=<script|stdout|stderr|data>
+        app.MapGet(
+            $"{API}/iptables"/*?output=<script|stdout|stderr|data>*/,
+            IpTables.Get
+        );
+        app.MapGet(
+            $"{API}/build/preview",
+            Build.Preview
+        );
+        app.MapGet(
+            $"{API}/build/dirty",
+            Build.Dirty
+        );
+        app.MapGet(
+            $"{API}/build/apply"/*?output=<script|stdout|stderr|data>*/,
+            Build.Apply
+        );
+        app.MapGet(
+            $"{API}/build/clear"/*?output=<script|stdout|stderr|data>*/,
+            Build.Clear
+        );
 
-        app.MapGet($"{API}/reverseproxyroutes", ReverseProxyRoutes.GetAll);
-        app.MapGet($"{API}/reverseproxyroutes/{{id}}", ReverseProxyRoutes.Get);
-        app.MapPost($"{API}/reverseproxyroutes", ReverseProxyRoutes.Post);
-        app.MapPut($"{API}/reverseproxyroutes", ReverseProxyRoutes.Put);
-        app.MapDelete($"{API}/reverseproxyroutes/{{id}}", ReverseProxyRoutes.Delete);
+        app.MapGet(
+            $"{API}/reverseproxyroutes",
+            ReverseProxyRoutes.GetAll
+        );
+        app.MapGet(
+            $"{API}/reverseproxyroutes/{{id}}",
+            ReverseProxyRoutes.Get
+        );
+        app.MapPost(
+            $"{API}/reverseproxyroutes",
+            ReverseProxyRoutes.Post
+        );
+        app.MapPut(
+            $"{API}/reverseproxyroutes",
+            ReverseProxyRoutes.Put
+        );
+        app.MapDelete(
+            $"{API}/reverseproxyroutes/{{id}}",
+            ReverseProxyRoutes.Delete
+        );
 
         app.MapGet($"{API}/certificates", Certificates.GetAll);
         app.MapGet($"{API}/certificates/{{id}}", Certificates.Get);
@@ -60,10 +90,26 @@ public static partial class Endpoint
         app.MapPut($"{API}/certificates", Certificates.Put);
         app.MapDelete($"{API}/certificates/{{id}}", Certificates.Delete);
 
-        app.MapGet($"{API}/certificates/export", Certificates.ExportAll);
-        app.MapGet($"{API}/certificates/export/clear", Certificates.ClearAllExports);
-        app.MapGet($"{API}/certificates/{{id}}/update"/*?letsEncrypt={{letsEncrypt}}&staging={{staging}}*/, Certificates.Update);
-        app.MapGet($"{API}/certificates/{{id}}/download"/*?format={{format}}*/, Certificates.Download);
+        app.MapGet(
+            $"{API}/certificates/export"
+            /**/,
+            Certificates.ExportAll
+        );
+        app.MapGet(
+            $"{API}/certificates/export/clear"
+            /**/,
+            Certificates.ClearAllExports
+        );
+        app.MapGet(
+            $"{API}/certificates/{{id}}/update"
+            /*?letsEncrypt={{letsEncrypt}}&staging={{staging}}*/,
+            Certificates.Update
+        );
+        app.MapGet(
+            $"{API}/certificates/{{id}}/download"
+            /*?format={{format}}*/,
+            Certificates.Download
+        );
 
         app.MapGet($"api/resolve"/*?host={{host}}*/, Resolve);
         app.MapGet($"api/whatsmyip", WhatsMyIp);
@@ -86,7 +132,8 @@ public static partial class Endpoint
 
     static IResult WhatsMyIp(HttpContext context)
     {
-        if (!context.Request.Headers.TryGetValue("X-Forwarded-For", out var ip))
+        var headers = context.Request.Headers;
+        if (!headers.TryGetValue("X-Forwarded-For", out var ip))
             ip = context.Connection.RemoteIpAddress.ToIp();
         return Results.Text(ip);
     }

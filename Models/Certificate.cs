@@ -115,7 +115,11 @@ public class Certificate : Model, IOnDeserialize
 
     public static Certificate Get(long id)
     {
-        return Database.Use(x => x.Certificates.FirstOrDefault(x => x.Identifier.Id == id));
+        return Database.Use(
+            x => x.Certificates.FirstOrDefault(
+                x => x.Identifier.Id == id
+            )
+        );
     }
 
     public static Certificate Get(string domain)

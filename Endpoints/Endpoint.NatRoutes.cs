@@ -13,7 +13,11 @@ public static partial class Endpoint
 
         public static IResult Get(long id)
         {
-            var data = Database.Use(x => x.NatRoutes.FirstOrDefault(x => x.Identifier.Id == id));
+            var data = Database.Use(
+                x => x.NatRoutes.FirstOrDefault(
+                    x => x.Identifier.Id == id
+                )
+            );
 
             if (data is null)
                 return Results.NotFound();
@@ -38,7 +42,7 @@ public static partial class Endpoint
         {
             Database.Use(x =>
             {
-                var index = x.NatRoutes.FindIndex(x => x.Identifier.Id == data.Identifier.Id);
+                var index = x.NatRoutes.FindIndex(data.IsReferenceOf);
                 x.NatRoutes[index] = x.Replace(x.NatRoutes[index], data);
                 x.Save();
             });

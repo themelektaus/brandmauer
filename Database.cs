@@ -2,7 +2,9 @@ namespace Brandmauer;
 
 public class Database
 {
-    public static readonly string databaseFile = Path.Combine("Data", "Database.json");
+    public static readonly string databaseFile
+        = Path.Combine("Data", "Database.json");
+
     public static bool Loading { get; private set; }
     public static DateTime LastKnownWriteTime { get; private set; }
 
@@ -67,7 +69,12 @@ public class Database
             var endDate = startDate.AddYears(10);
 
             var _caName = Utils.Name;
-            var _ca = CertificateUtils.CreateCertificate($"CN={_caName}", startDate, endDate);
+
+            var _ca = CertificateUtils.CreateCertificate(
+                $"CN={_caName}",
+                startDate,
+                endDate
+            );
 
             ca = new()
             {
