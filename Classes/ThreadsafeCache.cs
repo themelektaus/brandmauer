@@ -14,8 +14,10 @@ public abstract class ThreadsafeCache<TKey, TValue>()
 				return value;
 
 			value = GetNew(key);
+			
 			if (value is not null)
 				x.Add(key, value);
+
 			return value;
 		});
 	}

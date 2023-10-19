@@ -20,7 +20,10 @@ public class Certificate : Model, IOnDeserialize
                     => x.Enabled
                     && x.isValid
                     && !x.HasAuthority
-                    && x.Domains.Select(x => x.Value).Contains(key)
+                    && (
+                        x.Domains.Select(y => y.Value).Contains(key) ||
+                        x.Domains.Any(y => y.Value.StartsWith('*') && key.EndsWith(y.Value[1..]))
+                    )
                 );
         }
     }

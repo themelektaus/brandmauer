@@ -43,6 +43,8 @@ public static partial class Endpoint
                 x.Save();
             });
 
+            ReverseProxyMiddleware.targetCache.Clear();
+
             return Results.Ok();
         }
 

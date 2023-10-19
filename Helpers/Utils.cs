@@ -63,25 +63,28 @@ public static partial class Utils
     static readonly Dictionary<string, int> logIndexDict = new();
 #endif
 
-    public static void LogIn<T>(HttpContext context)
+    public static void Log<T>(HttpContext context, string message)
     {
 #if DEBUG
         lock (logHandle)
         {
             var index = GetLogIndex(context);
-            Console.WriteLine($" [{index}] {context.Response.StatusCode} > {typeof(T)} {context.Request.Method} {context.Request.GetDisplayUrl()}");
+            Console.WriteLine($" [{index}] {message}");
         }
+#endif
+    }
+
+    public static void LogIn<T>(HttpContext context)
+    {
+#if DEBUG
+        Log<T>(context, $"{context.Response.StatusCode} > {typeof(T)} {context.Request.Method} {context.Request.GetDisplayUrl()}");
 #endif
     }
 
     public static void LogOut<T>(HttpContext context)
     {
 #if DEBUG
-        lock (logHandle)
-        {
-            var index = GetLogIndex(context);
-            Console.WriteLine($" [{index}] {typeof(T)} > {context.Response.StatusCode}");
-        }
+        Log<T>(context, $"{typeof(T)} > {context.Response.StatusCode}");
 #endif
     }
 
