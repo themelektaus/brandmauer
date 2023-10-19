@@ -13,7 +13,11 @@ public static partial class Endpoint
 
         public static IResult Get(long id)
         {
-            var data = Database.Use(x => x.Hosts.FirstOrDefault(x => x.Identifier.Id == id));
+            var data = Database.Use(
+                x => x.Hosts.FirstOrDefault(
+                    x => x.Identifier.Id == id
+                )
+            );
 
             if (data is null)
                 return Results.NotFound();
@@ -38,7 +42,7 @@ public static partial class Endpoint
         {
             Database.Use(x =>
             {
-                var index = x.Hosts.FindIndex(x => x.Identifier.Id == data.Identifier.Id);
+                var index = x.Hosts.FindIndex(data.IsReferenceOf);
                 x.Hosts[index] = x.Replace(x.Hosts[index], data);
                 x.Save();
             });

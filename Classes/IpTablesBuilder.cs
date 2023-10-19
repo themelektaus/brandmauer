@@ -16,7 +16,8 @@ public class IpTablesBuilder
         var sheet = new StringBuilder();
 
         AddTitleTo(sheet, "Default policies");
-        sheet.AppendLine($"   {IPTABLES} -P INPUT {(clear ? "ACCEPT" : "DROP")}");
+        var defaultJump = clear ? "ACCEPT" : "DROP";
+        sheet.AppendLine($"   {IPTABLES} -P INPUT {defaultJump}");
         sheet.AppendLine($"   {IPTABLES} -P FORWARD ACCEPT");
         sheet.AppendLine($"   {IPTABLES} -P OUTPUT ACCEPT");
         AddSpaceTo(sheet);
@@ -37,26 +38,45 @@ public class IpTablesBuilder
 
         foreach (var input in filterInputs)
         {
-            var dir = " " + (input.direction == "INPUT" ? "→" : input.direction == "OUTPUT" ? "←" : "?");
-            var result = input.jump == "ACCEPT" ? "✅" : input.jump == "DROP" ? "⛔" : "?";
+            var dir = " " + (
+                input.direction == "INPUT"
+                ? "→"
+                : input.direction == "OUTPUT"
+                    ? "←"
+                    : "?"
+            );
+            
+            var result = input.jump == "ACCEPT"
+                ? "✅"
+                : input.jump == "DROP"
+                    ? "⛔"
+                    : "?";
+            
+            var destinationPort = input.destinationPort ?? "any";
+            
             AddTo(sheet, input.ToString(), [
                 input.enabled ? ["", ""] : ["(DISABLED)"],
                 ["Source:", input.source],
-                [dir, $"{input.destinationPort ?? "any"} ({input.protocol}) {result}"],
+                [dir, $"{destinationPort} ({input.protocol}) {result}"],
             ]);
         }
 
         AddTitleTo(sheet, "Allow all established connections");
-        sheet.AppendLine($"   {IPTABLES} -A INPUT -m conntrack \\\n    --ctstate ESTABLISHED,RELATED -j ACCEPT");
+        sheet.Append($"   {IPTABLES} -A INPUT -m conntrack \\\n");
+        sheet.AppendLine("    --ctstate ESTABLISHED,RELATED -j ACCEPT");
         AddSpaceTo(sheet);
 
         foreach (var prerouting in natPreroutings)
         {
+            var destinationPort = prerouting.destinationPort;
+            var protocol = prerouting.protocol;
+            var destination = prerouting.destination;
+            
             AddTo(sheet, prerouting.ToString(), [
                 prerouting.enabled ? ["", ""] : ["(DISABLED)"],
                 ["Name", prerouting.name],
                 ["Source:", prerouting.source],
-                ["", $"{prerouting.destinationPort} ({prerouting.protocol}) → {prerouting.destination}"],
+                ["", $"{destinationPort} ({protocol}) → {destination}"],
             ]);
         }
 
@@ -94,7 +114,11 @@ public class IpTablesBuilder
     {
         AddSeparatorTo(sheet);
 
-        var _comments = comments.Where(x => x.Length <= 1 || !string.IsNullOrEmpty(x[1])).ToList();
+        var _comments = comments.Where(x
+            => x.Length <= 1
+            || !string.IsNullOrEmpty(x[1])
+        ).ToList();
+        
         if (_comments.Count == 0)
             _comments.Add(null);
 

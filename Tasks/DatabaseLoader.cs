@@ -7,7 +7,8 @@ public class DatabaseReloader : ConditionalIntervalTask
 
     protected override bool ShouldTrigger()
     {
-        return Database.LastKnownWriteTime < File.GetLastWriteTime(Database.databaseFile);
+        var lastWriteTime = File.GetLastWriteTime(Database.databaseFile);
+        return Database.LastKnownWriteTime < lastWriteTime;
     }
 
     protected override async Task OnTriggerAsync()

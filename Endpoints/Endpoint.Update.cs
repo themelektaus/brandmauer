@@ -36,18 +36,24 @@ public static partial class Endpoint
             return Unauthorized();
         }
 #else
-        const string REMOTE_REPOSITORY_URL = "https://steinalt.online/download/brandmauer";
+        const string REMOTE_REPOSITORY_URL
+            = "https://steinalt.online/download/brandmauer";
 
         public static async Task<IResult> Check()
         {
             using var client = new HttpClient();
 
-            var response = await client.GetAsync($"{REMOTE_REPOSITORY_URL}/version.txt");
+            var response = await client.GetAsync(
+                $"{REMOTE_REPOSITORY_URL}/version.txt"
+            );
             if (!response.IsSuccessStatusCode)
                 return NotFound();
 
             var versionFile = Path.Combine("Download", "version.txt");
-            var developerAppSettingsFile = Path.Combine("Download", "appsettings.Development.json");
+            var developerAppSettingsFile = Path.Combine(
+                "Download",
+                "appsettings.Development.json"
+            );
 
             return Json(new
             {
@@ -72,7 +78,9 @@ public static partial class Endpoint
             DeleteFile(dataZipFile);
 
             using var client = new HttpClient();
-            var response = await client.GetAsync($"{REMOTE_REPOSITORY_URL}/data.zip");
+            var response = await client.GetAsync(
+                $"{REMOTE_REPOSITORY_URL}/data.zip"
+            );
 
             var dataZipContent = await response.Content.ReadAsByteArrayAsync();
 
@@ -82,7 +90,9 @@ public static partial class Endpoint
 
             DeleteFile(dataZipFile);
 
-            response = await client.GetAsync($"{REMOTE_REPOSITORY_URL}/version.txt");
+            response = await client.GetAsync(
+                $"{REMOTE_REPOSITORY_URL}/version.txt"
+            );
             var version = await response.Content.ReadAsStringAsync();
             await _File.WriteAllTextAsync(versionFile, version);
 
@@ -91,7 +101,10 @@ public static partial class Endpoint
 
         public static IResult Install()
         {
-            var developerAppSettingsFile = Path.Combine("Download", "appsettings.Development.json");
+            var developerAppSettingsFile = Path.Combine(
+                "Download",
+                "appsettings.Development.json"
+            );
 
             if (!_File.Exists(developerAppSettingsFile))
             {

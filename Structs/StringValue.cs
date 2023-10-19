@@ -16,5 +16,5 @@ public struct StringValue
 
     public override readonly string ToString() => Value;
 
-    public static explicit operator StringValue(string @string) => new(@string);
+    public static explicit operator StringValue(string s) => new(s);
 }

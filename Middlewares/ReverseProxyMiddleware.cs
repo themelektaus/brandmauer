@@ -8,18 +8,24 @@ public class ReverseProxyMiddleware
     {
         protected override string GetNew(string key)
         {
-            Console.WriteLine($"{nameof(TargetCache)}.GetValue() => Key: {key}");
+            Console.WriteLine(
+                $"{nameof(TargetCache)}.GetValue() => Key: {key}"
+            );
 
             var x = key.Split("://", 2);
             var targetHost = x[1].Split(['/', ':'], 2)[0];
 
             if (!Utils.IsIpAddress(targetHost))
             {
-                var host = Database.Use(x => x.Hosts.FirstOrDefault(x => x.Name == targetHost));
+                var host = Database.Use(
+                    x => x.Hosts.FirstOrDefault(
+                        x => x.Name == targetHost
+                    )
+                );
                 if (host is not null && host.Addresses.Count > 0)
                 {
-                    var newTargetHost = host.Addresses[0].Value;
-                    key = $"{x[0]}://{newTargetHost}{x[1][targetHost.Length..]}";
+                    var @new = host.Addresses[0].Value;
+                    key = $"{x[0]}://{@new}{x[1][targetHost.Length..]}";
                 }
             }
 
@@ -48,7 +54,10 @@ public class ReverseProxyMiddleware
     readonly RequestDelegate next;
     readonly Action<Settings> updateSettings;
 
-    public ReverseProxyMiddleware(RequestDelegate next, Action<Settings> updateSettings)
+    public ReverseProxyMiddleware(
+        RequestDelegate next,
+        Action<Settings> updateSettings
+    )
     {
         this.next = next;
         this.updateSettings = updateSettings;
@@ -77,14 +86,25 @@ public class ReverseProxyMiddleware
         var sources = new List<(ReverseProxyRoute route, string domain)>();
 
         foreach (var route in settings.routes)
-            foreach (var sourceDomain in route.SourceDomains.Where(x => x.Value.Split('/').FirstOrDefault(string.Empty) == host))
+        {
+            foreach (
+                var sourceDomain in route.SourceDomains
+                    .Where(x => x.Value.Split('/').FirstOrDefault() == host)
+            )
+            {
                 sources.Add((route, sourceDomain.Value));
+            }
+        }
 
         (ReverseProxyRoute route, string domain) source = (null, null);
 
         foreach (var route in sources)
         {
-            var subPath = route.domain.Split('/').Skip(1).FirstOrDefault(string.Empty);
+            var subPath = route.domain
+                .Split('/')
+                .Skip(1)
+                .FirstOrDefault(string.Empty);
+
             if (!trimmedPath.StartsWith(subPath))
                 continue;
 
@@ -98,20 +118,35 @@ public class ReverseProxyMiddleware
             if (source.route.SourceHosts.Count > 0)
             {
                 var ip = context.Connection.RemoteIpAddress.ToIp();
-                foreach (var hostAddresses in source.route.SourceHosts.SelectMany(x => x.Addresses).Select(x => x.Value.ToIpAddress()))
-                    foreach (var hostAddress in hostAddresses.Split(','))
-                        foreach (var rangeIp in IPAddressRange.Parse(hostAddress))
+                foreach (
+                    var hostAddresses in source.route.SourceHosts
+                        .SelectMany(x => x.Addresses)
+                        .Select(x => x.Value.ToIpAddress()
+                    )
+                )
+                {
+                    foreach (var a in hostAddresses.Split(','))
+                        foreach (var rangeIp in IPAddressRange.Parse(a))
                             if (rangeIp.ToIp() == ip)
                                 goto Accept;
+                }
                 goto Block;
             }
 
         Accept:
 
-            var basePath = source.domain.Split('/').Skip(1).FirstOrDefault(string.Empty);
+            var basePath = source.domain
+                .Split('/')
+                .Skip(1)
+                .FirstOrDefault(string.Empty);
+
             if (basePath != string.Empty && basePath == path.TrimStart('/'))
             {
-                context.Response.Redirect($"../{basePath}/", permanent: false, preserveMethod: true);
+                context.Response.Redirect(
+                    $"../{basePath}/",
+                    permanent: false,
+                    preserveMethod: true
+                );
                 return;
             }
 
@@ -129,7 +164,8 @@ public class ReverseProxyMiddleware
                 target = $"http://127.0.0.1:{Utils.HTTP}/{target}";
             }
 
-            var suffix = $"{path[(basePath.Length + 1)..]}{context.Request.QueryString}";
+            var suffix = path[(basePath.Length + 1)..];
+            suffix += context.Request.QueryString;
             url = new($"{target}/{suffix.TrimStart('/')}");
 
             goto Pass;
@@ -153,11 +189,24 @@ public class ReverseProxyMiddleware
         };
 
         foreach (var header in context.Request.Headers)
-            if (!request.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray()))
-                request.Content?.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
+        {
+            if (!request.Headers.TryAddWithoutValidation(
+                header.Key,
+                header.Value.ToArray()
+            ))
+            {
+                request.Content?.Headers.TryAddWithoutValidation(
+                    header.Key,
+                    header.Value.ToArray()
+                );
+            }
+        }
 
         request.Headers.Host = url.Host;
-        request.Headers.TryAddWithoutValidation("X-Forwarded-For", context.Connection.RemoteIpAddress.ToIp());
+        request.Headers.TryAddWithoutValidation(
+            "X-Forwarded-For",
+            context.Connection.RemoteIpAddress.ToIp()
+        );
 
         try
         {
@@ -167,15 +216,25 @@ public class ReverseProxyMiddleware
 
             var requestInfo = CreateRequestInfo(request, content);
 
-            using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, context.RequestAborted);
+            using var response = await httpClient.SendAsync(
+                request,
+                HttpCompletionOption.ResponseHeadersRead,
+                context.RequestAborted
+            );
 
             context.Response.StatusCode = (int) response.StatusCode;
 
             foreach (var header in response.Headers)
-                context.Response.Headers.TryAdd(header.Key, header.Value.ToArray());
+                context.Response.Headers.TryAdd(
+                    header.Key,
+                    header.Value.ToArray()
+                );
 
             foreach (var header in response.Content.Headers)
-                context.Response.Headers.TryAdd(header.Key, header.Value.ToArray());
+                context.Response.Headers.TryAdd(
+                    header.Key,
+                    header.Value.ToArray()
+                );
 
             context.Response.Headers.Remove("transfer-encoding");
             context.Response.Headers.TryAdd("X-Brandmauer", Utils.Name);
@@ -200,7 +259,11 @@ public class ReverseProxyMiddleware
 
             if (!path.EndsWith('/'))
             {
-                context.Response.Redirect($"{path}/", permanent: false, preserveMethod: true);
+                context.Response.Redirect(
+                    $"{path}/",
+                    permanent: false,
+                    preserveMethod: true
+                );
                 return;
             }
 
@@ -276,14 +339,19 @@ public class ReverseProxyMiddleware
 
         if (request.Content is not null)
         {
-            requestInfo.ContentHeaders = request.Content.Headers.ToString().Trim();
+            var contentHeaders = request.Content.Headers.ToString().Trim();
+            requestInfo.ContentHeaders = contentHeaders;
             requestInfo.Content = content;
         }
 
         return requestInfo;
     }
 
-    static void ResponseAndAddRequestInfo(RequestInfo requestInfo, HttpContext context, Stream bodyStream)
+    static void ResponseAndAddRequestInfo(
+        RequestInfo requestInfo,
+        HttpContext context,
+        Stream bodyStream
+    )
     {
         if (requestInfo is null)
             return;

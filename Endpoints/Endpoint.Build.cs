@@ -56,7 +56,9 @@ public static partial class Endpoint
 
             var natRoutes = Database.Use(x => x.NatRoutes);
             foreach (var natRoute in natRoutes)
-                builder.natPreroutings.AddRange(IpTablesNat.From(rules, natRoute));
+                builder.natPreroutings.AddRange(
+                    IpTablesNat.From(rules, natRoute)
+                );
 
             return builder;
         }

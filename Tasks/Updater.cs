@@ -23,13 +23,19 @@ public class Updater : ConditionalIntervalTask
 
         var processFile = new FileInfo(Environment.ProcessPath);
 
-        sourceFile = Path.GetFullPath(Path.Combine("Update", processFile.Name));
-        sourceFile_libsass = Path.GetFullPath(Path.Combine("Update", "libsass.so"));
+        sourceFile = Path.GetFullPath(
+            Path.Combine("Update", processFile.Name)
+        );
+        sourceFile_libsass = Path.GetFullPath(
+            Path.Combine("Update", "libsass.so")
+        );
         sourceFolder = Path.GetFullPath("Update");
         sourceFolder_wwwroot = Path.Combine(sourceFolder, "wwwroot");
 
         targetFile = processFile.FullName;
-        targetFile_libsass = Path.Combine(processFile.Directory.FullName, "libsass.so");
+        targetFile_libsass = Path.Combine(
+            processFile.Directory.FullName, "libsass.so"
+        );
         targetFolder = processFile.Directory.FullName;
         targetFolder_wwwroot = Path.Combine(targetFolder, "wwwroot");
     }
