@@ -119,7 +119,7 @@ public static partial class Endpoint
             if (letsEncrypt ?? false)
             {
                 var accountMailAddress = Database.Use(x => x.Config.LetsEncryptAccountMailAddress);
-                
+
                 pfxCert = await CertificateUtils.RequestLetsEncryptAsync(accountMailAddress, staging ?? true, domains);
                 if (pfxCert is null)
                     return Results.StatusCode(500);
@@ -127,7 +127,7 @@ public static partial class Endpoint
             else
             {
                 var ca = Database.Use(x => x.Certificates.FirstOrDefault(x => x.HasAuthority));
-            
+
                 pfxCert = CertificateUtils.CreateSelfSigned(ca, domains);
                 if (pfxCert is null)
                     return Results.StatusCode(500);

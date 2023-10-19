@@ -2,8 +2,8 @@
 
 public static partial class Endpoint
 {
-	public static class Services
-	{
+    public static class Services
+    {
         public static IResult GetAll()
         {
             var data = Database.Use(x => x.Services);

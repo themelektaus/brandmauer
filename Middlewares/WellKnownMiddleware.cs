@@ -3,7 +3,7 @@
 public class WellKnownMiddleware(RequestDelegate next)
 {
     public async Task Invoke(HttpContext context)
-	{
+    {
         Utils.LogIn<WellKnownMiddleware>(context);
 
         var path = context.Request.Path.ToString();
