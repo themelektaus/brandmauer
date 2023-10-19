@@ -4,6 +4,30 @@ namespace Brandmauer;
 
 public class ReverseProxyMiddleware
 {
+    public class TargetCache : ThreadsafeCache<string, string>
+    {
+        protected override string GetNew(string key)
+        {
+            Console.WriteLine($"{nameof(TargetCache)}.GetValue() => Key: {key}");
+
+            var x = key.Split("://", 2);
+            var targetHost = x[1].Split(['/', ':'], 2)[0];
+
+            if (!Utils.IsIpAddress(targetHost))
+            {
+                var host = Database.Use(x => x.Hosts.FirstOrDefault(x => x.Name == targetHost));
+                if (host is not null && host.Addresses.Count > 0)
+                {
+                    var newTargetHost = host.Addresses[0].Value;
+                    key = $"{x[0]}://{newTargetHost}{x[1][targetHost.Length..]}";
+                }
+            }
+
+            return key;
+        }
+    }
+    public static readonly TargetCache targetCache = new();
+
     public class Settings
     {
         public bool logging;
@@ -36,7 +60,7 @@ public class ReverseProxyMiddleware
 
         var target = string.Empty;
         var host = context.Request.Host.Host;
-
+        
         if (Utils.allLocalIpAddresses.Contains(host))
             goto Break;
 
@@ -47,36 +71,68 @@ public class ReverseProxyMiddleware
 
         Uri url;
 
+        var path = context.Request.Path.ToString();
+        var trimmedPath = path.Trim('/');
+
+        var sources = new List<(ReverseProxyRoute route, string domain)>();
+
         foreach (var route in settings.routes)
+            foreach (var sourceDomain in route.SourceDomains.Where(x => x.Value.Split('/').FirstOrDefault(string.Empty) == host))
+                sources.Add((route, sourceDomain.Value));
+
+        (ReverseProxyRoute route, string domain) source = (null, null);
+
+        foreach (var route in sources)
         {
-            if (route.SourceDomains.Select(x => x.Value).Contains(host))
+            var subPath = route.domain.Split('/').Skip(1).FirstOrDefault(string.Empty);
+            if (!trimmedPath.StartsWith(subPath))
+                continue;
+
+            source = route;
+            if (trimmedPath == subPath)
+                break;
+        }
+
+        if (source.route is not null)
+        {
+            if (source.route.SourceHosts.Count > 0)
             {
-                if (route.SourceHosts.Count > 0)
-                {
-                    var ip = context.Connection.RemoteIpAddress.ToIp();
-                    foreach (var hostAddresses in route.SourceHosts.SelectMany(x => x.Addresses).Select(x => x.Value.ToIpAddress()))
-                        foreach (var hostAddress in hostAddresses.Split(','))
-                            foreach (var rangeIp in IPAddressRange.Parse(hostAddress))
-                                if (rangeIp.ToIp() == ip)
-                                    goto Accept;
-                    goto Block;
-                }
-
-            Accept:
-                target = route.Target.Trim('/');
-
-                if (!target.StartsWith("http://") && !target.StartsWith("https://"))
-                {
-                    if (target == string.Empty)
-                        goto Break;
-
-                    target = $"http://127.0.0.1:{Utils.HTTP}/{target}";
-                }
-
-                var suffix = $"{context.Request.Path}{context.Request.QueryString}";
-                url = new($"{target}{suffix}");
-                goto Pass;
+                var ip = context.Connection.RemoteIpAddress.ToIp();
+                foreach (var hostAddresses in source.route.SourceHosts.SelectMany(x => x.Addresses).Select(x => x.Value.ToIpAddress()))
+                    foreach (var hostAddress in hostAddresses.Split(','))
+                        foreach (var rangeIp in IPAddressRange.Parse(hostAddress))
+                            if (rangeIp.ToIp() == ip)
+                                goto Accept;
+                goto Block;
             }
+
+        Accept:
+
+            var basePath = source.domain.Split('/').Skip(1).FirstOrDefault(string.Empty);
+            if (basePath != string.Empty && basePath == path.TrimStart('/'))
+            {
+                context.Response.Redirect($"../{basePath}/", permanent: false, preserveMethod: true);
+                return;
+            }
+
+            target = source.route.Target.Trim('/');
+
+            if (target.StartsWith("http://") || target.StartsWith("https://"))
+            {
+                target = targetCache.Get(target);
+            }
+            else
+            {
+                if (target == string.Empty)
+                    goto Break;
+
+                target = $"http://127.0.0.1:{Utils.HTTP}/{target}";
+            }
+
+            var suffix = $"{path[(basePath.Length + 1)..]}{context.Request.QueryString}";
+            url = new($"{target}/{suffix.TrimStart('/')}");
+
+            goto Pass;
         }
 
     Block:
@@ -142,9 +198,9 @@ public class ReverseProxyMiddleware
 
             Console.WriteLine();
 
-            if (!context.Request.Path.Value.EndsWith('/'))
+            if (!path.EndsWith('/'))
             {
-                context.Response.Redirect(context.Request.Path + '/');
+                context.Response.Redirect($"{path}/", permanent: false, preserveMethod: true);
                 return;
             }
 

@@ -85,6 +85,7 @@ public class Database
 
 		//PreSerialize();
 
+		try { new FileInfo(databaseFile).Directory.Create(); } catch { }
 		File.WriteAllText(databaseFile, this.ToJson());
 		UpdateLastKnownWriteTime();
 
