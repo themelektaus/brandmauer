@@ -2,62 +2,62 @@ namespace Brandmauer;
 
 public class Database
 {
-	public static readonly string databaseFile = Path.Combine("Data", "Database.json");
-	public static bool Loading { get; private set; }
-	public static DateTime LastKnownWriteTime { get; private set; }
+    public static readonly string databaseFile = Path.Combine("Data", "Database.json");
+    public static bool Loading { get; private set; }
+    public static DateTime LastKnownWriteTime { get; private set; }
 
-	static readonly ThreadsafeContext context = new();
-	static Database database;
+    static readonly ThreadsafeContext context = new();
+    static Database database;
 
-	public List<Host> Hosts { get; set; } = new();
-	public List<Service> Services { get; set; } = new();
-	public List<Rule> Rules { get; set; } = new();
-	public List<NatRoute> NatRoutes { get; set; } = new();
-	public List<ReverseProxyRoute> ReverseProxyRoutes { get; set; } = new();
-	public List<Certificate> Certificates { get; set; } = new();
-	public Config Config { get; set; } = new();
+    public List<Host> Hosts { get; set; } = new();
+    public List<Service> Services { get; set; } = new();
+    public List<Rule> Rules { get; set; } = new();
+    public List<NatRoute> NatRoutes { get; set; } = new();
+    public List<ReverseProxyRoute> ReverseProxyRoutes { get; set; } = new();
+    public List<Certificate> Certificates { get; set; } = new();
+    public Config Config { get; set; } = new();
 
-	static readonly HashSet<Model> models = new();
+    static readonly HashSet<Model> models = new();
 
-	public static void Register(Model model) => models.Add(model);
-	public static void Unregister(Model model) => models.Remove(model);
+    public static void Register(Model model) => models.Add(model);
+    public static void Unregister(Model model) => models.Remove(model);
 
-	void PostDeserialize()
-	{
-		foreach (var model in models)
-			model.PostDeserialize(this);
-	}
+    void PostDeserialize()
+    {
+        foreach (var model in models)
+            model.PostDeserialize(this);
+    }
 
-	//void PreSerialize()
-	//{
-	//	foreach (var model in models)
-	//		model.PreSerialize();
-	//}
+    //void PreSerialize()
+    //{
+    //    foreach (var model in models)
+    //        model.PreSerialize();
+    //}
 
-	public static void Load()
-	{
-		Use(x =>
-		{
-			Loading = true;
+    public static void Load()
+    {
+        Use(x =>
+        {
+            Loading = true;
 
-			Console.WriteLine("Database.Load()");
+            Console.WriteLine("Database.Load()");
 
-			foreach (var model in models)
-				model.Dispose();
+            foreach (var model in models)
+                model.Dispose();
 
-			if (!File.Exists(databaseFile))
-			{
-				database = new();
-				database.Save();
-			}
+            if (!File.Exists(databaseFile))
+            {
+                database = new();
+                database.Save();
+            }
 
-			var json = File.ReadAllText(databaseFile);
-			database = json.FromJson<Database>();
-			database.PostDeserialize();
+            var json = File.ReadAllText(databaseFile);
+            database = json.FromJson<Database>();
+            database.PostDeserialize();
 
-			UpdateLastKnownWriteTime();
+            UpdateLastKnownWriteTime();
 
-			Loading = false;
+            Loading = false;
 
             var ca = database.Certificates.FirstOrDefault(x => x.HasAuthority);
             if (ca is not null)
@@ -77,31 +77,31 @@ public class Database
             ca.Write(database, _ca);
             database.Certificates.Add(ca);
         });
-	}
+    }
 
-	public void Save()
-	{
-		Console.WriteLine("Database.Save()");
+    public void Save()
+    {
+        Console.WriteLine("Database.Save()");
 
-		//PreSerialize();
+        //PreSerialize();
 
-		try { new FileInfo(databaseFile).Directory.Create(); } catch { }
-		File.WriteAllText(databaseFile, this.ToJson());
-		UpdateLastKnownWriteTime();
+        try { new FileInfo(databaseFile).Directory.Create(); } catch { }
+        File.WriteAllText(databaseFile, this.ToJson());
+        UpdateLastKnownWriteTime();
 
-		PostDeserialize();
-	}
+        PostDeserialize();
+    }
 
-	static void UpdateLastKnownWriteTime()
-	{
-		LastKnownWriteTime = File.GetLastWriteTime(databaseFile);
-	}
+    static void UpdateLastKnownWriteTime()
+    {
+        LastKnownWriteTime = File.GetLastWriteTime(databaseFile);
+    }
 
-	public static void Use(Action<Database> action)
-		=> context.Use(() => action(database));
+    public static void Use(Action<Database> action)
+        => context.Use(() => action(database));
 
     public static T Use<T>(Func<Database, T> func)
-		=> context.Use(() => func(database));
+        => context.Use(() => func(database));
 
     public static Task UseAsync(Func<Database, Task> task)
         => context.UseAsync(() => task(database));
@@ -109,17 +109,17 @@ public class Database
     public static Task<T> UseAsync<T>(Func<Database, Task<T>> task)
         => context.UseAsync(() => task(database));
 
-	public T Create<T>() where T : Model, new()
-	{
-		var newModel = new T();
-		Register(newModel);
-		return newModel;
-	}
+    public T Create<T>() where T : Model, new()
+    {
+        var newModel = new T();
+        Register(newModel);
+        return newModel;
+    }
 
-	public T Replace<T>(T oldModel, T newModel) where T : Model
-	{
+    public T Replace<T>(T oldModel, T newModel) where T : Model
+    {
         oldModel.Dispose();
         Register(newModel);
-		return newModel;
-	}
+        return newModel;
+    }
 }

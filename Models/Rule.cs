@@ -10,23 +10,23 @@ public class Rule : Model, IOnDeserialize
         {
             var builder = new StringBuilder()
                 .AppendBadge("rule", "direction", Direction, Action);
-    
+
             if (Hosts.Count == 0)
                 builder.AppendBadge("rule", "host", "Host", "any");
             else
                 foreach (var host in Hosts.Select(x => x.ToString()))
                     builder.AppendBadge("rule", "host", "Host", host);
-    
+
             builder.Append("<div class=\"badges\">");
-    
+
             if (Services.Count == 0)
                 builder.AppendBadge("rule", "service", "any", null);
             else
                 foreach (var service in Services.Select(x => x.ToString()))
                     builder.AppendBadge("rule", "service", service, null);
-    
+
             builder.Append("</div>");
-    
+
             return builder.ToString();
         }
     }
@@ -58,18 +58,18 @@ public class Rule : Model, IOnDeserialize
             sourceArg = null;
             return true;
         }
-        
+
         var sourceHosts = Hosts
             .Where(x => x is not null)
             .SelectMany(x => x.Addresses).Select(x => x.Value.ToIpAddress())
             .ToList();
-        
+
         if (sourceHosts.Count == 0)
         {
-          sourceArg = null;
-          return false;
+            sourceArg = null;
+            return false;
         }
-        
+
         sourceArg = sourceHosts.Join(',');
         return true;
     }
@@ -91,14 +91,14 @@ public class Rule : Model, IOnDeserialize
             {
                 if (servicePort.Protocol != translation.Protocol)
                     continue;
-        
+
                 if (servicePort.Area == Service.Port._Area.Any)
                     return true;
-        
+
                 if (servicePort.Area == Service.Port._Area.Single)
                     if (servicePort.Start == translation.SourcePort)
                         return true;
-        
+
                 if (servicePort.Area == Service.Port._Area.Range)
                     if (servicePort.Start <= translation.SourcePort && translation.SourcePort <= servicePort.End)
                         return true;

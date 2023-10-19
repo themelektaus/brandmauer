@@ -1,30 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<InvariantGlobalization>true</InvariantGlobalization>
-		<Version>0.2.4.6</Version>
-	</PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <Version>0.2.4.6</Version>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<None Remove="brandmauer.service" />
+    <ItemGroup>
+        <None Remove="brandmauer.service" />
 
-		<Compile Remove="Data\**" />
-		<Content Remove="Data\**" />
-		<EmbeddedResource Remove="Data\**" />
-		<None Remove="Data\**" />
-	</ItemGroup>
-	
-	<ItemGroup>
-		<PackageReference Include="Certes" Version="3.0.4" />
-		<PackageReference Include="IPAddressRange" Version="6.0.0" />
-		<PackageReference Include="LibSassHost" Version="1.3.3" />
-		<PackageReference Include="LibSassHost.Native.linux-x64" Version="1.3.3" />
-		<PackageReference Include="LibSassHost.Native.win-x64" Version="1.3.3" />
-		<PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
-		<PackageReference Include="SSH.NET" Version="2020.0.2" />
-		<PackageReference Include="System.Security.Cryptography.OpenSsl" Version="5.0.0" />
-	</ItemGroup>
+        <Compile Remove="Data\**" />
+        <Content Remove="Data\**" />
+        <EmbeddedResource Remove="Data\**" />
+        <None Remove="Data\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Certes" Version="3.0.4" />
+        <PackageReference Include="IPAddressRange" Version="6.0.0" />
+        <PackageReference Include="LibSassHost" Version="1.3.3" />
+        <PackageReference Include="LibSassHost.Native.linux-x64" Version="1.3.3" />
+        <PackageReference Include="LibSassHost.Native.win-x64" Version="1.3.3" />
+        <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
+        <PackageReference Include="SSH.NET" Version="2020.0.2" />
+        <PackageReference Include="System.Security.Cryptography.OpenSsl" Version="5.0.0" />
+    </ItemGroup>
 
 </Project>

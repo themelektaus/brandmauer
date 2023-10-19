@@ -60,7 +60,7 @@ public class ReverseProxyMiddleware
 
         var target = string.Empty;
         var host = context.Request.Host.Host;
-        
+
         if (Utils.allLocalIpAddresses.Contains(host))
             goto Break;
 

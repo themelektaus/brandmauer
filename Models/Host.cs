@@ -11,10 +11,10 @@ public class Host : Model
         get
         {
             var builder = new StringBuilder();
-    
+
             foreach (var address in Addresses)
                 builder.AppendBadge("host", "address", address, null);
-    
+
             return builder.ToString();
         }
     }

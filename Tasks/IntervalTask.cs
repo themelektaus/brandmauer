@@ -2,37 +2,37 @@
 
 public abstract partial class IntervalTask : IAsyncDisposable
 {
-	protected abstract TimeSpan Delay { get; }
-	protected abstract TimeSpan Interval { get; }
+    protected abstract TimeSpan Delay { get; }
+    protected abstract TimeSpan Interval { get; }
 
-	protected abstract Task OnTickAsync();
+    protected abstract Task OnTickAsync();
 
-	Task task;
+    Task task;
 
-	bool disposed;
+    bool disposed;
 
-	public async ValueTask DisposeAsync()
-	{
-		disposed = true;
+    public async ValueTask DisposeAsync()
+    {
+        disposed = true;
 
-		if (task is not null)
-		{
-			await task;
-			task = null;
-		}
-	}
+        if (task is not null)
+        {
+            await task;
+            task = null;
+        }
+    }
 
-	public void RunInBackground()
-	{
-		task = Task.Run(async () =>
-		{
-			await Task.Delay(Delay);
+    public void RunInBackground()
+    {
+        task = Task.Run(async () =>
+        {
+            await Task.Delay(Delay);
 
-			while (!disposed)
-			{
-				await OnTickAsync();
-				await Task.Delay(Interval);
-			}
-		});
-	}
+            while (!disposed)
+            {
+                await OnTickAsync();
+                await Task.Delay(Interval);
+            }
+        });
+    }
 }

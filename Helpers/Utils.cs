@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.Extensions.Http.Logging;
+
 using System.Net.NetworkInformation;
 
 using System.Reflection;
@@ -11,8 +11,8 @@ namespace Brandmauer;
 public static partial class Utils
 {
 #if RELEASE
-	public const ushort HTTP = 80;
-	public const ushort HTTPS = 443;
+    public const ushort HTTP = 80;
+    public const ushort HTTPS = 443;
 #else
     public const ushort HTTP = 5080;
     public const ushort HTTPS = 5443;

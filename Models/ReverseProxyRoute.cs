@@ -9,14 +9,14 @@ public class ReverseProxyRoute : Model, IOnDeserialize
         get
         {
             var builder = new StringBuilder();
-    
+
             builder.Append($"<div class=\"badges badges-top{(SourceHosts.Count == 0 ? " display-none" : "")}\">");
-                foreach (var host in SourceHosts)
-                    builder.AppendBadge("reverseproxy", "source-host", "Source Host", host);
+            foreach (var host in SourceHosts)
+                builder.AppendBadge("reverseproxy", "source-host", "Source Host", host);
             builder.Append("</div>");
-    
+
             builder.Append("<div class=\"badges-group\">");
-    
+
             if (SourceDomains.Count > 0)
             {
                 builder.Append("<div class=\"badges\" style=\"flex: 1; \">");
@@ -24,16 +24,16 @@ public class ReverseProxyRoute : Model, IOnDeserialize
                     builder.AppendBadge("reverseproxy", "source-domain", domain, null);
                 builder.Append("</div>");
             }
-    
+
             if (Target != string.Empty)
             {
                 builder.Append("<div class=\"badges-end\">");
                 builder.AppendBadge("reverseproxy", "target", "Target", Target);
                 builder.Append("</div>");
             }
-    
+
             builder.Append("</div>");
-    
+
             return builder.ToString();
         }
     }
