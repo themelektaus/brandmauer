@@ -1,6 +1,6 @@
 ﻿namespace Brandmauer;
 
-public abstract class ThreadsafeCache<TKey, TValue>()
+public abstract class ThreadsafeCache<TKey, TValue>
 {
     readonly ThreadsafeObject<Dictionary<TKey, TValue>> cache = new(new());
 

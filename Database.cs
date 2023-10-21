@@ -30,12 +30,6 @@ public class Database
             model.PostDeserialize(this);
     }
 
-    //void PreSerialize()
-    //{
-    //    foreach (var model in models)
-    //        model.PreSerialize();
-    //}
-
     public static void Load()
     {
         Use(x =>
@@ -89,8 +83,6 @@ public class Database
     public void Save()
     {
         Console.WriteLine("Database.Save()");
-
-        //PreSerialize();
 
         try { new FileInfo(databaseFile).Directory.Create(); } catch { }
         File.WriteAllText(databaseFile, this.ToJson());

@@ -26,7 +26,11 @@ public static partial class Utils
     public static AssemblyName GetAssemblyName()
         => Assembly.GetExecutingAssembly().GetName();
 
+    [GeneratedRegex("(?<=[a-z])([A-Z])")]
+    public static partial Regex CamelSpaceRegex();
+
     const string IP_PART = "(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
+
     [GeneratedRegex($"^{IP_PART}\\.{IP_PART}\\.{IP_PART}\\.{IP_PART}$")]
     private static partial Regex IPv4Regex();
 
@@ -67,7 +71,7 @@ public static partial class Utils
     static readonly Dictionary<string, int> logIndexDict = new();
 #endif
 
-    public static void Log<T>(HttpContext context, string message)
+    public static void Log(HttpContext context, string message)
     {
 #if DEBUG
         lock (logHandle)
@@ -81,17 +85,31 @@ public static partial class Utils
     public static void LogIn<T>(HttpContext context)
     {
 #if DEBUG
+        LogIn(typeof(T), context);
+#endif
+    }
+
+    public static void LogIn(Type type, HttpContext context)
+    {
+#if DEBUG
         var statusCode = context.Response.StatusCode;
         var method = context.Request.Method;
         var url = context.Request.GetDisplayUrl();
-        Log<T>(context, $"{statusCode} > {typeof(T)} {method} {url}");
+        Log(context, $"{statusCode} > {type.Name} {method} {url}");
 #endif
     }
 
     public static void LogOut<T>(HttpContext context)
     {
 #if DEBUG
-        Log<T>(context, $"{typeof(T)} > {context.Response.StatusCode}");
+        LogOut(typeof(T), context);
+#endif
+    }
+
+    public static void LogOut(Type type, HttpContext context)
+    {
+#if DEBUG
+        Log(context, $"{type.Name} > {context.Response.StatusCode}");
 #endif
     }
 

@@ -17,7 +17,7 @@ public class RequestInfo
     {
         List<RequestInfo> items;
         lock (handle)
-            items = [.. RequestInfo.items];
+            items = RequestInfo.items.ToList();
         return items;
     }
 

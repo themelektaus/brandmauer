@@ -169,11 +169,6 @@ public static class CertificateUtils
         return new(pfxData, string.Empty, X509KeyStorageFlags.Exportable);
     }
 
-    static X509Certificate2 LoadCertificate(string file, string keyFile = null)
-    {
-        return X509Certificate2.CreateFromPemFile(file, keyFile);
-    }
-
     public static X509Certificate2 CreateCertificate(
         string subjectName,
         DateTime startDate,
@@ -217,7 +212,7 @@ public static class CertificateUtils
             startDate,
             endDate,
             issuerCertificate is null
-                ? [KeyPurposeID.AnyExtendedKeyUsage]
+                ? new[] { KeyPurposeID.AnyExtendedKeyUsage }
                 : null
         );
         return ConvertCertificate(certificate, subjectKeyPair, random);
@@ -377,10 +372,10 @@ public static class CertificateUtils
         store.SetKeyEntry(
             friendlyName,
             new AsymmetricKeyEntry(subjectKeyPair.Private),
-            [certificateEntry]
+            new[] { certificateEntry }
         );
         using var stream = new MemoryStream();
-        store.Save(stream, [], random);
+        store.Save(stream, Array.Empty<char>(), random);
         return new X509Certificate2(
             rawData: stream.ToArray(),
             password: string.Empty,

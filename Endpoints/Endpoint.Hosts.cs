@@ -47,7 +47,7 @@ public static partial class Endpoint
                 x.Save();
             });
 
-            ReverseProxyMiddleware.targetCache.Clear();
+            ReverseProxyPreparatorMiddleware.targetCache.Clear();
 
             return Results.Ok();
         }
