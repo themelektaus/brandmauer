@@ -9,11 +9,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddFilter("Default", LogLevel.Information);
+
 #if RELEASE
 builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Error);
 #else
 builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
 #endif
+
+builder.Logging.AddFilter(
+    "Yarp.ReverseProxy.Forwarder.HttpForwarder",
+    LogLevel.Warning
+);
+
+builder.Services.AddHttpForwarder();
 
 builder.Services.Configure<JsonOptions>(options =>
 {
@@ -44,7 +52,9 @@ builder.WebHost.UseKestrel(options =>
             };
         });
 
+#if DEBUG
         x.UseConnectionLogging();
+#endif
     });
 });
 
@@ -56,17 +66,11 @@ app.Urls.Add($"https://0.0.0.0:{Utils.HTTPS}");
 Brandmauer.Endpoint.MapAll(app);
 
 app.UseMiddleware<WellKnownMiddleware>();
-
-app.UseReverseProxy();
-
-app.UseTeapot("wwwroot/418.html", statusCodeBreakers: [404], x =>
-{
-    x.Spill(400, "Bad Request");
-    x.Spill(404, "Not Found");
-    x.Spill(503, "Service Unavailable");
-});
-
+app.UseMiddleware<ReverseProxyPreparatorMiddleware>();
+app.UseMiddleware<YarpReverseProxyMiddleware>();
+app.UseMiddleware<CustomReverseProxyMiddleware>();
 app.UseMiddleware<FrontendMiddleware>();
+app.UseMiddleware<TeapotMiddleware>();
 
 #if RELEASE
 app.RunInBackground<Updater>();
@@ -76,6 +80,4 @@ app.RunInBackground<DatabaseReloader>();
 
 await app.RunAsync();
 
-#if RELEASE
 await app.DisposeAllIntervalTasksAsync();
-#endif

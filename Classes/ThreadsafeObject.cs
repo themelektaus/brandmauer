@@ -1,8 +1,15 @@
 ﻿namespace Brandmauer;
 
-public class ThreadsafeObject<T>(T value)
+public class ThreadsafeObject<T>
 {
     readonly SemaphoreSlim handle = new(1, 1);
+
+    readonly T value;
+
+    public ThreadsafeObject(T value)
+    {
+        this.value = value;
+    }
 
     public void Use(Action<T> action)
     {

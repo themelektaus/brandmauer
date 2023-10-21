@@ -13,7 +13,7 @@ public static class IntervalTaskExtensionMethods
 
         IntervalTask instance;
         if (paramters.Length > 0)
-            instance = Activator.CreateInstance(typeof(T), [@this])
+            instance = Activator.CreateInstance(typeof(T), new[] { @this })
                 as IntervalTask;
         else
             instance = Activator.CreateInstance<T>();

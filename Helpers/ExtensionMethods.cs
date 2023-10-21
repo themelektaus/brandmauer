@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Net;
 using System.Net.Sockets;
 
@@ -202,5 +203,15 @@ public static class ExtensionMethods
     public static async Task LoadFromAsync(this Stream @this, Stream stream)
     {
         await stream.CopyToAsync(@this);
+    }
+
+    public static bool HasErrorStatus(this HttpResponse @this)
+    {
+        return ((HttpStatusCode) @this.StatusCode).HasErrorStatus();
+    }
+
+    public static bool HasErrorStatus(this HttpStatusCode @this)
+    {
+        return @this - 400 >= 0;
     }
 }

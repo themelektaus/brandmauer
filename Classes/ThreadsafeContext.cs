@@ -1,6 +1,6 @@
 ﻿namespace Brandmauer;
 
-public class ThreadsafeContext()
+public class ThreadsafeContext
 {
     readonly SemaphoreSlim handle = new(1, 1);
 

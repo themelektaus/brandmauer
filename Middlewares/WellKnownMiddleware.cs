@@ -1,7 +1,14 @@
 ﻿namespace Brandmauer;
 
-public class WellKnownMiddleware(RequestDelegate next)
+public class WellKnownMiddleware
 {
+    readonly RequestDelegate next;
+
+    public WellKnownMiddleware(RequestDelegate next)
+    {
+        this.next = next;
+    }
+
     public async Task Invoke(HttpContext context)
     {
         Utils.LogIn<WellKnownMiddleware>(context);
@@ -23,7 +30,7 @@ public class WellKnownMiddleware(RequestDelegate next)
 
             if (content is null)
             {
-                response.StatusCode = StatusCodes.Status404NotFound;
+                response.StatusCode = 404;
             }
             else
             {

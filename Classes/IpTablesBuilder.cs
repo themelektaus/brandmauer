@@ -45,20 +45,20 @@ public class IpTablesBuilder
                     ? "←"
                     : "?"
             );
-            
+
             var result = input.jump == "ACCEPT"
                 ? "✅"
                 : input.jump == "DROP"
                     ? "⛔"
                     : "?";
-            
+
             var destinationPort = input.destinationPort ?? "any";
-            
-            AddTo(sheet, input.ToString(), [
-                input.enabled ? ["", ""] : ["(DISABLED)"],
-                ["Source:", input.source],
-                [dir, $"{destinationPort} ({input.protocol}) {result}"],
-            ]);
+
+            AddTo(sheet, input.ToString(), new string[][] {
+                input.enabled ? new[] { "", "" } : new[] { "(DISABLED)" },
+                new[] { "Source:", input.source },
+                new[] { dir, $"{destinationPort} ({input.protocol}) {result}" },
+            });
         }
 
         AddTitleTo(sheet, "Allow all established connections");
@@ -71,13 +71,13 @@ public class IpTablesBuilder
             var destinationPort = prerouting.destinationPort;
             var protocol = prerouting.protocol;
             var destination = prerouting.destination;
-            
-            AddTo(sheet, prerouting.ToString(), [
-                prerouting.enabled ? ["", ""] : ["(DISABLED)"],
-                ["Name", prerouting.name],
-                ["Source:", prerouting.source],
-                ["", $"{destinationPort} ({protocol}) → {destination}"],
-            ]);
+
+            AddTo(sheet, prerouting.ToString(), new string[][] {
+                prerouting.enabled ? new[] { "", "" } : new[] { "(DISABLED)" },
+                new[] { "Name", prerouting.name},
+                new[] { "Source:", prerouting.source },
+                new[] { "", $"{destinationPort} ({protocol}) → {destination}" },
+            });
         }
 
         AddTitleTo(sheet, "Masquerade everything");
@@ -107,7 +107,7 @@ public class IpTablesBuilder
 
     static void AddTo(StringBuilder sheet, string value)
     {
-        AddTo(sheet, value, []);
+        AddTo(sheet, value, Array.Empty<string[]>());
     }
 
     static void AddTo(StringBuilder sheet, string value, string[][] comments)
@@ -118,7 +118,7 @@ public class IpTablesBuilder
             => x.Length <= 1
             || !string.IsNullOrEmpty(x[1])
         ).ToList();
-        
+
         if (_comments.Count == 0)
             _comments.Add(null);
 
