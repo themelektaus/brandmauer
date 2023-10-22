@@ -45,13 +45,14 @@ public class CustomReverseProxyMiddleware(RequestDelegate next) : ReverseProxyMi
         }
 
         var ip = context.Connection.RemoteIpAddress.ToIp();
-        request.Headers.Add("X-Real-IP", ip);
-        request.Headers.Add("X-Forwarded-For", ip);
-
         var scheme = context.Request.Scheme;
-        request.Headers.Add("X-Forwarded-Proto", scheme);
 
-        request.Headers.Host = url.Host;
+        request.Headers.TryAddWithoutValidation("X-Real-IP", ip);
+        request.Headers.TryAddWithoutValidation("X-Forwarded-For", ip);
+        request.Headers.TryAddWithoutValidation("X-Forwarded-Proto", scheme);
+
+        if (!feature.Route.KeepHost)
+            request.Headers.Host = null;
 
         try
         {
