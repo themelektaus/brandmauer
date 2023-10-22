@@ -103,7 +103,7 @@ public class ReverseProxyPreparatorMiddleware
             foreach (
                 var hostAddresses in source.route.SourceHosts
                     .SelectMany(x => x.Addresses)
-                    .Select(x => x.Value.ToIpAddress()
+                    .Select(x => x.Value.ToIpAddress(useCache: true)
                 )
             )
             {

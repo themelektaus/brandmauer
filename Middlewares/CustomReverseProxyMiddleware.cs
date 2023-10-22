@@ -50,6 +50,7 @@ public class CustomReverseProxyMiddleware : ReverseProxyMiddleware
         }
 
         var ip = context.Connection.RemoteIpAddress.ToIp();
+        request.Headers.Add("X-Real-IP", ip);
         request.Headers.Add("X-Forwarded-For", ip);
         request.Headers.Host = url.Host;
 

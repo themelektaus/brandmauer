@@ -26,4 +26,9 @@ public abstract class ThreadsafeCache<TKey, TValue>
     {
         cache.Use(x => x.Clear());
     }
+
+    public void Clear(TKey key)
+    {
+        cache.Use(x => x.Remove(key));
+    }
 }
