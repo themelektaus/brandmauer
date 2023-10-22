@@ -76,17 +76,16 @@ public class ReverseProxyPreparatorMiddleware
         foreach (var x in sources)
         {
             var subPath = x.domain
-                .Split('/')
+                .Split('/', 2)
                 .Skip(1)
                 .FirstOrDefault(string.Empty);
 
             if (!trimmedPath.StartsWith(subPath))
                 continue;
 
-            source = x;
-
-            if (trimmedPath == subPath)
-                break;
+            var domain = source.domain;
+            if (domain is null || domain.Length < x.domain.Length)
+                source = x;
         }
 
         if (source.route is null)
