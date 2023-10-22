@@ -1,14 +1,7 @@
 ﻿namespace Brandmauer;
 
-public class WellKnownMiddleware
+public class WellKnownMiddleware(RequestDelegate next)
 {
-    readonly RequestDelegate next;
-
-    public WellKnownMiddleware(RequestDelegate next)
-    {
-        this.next = next;
-    }
-
     public async Task Invoke(HttpContext context)
     {
         Utils.LogIn<WellKnownMiddleware>(context);
