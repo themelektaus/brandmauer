@@ -113,16 +113,6 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
             .Skip(1)
             .FirstOrDefault(string.Empty);
 
-        if (basePath != string.Empty && basePath == path.TrimStart('/'))
-        {
-            context.Response.Redirect(
-                $"../{basePath}/",
-                permanent: false,
-                preserveMethod: true
-            );
-            return;
-        }
-
         var target = source.route.Target.Trim('/');
 
         if (target.StartsWith("http://") || target.StartsWith("https://"))

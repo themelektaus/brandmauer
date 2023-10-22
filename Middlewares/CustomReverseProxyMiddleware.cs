@@ -20,8 +20,6 @@ public class CustomReverseProxyMiddleware(RequestDelegate next) : ReverseProxyMi
             return;
         }
 
-        context.Response.Headers.TryAdd("X-Reverse-Proxy", Utils.Name);
-
         feature.Suffix += context.Request.QueryString;
         var url = new Uri($"{feature.Target}/{feature.Suffix.TrimStart('/')}");
 
@@ -49,6 +47,10 @@ public class CustomReverseProxyMiddleware(RequestDelegate next) : ReverseProxyMi
         var ip = context.Connection.RemoteIpAddress.ToIp();
         request.Headers.Add("X-Real-IP", ip);
         request.Headers.Add("X-Forwarded-For", ip);
+
+        var scheme = context.Request.Scheme;
+        request.Headers.Add("X-Forwarded-Proto", scheme);
+
         request.Headers.Host = url.Host;
 
         try
@@ -68,7 +70,7 @@ public class CustomReverseProxyMiddleware(RequestDelegate next) : ReverseProxyMi
             );
 
             context.Response.StatusCode = (int) response.StatusCode;
-            
+
             foreach (var header in response.Headers)
                 context.Response.Headers.TryAdd(
                     header.Key,
@@ -110,15 +112,21 @@ public class CustomReverseProxyMiddleware(RequestDelegate next) : ReverseProxyMi
 
             Console.WriteLine();
 
-            var path = context.Request.Path.ToString();
-            if (!path.EndsWith('/'))
+            if (ex is HttpRequestException _ex)
             {
-                context.Response.Redirect(
-                    $"{path}/",
-                    permanent: false,
-                    preserveMethod: true
-                );
-                return;
+                if (_ex.HttpRequestError == HttpRequestError.ConnectionError)
+                {
+                    var path = context.Request.Path.ToString();
+                    if (!path.EndsWith('/'))
+                    {
+                        context.Response.Redirect(
+                            $"{path}/",
+                            permanent: false,
+                            preserveMethod: true
+                        );
+                        return;
+                    }
+                }
             }
 
             context.Response.StatusCode = 500;
