@@ -212,7 +212,7 @@ public static class CertificateUtils
             startDate,
             endDate,
             issuerCertificate is null
-                ? new[] { KeyPurposeID.AnyExtendedKeyUsage }
+                ? [KeyPurposeID.AnyExtendedKeyUsage]
                 : null
         );
         return ConvertCertificate(certificate, subjectKeyPair, random);
@@ -372,10 +372,10 @@ public static class CertificateUtils
         store.SetKeyEntry(
             friendlyName,
             new AsymmetricKeyEntry(subjectKeyPair.Private),
-            new[] { certificateEntry }
+            [certificateEntry]
         );
         using var stream = new MemoryStream();
-        store.Save(stream, Array.Empty<char>(), random);
+        store.Save(stream, [], random);
         return new X509Certificate2(
             rawData: stream.ToArray(),
             password: string.Empty,

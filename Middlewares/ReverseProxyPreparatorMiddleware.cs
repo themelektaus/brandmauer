@@ -13,7 +13,7 @@ public class ReverseProxyPreparatorMiddleware
             );
 
             var x = key.Split("://", 2);
-            var targetHost = x[1].Split(new[] { '/', ':' }, 2)[0];
+            var targetHost = x[1].Split(['/', ':'], 2)[0];
 
             if (!Utils.IsIpAddress(targetHost))
             {
