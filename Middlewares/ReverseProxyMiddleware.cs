@@ -2,18 +2,16 @@
 
 public abstract class ReverseProxyMiddleware
 {
-    protected abstract RequestDelegate Next { get; init; }
+    protected abstract RequestDelegate Next { get; }
 
     protected abstract Task OnPassAsync(HttpContext context);
-
-    protected ReverseProxyFeature Feature { get; private set; }
 
     public async Task Invoke(HttpContext context)
     {
         Utils.LogIn(GetType(), context);
 
-        Feature = context.Features.Get<ReverseProxyFeature>();
-        if (Feature is null || Feature.Target is null)
+        var feature = context.Features.Get<ReverseProxyFeature>();
+        if (feature is null || feature.Target is null)
         {
             await NextAsync(context);
             return;

@@ -2,7 +2,7 @@
 
 namespace Brandmauer;
 
-public class ReverseProxyPreparatorMiddleware
+public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
 {
     public class TargetCache : ThreadsafeCache<string, string>
     {
@@ -31,13 +31,6 @@ public class ReverseProxyPreparatorMiddleware
         }
     }
     public static readonly TargetCache targetCache = new();
-
-    readonly RequestDelegate next;
-
-    public ReverseProxyPreparatorMiddleware(RequestDelegate next)
-    {
-        this.next = next;
-    }
 
     public async Task Invoke(HttpContext context)
     {

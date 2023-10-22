@@ -2,10 +2,8 @@
 
 namespace Brandmauer;
 
-public class TeapotMiddleware
+public class TeapotMiddleware(RequestDelegate next)
 {
-    readonly RequestDelegate next;
-
     class HtmlFileCache : ThreadsafeCache<int, string>
     {
         protected override bool Logging => false;
@@ -22,11 +20,6 @@ public class TeapotMiddleware
         }
     }
     static readonly HtmlFileCache htmlFileCache = new();
-
-    public TeapotMiddleware(RequestDelegate next)
-    {
-        this.next = next;
-    }
 
     public async Task Invoke(HttpContext context)
     {

@@ -1,6 +1,6 @@
 ﻿namespace Brandmauer;
 
-public class CustomReverseProxyMiddleware : ReverseProxyMiddleware
+public class CustomReverseProxyMiddleware(RequestDelegate next) : ReverseProxyMiddleware
 {
     readonly HttpClient httpClient = new(new HttpClientHandler()
     {
@@ -8,16 +8,13 @@ public class CustomReverseProxyMiddleware : ReverseProxyMiddleware
             = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator,
     });
 
-    protected override RequestDelegate Next { get; init; }
-
-    public CustomReverseProxyMiddleware(RequestDelegate next)
-    {
-        Next = next;
-    }
+    protected override RequestDelegate Next => next;
 
     protected override async Task OnPassAsync(HttpContext context)
     {
-        if (Feature.Route.UseYarp)
+        var feature = context.Features.Get<ReverseProxyFeature>();
+
+        if (feature.Route.UseYarp)
         {
             await NextAsync(context);
             return;
@@ -25,8 +22,8 @@ public class CustomReverseProxyMiddleware : ReverseProxyMiddleware
 
         context.Response.Headers.TryAdd("X-Reverse-Proxy", Utils.Name);
 
-        Feature.Suffix += context.Request.QueryString;
-        var url = new Uri($"{Feature.Target}/{Feature.Suffix.TrimStart('/')}");
+        feature.Suffix += context.Request.QueryString;
+        var url = new Uri($"{feature.Target}/{feature.Suffix.TrimStart('/')}");
 
         var request = new HttpRequestMessage
         {
@@ -71,7 +68,7 @@ public class CustomReverseProxyMiddleware : ReverseProxyMiddleware
             );
 
             context.Response.StatusCode = (int) response.StatusCode;
-
+            
             foreach (var header in response.Headers)
                 context.Response.Headers.TryAdd(
                     header.Key,
@@ -85,7 +82,6 @@ public class CustomReverseProxyMiddleware : ReverseProxyMiddleware
                 );
 
             context.Response.Headers.Remove("transfer-encoding");
-
 
             if (response.StatusCode.HasErrorStatus())
             {

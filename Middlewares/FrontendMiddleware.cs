@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Brandmauer;
 
-public class FrontendMiddleware
+public class FrontendMiddleware(RequestDelegate next)
 {
     const string WWWROOT = "wwwroot";
     const string INDEX_HTML = "index.html";
@@ -31,13 +31,6 @@ public class FrontendMiddleware
              GetWwwRootFolder(),
             .. path.TrimStart('/').Split('/')
          ]);
-    }
-
-    readonly RequestDelegate next;
-
-    public FrontendMiddleware(RequestDelegate next)
-    {
-        this.next = next;
     }
 
     public async Task Invoke(HttpContext context)
