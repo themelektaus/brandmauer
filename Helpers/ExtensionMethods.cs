@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.Net;
 using System.Net.Sockets;
 
@@ -97,7 +96,34 @@ public static class ExtensionMethods
         return $"{prefix}{@this.Join($"{suffix}{prefix}")}{suffix}";
     }
 
-    public static string ToIpAddress(this string @this)
+    class DnsCache : ThreadsafeCache<string, string>
+    {
+        protected override string GetNew(string key)
+        {
+            try
+            {
+                var hostEntry = Dns.GetHostEntry(key);
+
+                var ipAddress = hostEntry.AddressList
+                    .OrderByDescending(
+                        x => x.AddressFamily == AddressFamily.InterNetwork
+                    )
+                    .FirstOrDefault();
+
+                if (ipAddress is not null)
+                    return ipAddress.ToString();
+            }
+            catch
+            {
+
+            }
+            
+            return default;
+        }
+    }
+    static readonly DnsCache dnsCache = new();
+
+    public static string ToIpAddress(this string @this, bool useCache)
     {
         if (@this == string.Empty)
             goto Return;
@@ -105,24 +131,11 @@ public static class ExtensionMethods
         if (Utils.IsIpAddress(@this))
             goto Return;
 
-        try
-        {
-            var hostEntry = Dns.GetHostEntry(@this);
+        if (!useCache)
+            dnsCache.Clear(@this);
 
-            var ipAddress = hostEntry.AddressList
-                .OrderByDescending(
-                    x => x.AddressFamily == AddressFamily.InterNetwork
-                )
-                .FirstOrDefault();
-
-            if (ipAddress is not null)
-                @this = ipAddress.ToString();
-        }
-        catch
-        {
-
-        }
-
+        return dnsCache.Get(@this);
+        
     Return:
         return @this;
     }

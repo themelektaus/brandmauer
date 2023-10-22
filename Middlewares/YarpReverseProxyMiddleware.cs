@@ -123,6 +123,7 @@ public class YarpReverseProxyMiddleware : ReverseProxyMiddleware
             );
 
             var ip = httpContext.Connection.RemoteIpAddress.ToIp();
+            proxyRequest.Headers.Add("X-Real-IP", ip);
             proxyRequest.Headers.Add("X-Forwarded-For", ip);
             proxyRequest.Headers.Host = null;
         }

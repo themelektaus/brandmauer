@@ -157,8 +157,9 @@ public static partial class Endpoint
     static IResult WhatsMyIp(HttpContext context)
     {
         var headers = context.Request.Headers;
-        if (!headers.TryGetValue("X-Forwarded-For", out var ip))
-            ip = context.Connection.RemoteIpAddress.ToIp();
+        if (!headers.TryGetValue("X-Real-IP", out var ip))
+            if (!headers.TryGetValue("X-Forwarded-For", out ip))
+                ip = context.Connection.RemoteIpAddress.ToIp();
         return Results.Text(ip);
     }
 }
