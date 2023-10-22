@@ -24,7 +24,7 @@ public static partial class Endpoint
                 lists.Add(block.Split('\n'));
 
             while (lists.Count < 5)
-                lists.Add(Array.Empty<string>());
+                lists.Add([]);
 
             result.Data = new
             {

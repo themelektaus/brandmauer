@@ -27,12 +27,10 @@ public class FrontendMiddleware
 
     static string GetWwwRootFile(string path)
     {
-        return Path.Combine(
-            Enumerable.Empty<string>()
-                .Append(GetWwwRootFolder())
-                .Concat(path.TrimStart('/').Split('/'))
-                .ToArray()
-        );
+        return Path.Combine([
+             GetWwwRootFolder(),
+            .. path.TrimStart('/').Split('/')
+         ]);
     }
 
     readonly RequestDelegate next;
