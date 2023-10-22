@@ -22,8 +22,6 @@ public class YarpReverseProxyMiddleware(
             return;
         }
 
-        context.Response.Headers.TryAdd("X-Reverse-Proxy", "YARP");
-
         var path = $"/{feature.Suffix.TrimStart('/')}";
         context.Request.Path = path;
 
@@ -37,18 +35,8 @@ public class YarpReverseProxyMiddleware(
 
         var response = context.Response;
         
-        if (response.StatusCode == 301 || error != ForwarderError.None)
+        if (error != ForwarderError.None)
         {
-            if (!path.EndsWith('/'))
-            {
-                response.Redirect(
-                    $"{path}/",
-                    permanent: false,
-                    preserveMethod: true
-                );
-                return;
-            }
-
             var errorFeature = context.GetForwarderErrorFeature();
             Console.WriteLine(errorFeature.Exception);
 
@@ -65,7 +53,7 @@ public class YarpReverseProxyMiddleware(
     readonly HttpMessageInvoker httpClient = new(new SocketsHttpHandler()
     {
         UseProxy = false,
-        AllowAutoRedirect = true,
+        AllowAutoRedirect = false,
         AutomaticDecompression = DecompressionMethods.None,
         UseCookies = false,
         ActivityHeadersPropagator = new ReverseProxyPropagator(
@@ -98,7 +86,9 @@ public class YarpReverseProxyMiddleware(
             var ip = httpContext.Connection.RemoteIpAddress.ToIp();
             proxyRequest.Headers.Add("X-Real-IP", ip);
             proxyRequest.Headers.Add("X-Forwarded-For", ip);
-            proxyRequest.Headers.Host = null;
+    
+            var scheme = httpContext.Request.Scheme;
+            proxyRequest.Headers.Add("X-Forwarded-Proto", scheme);
         }
 
         public override async ValueTask<bool> TransformResponseAsync(
@@ -112,6 +102,8 @@ public class YarpReverseProxyMiddleware(
 
             if (proxyResponse.StatusCode.HasErrorStatus())
                 return false;
+
+            httpContext.Response.Headers.TryAdd("X-Reverse-Proxy", "YARP");
 
             return await base.TransformResponseAsync(
                 httpContext,
