@@ -8,6 +8,8 @@ public static partial class Endpoint
     {
         const string API = "api";
 
+        app.MapGet(API, Api);
+
         app.MapGet($"{API}/info", Info.Get);
         app.MapGet($"{API}/info/requests", Info.GetRequests);
 
@@ -115,8 +117,30 @@ public static partial class Endpoint
         app.MapGet($"api/whatsmyip", WhatsMyIp);
     }
 
+    static IResult Api(IEnumerable<EndpointDataSource> endpointSources)
+    {
+        var endpoints = new List<dynamic>();
+
+        foreach (var ep in endpointSources.SelectMany(x => x.Endpoints))
+        {
+            string path = default;
+            if (ep is RouteEndpoint rep)
+                path = rep.RoutePattern.RawText;
+
+            var methods = ep.Metadata.OfType<HttpMethodMetadata>()
+                .FirstOrDefault()?.HttpMethods;
+
+            foreach (var method in methods)
+                endpoints.Add(new { method, path, });
+        }
+
+        return Results.Json(new { endpoints });
+    }
+
     static IResult Resolve([FromQuery] string host)
     {
+        host ??= "";
+
         foreach (var part in host.Split(','))
             if (!Utils.IsIpAddress(part.Split('/')[0]))
                 goto Continue;
