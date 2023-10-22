@@ -34,6 +34,8 @@ class Page
         }
         
         Page.active = this
+        location.hash = this.name
+        
         q(`.loading`).setClass(`display-none`, false)
         
         await Page.active.load()
