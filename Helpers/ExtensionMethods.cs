@@ -98,6 +98,8 @@ public static class ExtensionMethods
 
     class DnsCache : ThreadsafeCache<string, string>
     {
+        protected override bool Logging => true;
+
         protected override string GetNew(string key)
         {
             try
@@ -134,7 +136,7 @@ public static class ExtensionMethods
         if (!useCache)
             dnsCache.Clear(@this);
 
-        return dnsCache.Get(@this);
+        return dnsCache.Get(@this) ?? @this;
         
     Return:
         return @this;

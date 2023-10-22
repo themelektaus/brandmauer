@@ -9,12 +9,12 @@ public class Certificate : Model, IOnDeserialize
 {
     class Cache : ThreadsafeCache<string, Certificate>
     {
+        protected override bool Logging => false;
+
         public Database database;
 
         protected override Certificate GetNew(string key)
         {
-            Console.WriteLine($"{nameof(Cache)}.GetValue() => Key: {key}");
-
             return database.Certificates
                 .FirstOrDefault(x
                     => x.Enabled

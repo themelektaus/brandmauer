@@ -4,6 +4,7 @@ public abstract class ThreadsafeCache<TKey, TValue>
 {
     readonly ThreadsafeObject<Dictionary<TKey, TValue>> cache = new(new());
 
+    protected abstract bool Logging { get; }
     protected abstract TValue GetNew(TKey key);
 
     public TValue Get(TKey key)
@@ -14,6 +15,12 @@ public abstract class ThreadsafeCache<TKey, TValue>
                 return value;
 
             value = GetNew(key);
+
+            if (Logging)
+            {
+                var name = GetType().FullName;
+                Console.WriteLine($"{name}.GetNew({key.ToJson()}) => {value.ToJson()}");
+            }
 
             if (value is not null)
                 x.Add(key, value);

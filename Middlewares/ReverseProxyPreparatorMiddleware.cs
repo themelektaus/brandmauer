@@ -6,12 +6,10 @@ public class ReverseProxyPreparatorMiddleware
 {
     public class TargetCache : ThreadsafeCache<string, string>
     {
+        protected override bool Logging => true;
+
         protected override string GetNew(string key)
         {
-            Console.WriteLine(
-                $"{nameof(TargetCache)}.GetValue() => Key: {key}"
-            );
-
             var x = key.Split("://", 2);
             var targetHost = x[1].Split(['/', ':'], 2)[0];
 

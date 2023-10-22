@@ -31,7 +31,7 @@ public static partial class Utils
 
     const string IP_PART = "(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
 
-    [GeneratedRegex($"^{IP_PART}\\.{IP_PART}\\.{IP_PART}\\.{IP_PART}$")]
+    [GeneratedRegex($"^{IP_PART}\\.{IP_PART}\\.{IP_PART}\\.{IP_PART}")]
     private static partial Regex IPv4Regex();
 
     public static readonly string[] allLocalIpAddresses
