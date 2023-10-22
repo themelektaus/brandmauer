@@ -8,6 +8,8 @@ public class TeapotMiddleware
 
     class HtmlFileCache : ThreadsafeCache<int, string>
     {
+        protected override bool Logging => false;
+
         protected override string GetNew(int key)
         {
             var statusCode = (HttpStatusCode) key;
