@@ -11,9 +11,12 @@ public class TeapotMiddleware(RequestDelegate next)
         protected override string GetNew(int key)
         {
             var statusCode = (HttpStatusCode) key;
+            var statusCodeString = key == 418
+                ? "Unknown"
+                : statusCode.ToString();
 
             var text = Utils.CamelSpaceRegex()
-                .Replace(statusCode.ToString(), " $1");
+                .Replace(statusCodeString, " $1");
 
             return File.ReadAllText("wwwroot/418.html")
                 .Replace("{{ Status }}", $"{key} {text}");

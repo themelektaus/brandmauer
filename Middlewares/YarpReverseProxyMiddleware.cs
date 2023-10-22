@@ -23,6 +23,7 @@ public class YarpReverseProxyMiddleware(
         }
 
         var path = $"/{feature.Suffix.TrimStart('/')}";
+
         context.Request.Path = path;
 
         var error = await forwarder.SendAsync(
@@ -34,7 +35,7 @@ public class YarpReverseProxyMiddleware(
         );
 
         var response = context.Response;
-        
+
         if (error != ForwarderError.None)
         {
             var errorFeature = context.GetForwarderErrorFeature();
@@ -84,11 +85,23 @@ public class YarpReverseProxyMiddleware(
             );
 
             var ip = httpContext.Connection.RemoteIpAddress.ToIp();
-            proxyRequest.Headers.Add("X-Real-IP", ip);
-            proxyRequest.Headers.Add("X-Forwarded-For", ip);
-    
             var scheme = httpContext.Request.Scheme;
-            proxyRequest.Headers.Add("X-Forwarded-Proto", scheme);
+
+            proxyRequest.Headers.TryAddWithoutValidation("X-Real-IP", ip);
+            proxyRequest.Headers.TryAddWithoutValidation("X-Forwarded-For", ip);
+            proxyRequest.Headers.TryAddWithoutValidation("X-Forwarded-Proto", scheme);
+
+            var feature = httpContext.Features.Get<ReverseProxyFeature>();
+
+            if (!feature.Route.KeepHost)
+            {
+                proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(
+                    feature.Target,
+                    httpContext.Request.Path,
+                    httpContext.Request.QueryString
+                );
+                proxyRequest.Headers.Host = null;
+            }
         }
 
         public override async ValueTask<bool> TransformResponseAsync(

@@ -61,6 +61,9 @@ public class FrontendMiddleware(RequestDelegate next)
                 await FavIcon(context, path);
                 return;
             }
+
+            if (!path.StartsWith("/api"))
+                context.Response.StatusCode = 404;
         }
 
         await next.Invoke(context);
