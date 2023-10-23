@@ -93,14 +93,24 @@ public class YarpReverseProxyMiddleware(
 
             var feature = httpContext.Features.Get<ReverseProxyFeature>();
 
-            if (!feature.Route.KeepHost)
+            switch (feature.Route.HostModification)
             {
-                proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(
-                    feature.Target,
-                    httpContext.Request.Path,
-                    httpContext.Request.QueryString
-                );
-                proxyRequest.Headers.Host = null;
+                case ReverseProxyRoute._HostModification.Unset:
+                case ReverseProxyRoute._HostModification.Origin:
+                    break;
+
+                case ReverseProxyRoute._HostModification.Target:
+                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(
+                        feature.Target,
+                        httpContext.Request.Path,
+                        httpContext.Request.QueryString
+                    );
+                    proxyRequest.Headers.Host = null;
+                    break;
+
+                case ReverseProxyRoute._HostModification.Null:
+                    proxyRequest.Headers.Host = null;
+                    break;
             }
         }
 
