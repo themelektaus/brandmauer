@@ -51,10 +51,23 @@ public class CustomReverseProxyMiddleware(RequestDelegate next) : ReverseProxyMi
         request.Headers.TryAddWithoutValidation("X-Forwarded-For", ip);
         request.Headers.TryAddWithoutValidation("X-Forwarded-Proto", scheme);
 
-        if (feature.Route.KeepHost)
-            request.Headers.Host = context.Request.Headers.Host;
-        else
-            request.Headers.Host = url.Host;
+        switch (feature.Route.HostModification)
+        {
+            case ReverseProxyRoute._HostModification.Unset:
+                break;
+
+            case ReverseProxyRoute._HostModification.Origin:
+                request.Headers.Host = context.Request.Headers.Host;
+                break;
+
+            case ReverseProxyRoute._HostModification.Target:
+                request.Headers.Host = url.Host;
+                break;
+
+            case ReverseProxyRoute._HostModification.Null:
+                request.Headers.Host = null;
+                break;
+        }
 
         try
         {

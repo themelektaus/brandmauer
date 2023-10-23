@@ -64,7 +64,16 @@ public class ReverseProxyRoute : Model, IOnDeserialize
     public string Target { get; set; } = string.Empty;
 
     public bool UseYarp { get; set; } = false;
-    public bool KeepHost { get; set; } = false;
+
+    public enum _HostModification
+    {
+        Unset = -2,
+        Origin = -1,
+        Target = 0,
+        Null = 1
+    }
+    public _HostModification HostModification { get; set; }
+        = _HostModification.Target;
 
     public void OnDeserialize(Database database)
     {

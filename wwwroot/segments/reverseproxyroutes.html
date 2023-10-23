@@ -57,8 +57,13 @@
                         <input type="checkbox" data-bind="useYarp">
                     </div>
                     <div class="field">
-                        <label>Keep Host</label>
-                        <input type="checkbox" data-bind="keepHost">
+                        <label>Host Modification</label>
+                        <select data-bind="hostModification" data-type="number">
+                            <option value="-2">Unset</option>
+                            <option value="-1">Origin</option>
+                            <option value="0">Target</option>
+                            <option value="1">Null</option>
+                        </select>
                     </div>
                 </div>
             </div>
