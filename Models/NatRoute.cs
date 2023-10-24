@@ -13,18 +13,18 @@ public class NatRoute : Model, IOnDeserialize
             var builder = new StringBuilder()
                 .AppendBadge("nat", "host", Host, null);
 
-            builder.Append("<div class=\"badges\">");
-
-            foreach (var translation in Translations)
-                builder.AppendBadge(
-                    "nat",
-                    "translation",
-                    $"{translation.Protocol.ToString().ToLower()}: "
-                        + translation.SourcePort,
-                    $"{translation.TargetPort}"
-                );
-
-            builder.Append("</div>");
+            builder.BeginBadges();
+            {
+                foreach (var translation in Translations)
+                    builder.AppendBadge(
+                        "nat",
+                        "translation",
+                        $"{translation.Protocol.ToString().ToLower()}: "
+                            + translation.SourcePort,
+                        $"{translation.TargetPort}"
+                    );
+            }
+            builder.EndBadges();
 
             return builder.ToString();
         }

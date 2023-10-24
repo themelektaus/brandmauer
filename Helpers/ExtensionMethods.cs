@@ -152,6 +152,24 @@ public static class ExtensionMethods
         return ip;
     }
 
+    public static StringBuilder BeginBadgesGroup(this StringBuilder @this)
+        => @this.Append("<div class=\"badges-group\">");
+
+    public static StringBuilder EndBadgesGroup(this StringBuilder @this)
+        => @this.Append("</div>");
+
+    public static StringBuilder BeginBadgesEnd(this StringBuilder @this)
+        => @this.Append("<div class=\"badges-end\">");
+
+    public static StringBuilder EndBadgesEnd(this StringBuilder @this)
+        => @this.Append("</div>");
+
+    public static StringBuilder BeginBadges(this StringBuilder @this, string style = null)
+        => @this.Append($"<div class=\"badges\"{(style is null ? "" : $" style=\"{style}\"")}>");
+
+    public static StringBuilder EndBadges(this StringBuilder @this)
+        => @this.Append("</div>");
+
     public static StringBuilder AppendBadge(
         this StringBuilder @this,
         string type,

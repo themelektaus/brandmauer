@@ -12,8 +12,12 @@ public class Service : Model
         {
             var builder = new StringBuilder();
 
-            foreach (var port in Ports)
-                builder.AppendBadge("service", "port", port, null);
+            builder.BeginBadges();
+            {
+                foreach (var port in Ports)
+                    builder.AppendBadge("service", "port", port, null);
+            }
+            builder.EndBadges();
 
             return builder.ToString();
         }

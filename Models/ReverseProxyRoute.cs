@@ -12,43 +12,51 @@ public class ReverseProxyRoute : Model, IOnDeserialize
 
             var displayNone = SourceHosts.Count == 0 ? " display-none" : "";
             var classes = $"badges badges-top{displayNone}";
+
             builder.Append($"<div class=\"{classes}\">");
-
-            foreach (var host in SourceHosts)
-                builder.AppendBadge(
-                    "reverseproxy",
-                    "source-host",
-                    "Source Host",
-                    host
-                );
-
-            builder.Append("</div>");
-
-            builder.Append("<div class=\"badges-group\">");
-
-            if (SourceDomains.Count > 0)
             {
-                builder.Append("<div class=\"badges\" style=\"flex: 1; \">");
-
-                foreach (var domain in SourceDomains)
+                foreach (var host in SourceHosts)
                     builder.AppendBadge(
                         "reverseproxy",
-                        "source-domain",
-                        domain,
-                        null
+                        "source-host",
+                        "Source Host",
+                        host
                     );
-
-                builder.Append("</div>");
             }
-
-            if (Target != string.Empty)
-            {
-                builder.Append("<div class=\"badges-end\">");
-                builder.AppendBadge("reverseproxy", "target", "Target", Target);
-                builder.Append("</div>");
-            }
-
             builder.Append("</div>");
+
+            builder.BeginBadgesGroup();
+            {
+                if (SourceDomains.Count > 0)
+                {
+                    builder.BeginBadges("flex: 1; ");
+                    {
+                        foreach (var domain in SourceDomains)
+                            builder.AppendBadge(
+                                "reverseproxy",
+                                "source-domain",
+                                domain,
+                                null
+                            );
+                    }
+                    builder.EndBadges();
+                }
+
+                if (Target != string.Empty)
+                {
+                    builder.BeginBadgesEnd();
+                    {
+                        builder.AppendBadge(
+                            "reverseproxy",
+                            "target",
+                            "Target",
+                            Target
+                        );
+                    }
+                    builder.EndBadgesEnd();
+                }
+            }
+            builder.EndBadgesGroup();
 
             return builder.ToString();
         }
