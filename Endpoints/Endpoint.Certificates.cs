@@ -120,6 +120,9 @@ public static partial class Endpoint
             if (certificate is null)
                 return Results.NotFound();
 
+            if (certificate.HasAuthority)
+                return Results.BadRequest();
+
             var domains = certificate.Domains.Select(x => x.Value).ToArray();
 
             X509Certificate2 pfxCert;
@@ -135,7 +138,7 @@ public static partial class Endpoint
                     staging ?? true,
                     domains
                 );
-                
+
                 if (pfxCert is null)
                     return Results.StatusCode(500);
             }

@@ -6,3 +6,4 @@
 /obj/
 *.user
 appsettings.Development.json
+/upload.bat

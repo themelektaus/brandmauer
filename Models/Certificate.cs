@@ -35,10 +35,32 @@ public class Certificate : Model, IOnDeserialize
         {
             var builder = new StringBuilder();
 
-            builder.BeginBadges();
+            builder.BeginBadges("flex: 2; ");
             {
+                if (Name != string.Empty)
+                    builder.AppendBadge("certificate", "name", "Name", Name);
+
                 foreach (var domain in Domains)
                     builder.AppendBadge("certificate", "domain", domain, null);
+            }
+            builder.EndBadges();
+
+            builder.BeginBadges("flex: 1; ");
+            {
+                if (isValid)
+                    builder.AppendBadge("certificate", "valid", "Valid", "<i class=\"fa-solid fa-check\"></i>");
+                else
+                    builder.AppendBadge("certificate", "invalid", "Invalid", "<i class=\"fa-solid fa-xmark\"></i>");
+
+                if (!string.IsNullOrEmpty(expiresIn))
+                    builder.AppendBadge("certificate", "expires-in", "Expires in", expiresIn);
+
+                if (!string.IsNullOrEmpty(issuerCommonName))
+                    builder.AppendBadge("certificate", "issuer", "CN", issuerCommonName);
+
+                if (!string.IsNullOrEmpty(issuerOrganisation))
+                    builder.AppendBadge("certificate", "organisation", "O", issuerOrganisation);
+
             }
             builder.EndBadges();
 
@@ -61,8 +83,10 @@ public class Certificate : Model, IOnDeserialize
     public bool isValid;
     public DateTime startDate;
     public DateTime endDate;
-    public bool isLetsEncrypt;
-    public bool isLetsEncryptStaging;
+    public int daysUntilExpiry;
+    public string expiresIn;
+    public string issuerCommonName;
+    public string issuerOrganisation;
 
     public void Write(Database database, X509Certificate2 pfxCert)
     {
@@ -95,17 +119,15 @@ public class Certificate : Model, IOnDeserialize
         startDate = start;
         endDate = end;
 
-        isLetsEncrypt = false;
-        isLetsEncryptStaging = false;
+        var expiresIn = endDate - now.AddDays(1);
+        daysUntilExpiry = (int) expiresIn.TotalDays;
+        this.expiresIn = expiresIn.ToHumanReadableDaysString();
 
-        if (Pem.IssuerName.ToDictonary().TryGetValue("O", out var o))
-        {
-            if (o == "(STAGING) Let's Encrypt")
-                isLetsEncryptStaging = true;
+        if (!Pem.IssuerName.ToDictonary().TryGetValue("CN", out issuerCommonName))
+            issuerCommonName = string.Empty;
 
-            if (isLetsEncryptStaging || o == "Let's Encrypt")
-                isLetsEncrypt = true;
-        }
+        if (!Pem.IssuerName.ToDictonary().TryGetValue("O", out issuerOrganisation))
+            issuerOrganisation = string.Empty;
     }
 
     public static List<Certificate> GetAll()

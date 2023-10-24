@@ -8,14 +8,15 @@
         <button data-action="cancelAll" disabled>Cancel</button>
     </div>
     <div class="content">
-        <div class="list-header" style="grid-template-columns: 1fr 4fr; ">
-            <div>Name</div>
-            <div>Info</div>
+        <div class="list-header" style="grid-template-columns: 1fr; ">
+            <div style="display: flex; ">
+                <div class="badges" style="flex: 4; ">Source</div>
+                <div class="badges" style="flex: 3; ">Target</div>
+            </div>
         </div>
         <div class="list" data-bind="reverseproxyroutes">
             <div class="item">
-                <div style="grid-template-columns: 1fr 4fr; ">
-                    <div data-bind="htmlName"></div>
+                <div style="grid-template-columns: 1fr; ">
                     <div data-bind="htmlInfo"></div>
                 </div>
                 <div>

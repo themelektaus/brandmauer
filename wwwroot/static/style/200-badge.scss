@@ -43,7 +43,18 @@
     
     &-nat-host,
     &-rule-host,
-    &-reverseproxy-source-host {
+    &-reverseproxy-source-host,
+    &-reverseproxy-yarp,
+    &-certificate-valid {
         background-color: #473;
+    }
+    
+    &-reverseproxy-host-modification,
+    &-certificate-expires-in {
+        background-color: #663;
+    }
+    
+    &-certificate-invalid {
+        background-color: #743;
     }
 }
