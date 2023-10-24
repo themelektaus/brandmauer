@@ -35,10 +35,12 @@ public class Certificate : Model, IOnDeserialize
         {
             var builder = new StringBuilder();
 
-            builder.Append("<div class=\"badges\">");
-            foreach (var domain in Domains)
-                builder.AppendBadge("certificate", "domain", domain, null);
-            builder.Append("</div>");
+            builder.BeginBadges();
+            {
+                foreach (var domain in Domains)
+                    builder.AppendBadge("certificate", "domain", domain, null);
+            }
+            builder.EndBadges();
 
             return builder.ToString();
         }

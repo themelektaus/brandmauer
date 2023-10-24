@@ -12,8 +12,12 @@ public class Host : Model
         {
             var builder = new StringBuilder();
 
-            foreach (var address in Addresses)
-                builder.AppendBadge("host", "address", address, null);
+            builder.BeginBadges();
+            {
+                foreach (var address in Addresses)
+                    builder.AppendBadge("host", "address", address, null);
+            }
+            builder.EndBadges();
 
             return builder.ToString();
         }

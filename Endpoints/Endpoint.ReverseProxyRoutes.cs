@@ -6,7 +6,10 @@ public static partial class Endpoint
     {
         public static IResult GetAll()
         {
-            var data = Database.Use(x => x.ReverseProxyRoutes);
+            var data = Database.Use(x => x.ReverseProxyRoutes)
+                .OrderBy(x => x.SourceDomains.FirstOrDefault().ToString())
+                .ThenBy(x => x.Name)
+                .ThenBy(x => x.Identifier.Id);
 
             return Results.Json(data);
         }

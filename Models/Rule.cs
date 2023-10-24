@@ -11,21 +11,25 @@ public class Rule : Model, IOnDeserialize
             var builder = new StringBuilder()
                 .AppendBadge("rule", "direction", Direction, Action);
 
-            if (Hosts.Count == 0)
-                builder.AppendBadge("rule", "host", "Host", "any");
-            else
-                foreach (var host in Hosts.Select(x => x.ToString()))
-                    builder.AppendBadge("rule", "host", "Host", host);
+            builder.BeginBadges();
+            {
+                if (Hosts.Count == 0)
+                    builder.AppendBadge("rule", "host", "Host", "any");
+                else
+                    foreach (var host in Hosts.Select(x => x.ToString()))
+                        builder.AppendBadge("rule", "host", "Host", host);
+            }
+            builder.EndBadges();
 
-            builder.Append("<div class=\"badges\">");
-
-            if (Services.Count == 0)
-                builder.AppendBadge("rule", "service", "any", null);
-            else
-                foreach (var service in Services.Select(x => x.ToString()))
-                    builder.AppendBadge("rule", "service", service, null);
-
-            builder.Append("</div>");
+            builder.BeginBadges();
+            {
+                if (Services.Count == 0)
+                    builder.AppendBadge("rule", "service", "any", null);
+                else
+                    foreach (var service in Services.Select(x => x.ToString()))
+                        builder.AppendBadge("rule", "service", service, null);
+            }
+            builder.EndBadges();
 
             return builder.ToString();
         }

@@ -13,7 +13,10 @@ public static partial class Endpoint
 
         public static IResult GetAll()
         {
-            var data = Certificate.GetAll();
+            var data = Certificate.GetAll()
+                .OrderBy(x => x.Domains.FirstOrDefault().ToString())
+                .ThenBy(x => x.Name)
+                .ThenBy(x => x.Identifier.Id);
 
             return Results.Json(data);
         }

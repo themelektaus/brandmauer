@@ -6,7 +6,9 @@ public static partial class Endpoint
     {
         public static IResult GetAll()
         {
-            var data = Database.Use(x => x.Services);
+            var data = Database.Use(x => x.Services)
+                .OrderBy(x => x.Name)
+                .ThenBy(x => x.Identifier.Id);
 
             return Results.Json(data);
         }
