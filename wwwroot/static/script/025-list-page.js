@@ -29,6 +29,8 @@ class ListPage extends Page
         this.$saveButton = this.$.q(`[data-action="saveAll"]`)
         this.$saveButton.onClick(async () =>
         {
+            disable()
+            
             this.$saveButton.setEnabled(false)
             this.$cancelButton.setEnabled(false)
             
@@ -39,16 +41,22 @@ class ListPage extends Page
             
             this.items = null
             await this.refresh()
+            
+            enable()
         })
         
         this.$cancelButton = this.$.q(`[data-action="cancelAll"]`)
         this.$cancelButton.onClick(async () =>
         {
+            disable()
+            
             this.$saveButton.setEnabled(false)
             this.$cancelButton.setEnabled(false)
             
             this.items = null
             await this.refresh()
+            
+            enable()
         })
     }
     

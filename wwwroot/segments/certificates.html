@@ -8,14 +8,15 @@
         <button data-action="cancelAll" disabled>Cancel</button>
     </div>
     <div class="content">
-        <div class="list-header" style="grid-template-columns: 1fr 2fr; ">
-            <div>Name</div>
-            <div>Domains</div>
+        <div class="list-header" style="grid-template-columns: 1fr; ">
+            <div style="display: flex; ">
+                <div class="badges" style="flex: 2; ">Certificate</div>
+                <div class="badges" style="flex: 1; ">Status</div>
+            </div>
         </div>
         <div class="list" data-bind="certificates">
             <div class="item">
-                <div style="grid-template-columns: 1fr 2fr; ">
-                    <div data-bind="htmlName"></div>
+                <div style="grid-template-columns: 1fr; ">
                     <div data-bind="htmlInfo"></div>
                 </div>
                 <div>
@@ -33,29 +34,8 @@
                             </li>
                         </ul>
                     </div>
-                    <div class="field">
-                        <label>Valid</label>
-                        <div data-bind="isValid" data-value>
-                            <i class="true fa-solid fa-square-check"></i>
-                            <i class="false fa-regular fa-square"></i>
-                        </div>
-                    </div>
-                    <div class="field">
-                        <label>Let's Encrypt</label>
-                        <div data-bind="isLetsEncrypt" data-value>
-                            <i class="true fa-solid fa-square-check"></i>
-                            <i class="false fa-regular fa-square"></i>
-                        </div>
-                    </div>
-                    <div class="field">
-                        <label>Staging</label>
-                        <div data-bind="isLetsEncryptStaging" data-value>
-                            <i class="true fa-solid fa-square-check"></i>
-                            <i class="false fa-regular fa-square"></i>
-                        </div>
-                    </div>
                     <div class="buttons" data-bind="identifier.id" data-value>
-                        <label>Update</label>
+                        <label>Generate</label>
                         <button data-action="updateCertificate"
                                 data-letsEncrypt="false"
                                 data-staging="false">
@@ -63,13 +43,13 @@
                         </button>
                         <button data-action="updateCertificate"
                                 data-lets-encrypt="true"
-                                data-staging="true">
-                            Let's Encrypt (Staging)
+                                data-staging="false">
+                            Let's Encrypt
                         </button>
                         <button data-action="updateCertificate"
                                 data-lets-encrypt="true"
-                                data-staging="false">
-                            Let's Encrypt
+                                data-staging="true">
+                            Let's Encrypt (Staging)
                         </button>
                     </div>
                 </div>

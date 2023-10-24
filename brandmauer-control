@@ -1,1 +1,55 @@
-//fileserver.lan/slave/bin/brandmauer-control
+#!/bin/sh
+
+case $1 in
+
+  start)
+
+    systemctl start brandmauer.service
+    ;;
+
+
+  stop)
+
+    systemctl stop brandmauer.service
+    ;;
+
+
+  restart)
+
+    systemctl stop brandmauer.service
+    systemctl start brandmauer.service
+    ;;
+
+
+  status)
+
+    systemctl status brandmauer.service
+    ;;
+
+
+  log|logs)
+
+    journalctl --no-pager -n 85 -u brandmauer.service
+    ;;
+
+
+  script|last-script)
+
+    cat /tmp/brandmauer/scripts/$(ls -rt /tmp/brandmauer/scripts | tail -n 1)
+    ;;
+
+
+  *)
+    echo "                          "
+    echo "  list of options         "
+    echo " ------------------------ "
+    echo "   > start                "
+    echo "   > stop                 "
+    echo "   > restart              "
+    echo "   > status               "
+    echo "   > log, logs            "
+    echo "   > script, last-script  "
+    echo "                          "
+    ;;
+
+esac

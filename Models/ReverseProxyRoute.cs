@@ -10,11 +10,11 @@ public class ReverseProxyRoute : Model, IOnDeserialize
         {
             var builder = new StringBuilder();
 
-            var displayNone = SourceHosts.Count == 0 ? " display-none" : "";
-            var classes = $"badges badges-top{displayNone}";
-
-            builder.Append($"<div class=\"{classes}\">");
+            builder.BeginBadges("flex: 4; ");
             {
+                if (Name != string.Empty)
+                    builder.AppendBadge("reverseproxy", "name", "Name", Name);
+
                 foreach (var host in SourceHosts)
                     builder.AppendBadge(
                         "reverseproxy",
@@ -22,41 +22,44 @@ public class ReverseProxyRoute : Model, IOnDeserialize
                         "Source Host",
                         host
                     );
-            }
-            builder.Append("</div>");
 
-            builder.BeginBadgesGroup();
-            {
                 if (SourceDomains.Count > 0)
                 {
-                    builder.BeginBadges("flex: 1; ");
-                    {
-                        foreach (var domain in SourceDomains)
-                            builder.AppendBadge(
-                                "reverseproxy",
-                                "source-domain",
-                                domain,
-                                null
-                            );
-                    }
-                    builder.EndBadges();
-                }
-
-                if (Target != string.Empty)
-                {
-                    builder.BeginBadgesEnd();
-                    {
+                    foreach (var domain in SourceDomains)
                         builder.AppendBadge(
                             "reverseproxy",
-                            "target",
-                            "Target",
-                            Target
+                            "source-domain",
+                            domain,
+                            null
                         );
-                    }
-                    builder.EndBadgesEnd();
                 }
             }
-            builder.EndBadgesGroup();
+            builder.EndBadges();
+
+            builder.BeginBadges("flex: 3; ");
+            {
+                if (Target != string.Empty)
+                {
+                    builder.AppendBadge(
+                        "reverseproxy",
+                        "target",
+                        "Target",
+                        Target
+                    );
+                }
+
+                if (UseYarp)
+                    builder.AppendBadge("reverseproxy", "yarp", "YARP", null);
+
+                if (HostModification != _HostModification.Target)
+                    builder.AppendBadge(
+                        "reverseproxy",
+                        "host-modification",
+                        "Host Modification",
+                        HostModification.ToString()
+                    );
+            }
+            builder.EndBadges();
 
             return builder.ToString();
         }
