@@ -74,6 +74,7 @@ public class ReverseProxyRoute : Model, IOnDeserialize
 
     public string Target { get; set; } = string.Empty;
 
+    public bool UseTeapot { get; set; } = false;
     public bool UseYarp { get; set; } = false;
 
     public enum _HostModification

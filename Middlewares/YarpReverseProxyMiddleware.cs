@@ -47,7 +47,7 @@ public class YarpReverseProxyMiddleware(
             return;
         }
 
-        if (response.HasErrorStatus())
+        if (feature.Route.UseTeapot && response.HasErrorStatus())
             await NextAsync(context);
     }
 
@@ -124,7 +124,11 @@ public class YarpReverseProxyMiddleware(
                 return false;
 
             if (proxyResponse.StatusCode.HasErrorStatus())
-                return false;
+            {
+                var feature = httpContext.Features.Get<ReverseProxyFeature>();
+                if (feature.Route.UseTeapot)
+                    return false;
+            }
 
             httpContext.Response.Headers.TryAdd("X-Reverse-Proxy", "YARP");
 

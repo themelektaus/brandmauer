@@ -101,7 +101,7 @@ public class CustomReverseProxyMiddleware(RequestDelegate next) : ReverseProxyMi
 
             context.Response.Headers.Remove("transfer-encoding");
 
-            if (response.StatusCode.HasErrorStatus())
+            if (feature.Route.UseTeapot && response.StatusCode.HasErrorStatus())
             {
                 context.Response.ContentLength = null;
                 await NextAsync(context);
