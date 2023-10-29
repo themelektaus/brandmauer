@@ -87,9 +87,10 @@ public class YarpReverseProxyMiddleware(
             var ip = httpContext.Connection.RemoteIpAddress.ToIp();
             var scheme = httpContext.Request.Scheme;
 
-            proxyRequest.Headers.TryAddWithoutValidation("X-Real-IP", ip);
-            proxyRequest.Headers.TryAddWithoutValidation("X-Forwarded-For", ip);
-            proxyRequest.Headers.TryAddWithoutValidation("X-Forwarded-Proto", scheme);
+            var headers = proxyRequest.Headers;
+            headers.TryAddWithoutValidation("X-Real-IP", ip);
+            headers.TryAddWithoutValidation("X-Forwarded-For", ip);
+            headers.TryAddWithoutValidation("X-Forwarded-Proto", scheme);
 
             var feature = httpContext.Features.Get<ReverseProxyFeature>();
 
@@ -100,16 +101,17 @@ public class YarpReverseProxyMiddleware(
                     break;
 
                 case ReverseProxyRoute._HostModification.Target:
-                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(
-                        feature.Target,
-                        httpContext.Request.Path,
-                        httpContext.Request.QueryString
-                    );
-                    proxyRequest.Headers.Host = null;
+                    proxyRequest.RequestUri = RequestUtilities
+                        .MakeDestinationAddress(
+                            feature.Target,
+                            httpContext.Request.Path,
+                            httpContext.Request.QueryString
+                        );
+                    headers.Host = null;
                     break;
 
                 case ReverseProxyRoute._HostModification.Null:
-                    proxyRequest.Headers.Host = null;
+                    headers.Host = null;
                     break;
             }
         }

@@ -1,6 +1,7 @@
 ﻿namespace Brandmauer;
 
-public class CustomReverseProxyMiddleware(RequestDelegate next) : ReverseProxyMiddleware
+public class CustomReverseProxyMiddleware(RequestDelegate next)
+    : ReverseProxyMiddleware
 {
     readonly HttpClient httpClient = new(new HttpClientHandler()
     {
@@ -198,7 +199,10 @@ public class CustomReverseProxyMiddleware(RequestDelegate next) : ReverseProxyMi
     }
 
 #if DEBUG
-    RequestInfo CreateRequestInfo(HttpRequestMessage request, string content)
+    static RequestInfo CreateRequestInfo(
+        HttpRequestMessage request,
+        string content
+    )
     {
         var requestInfo = new RequestInfo()
         {
