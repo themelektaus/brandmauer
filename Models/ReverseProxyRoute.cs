@@ -87,6 +87,9 @@ public class ReverseProxyRoute : Model, IOnDeserialize
     public _HostModification HostModification { get; set; }
         = _HostModification.Target;
 
+    public MemoryValue MaxBodySize { get; set; }
+        = new() { Unit = MemoryValue._Unit.Default };
+
     public void OnDeserialize(Database database)
     {
         SourceHosts = database.Hosts

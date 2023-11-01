@@ -103,7 +103,8 @@ class InteractiveAction
         const staging = !($sender.dataset.staging == "false")
         
         const response = await fetch(
-            `api/certificates/${id}/update?letsEncrypt=${letsEncrypt}&staging=${staging}`
+            `api/certificates/${id}/update` +
+            `?letsEncrypt=${letsEncrypt}&staging=${staging}`
         )
         
         log(response)

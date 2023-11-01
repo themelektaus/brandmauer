@@ -48,28 +48,50 @@
                         <label>Target</label>
                         <input type="text" data-bind="target">
                     </div>
-                    <div class="field">
-                        <label>Use Teapot</label>
-                        <input type="checkbox" data-bind="useTeapot">
+                    <div class="foldout">
+                        <div class="foldout-title">
+                            Detail Settings
+                        </div>
+                        <div class="foldout-content">
+                            <div class="field">
+                                <label>Use Teapot</label>
+                                <input type="checkbox" data-bind="useTeapot">
+                            </div>
+                            <div class="field">
+                                <label>
+                                    Use
+                                    <a href="https://microsoft.github.io/reverse-proxy/" target="_blank">
+                                        YARP
+                                    </a>
+                                </label>
+                                <input type="checkbox" data-bind="useYarp">
+                            </div>
+                            <div class="field">
+                                <label>Host Modification</label>
+                                <select data-bind="hostModification" data-type="number">
+                                    <option value="-2">Unset</option>
+                                    <option value="-1">Origin</option>
+                                    <option value="0">Target</option>
+                                    <option value="1">Null</option>
+                                </select>
+                            </div>
+                            <div class="field" data-object="maxBodySize">
+                                <label>Max. Body Size</label>
+                                <div class="flex">
+                                    <input data-bind="value" type="number" style="width: 5rem; " />
+                                    <select data-bind="unit" data-type="number">
+                                        <option value="-1">Default</option>
+                                        <option value="0">Byte</option>
+                                        <option value="1">KB</option>
+                                        <option value="2">MB</option>
+                                        <option value="3">GB</option>
+                                        <option value="4">TB</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="field">
-                        <label>
-                            Use
-                            <a href="https://microsoft.github.io/reverse-proxy/" target="_blank">
-                                YARP
-                            </a>
-                        </label>
-                        <input type="checkbox" data-bind="useYarp">
-                    </div>
-                    <div class="field">
-                        <label>Host Modification</label>
-                        <select data-bind="hostModification" data-type="number">
-                            <option value="-2">Unset</option>
-                            <option value="-1">Origin</option>
-                            <option value="0">Target</option>
-                            <option value="1">Null</option>
-                        </select>
-                    </div>
+                    
                 </div>
             </div>
         </div>

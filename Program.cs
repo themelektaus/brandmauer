@@ -30,8 +30,10 @@ builder.Services.Configure<JsonOptions>(options =>
     serializer.Converters.Add(new ExceptionConverter());
 });
 
-builder.WebHost.UseKestrel(options =>
+ builder.WebHost.UseKestrel(options =>
 {
+    options.Limits.MaxRequestBodySize = null;
+
     options.ListenAnyIP(Utils.HTTP);
     options.ListenAnyIP(Utils.HTTPS, x =>
     {

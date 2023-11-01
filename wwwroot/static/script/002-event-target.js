@@ -44,6 +44,14 @@ Object.defineProperties(EventTarget.prototype,
             return this
         }
     },
+    toggleClass:
+    {
+        value: function(value)
+        {
+            this.classList.toggle(value)
+            return this
+        }
+    },
     setHtml:
     {
         value: function(html)
