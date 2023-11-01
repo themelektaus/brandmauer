@@ -30,7 +30,7 @@ class ListPageItem
                 if (this.$details != item.$details)
                     item.$details.setClass(`display-none`, true)
             
-                    this.$details.classList.toggle(`display-none`)
+            this.$details.classList.toggle(`display-none`)
         })
         
         this.$details = this.$.children[1]

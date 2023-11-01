@@ -1,0 +1,49 @@
+.foldout {
+    
+    &-title {
+        background-color: var(--group__background-color);
+        padding: .625rem;
+        cursor: pointer;
+        user-select: none;
+        
+        &:hover {
+            filter: brightness(1.4);
+        }
+        
+        &::before {
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            display: inline-block;
+            width: .825rem;
+        }
+    }
+    
+    &-content {
+        gap: .5rem;
+        display: flex;
+        flex-direction: column;
+        background-color: var(--group__background-color);
+        padding: .5rem;
+        border-radius: 0 0 var(--border-radius) var(--border-radius);
+    }
+    
+    &:has(.foldout-content.display-none) {
+        .foldout-title {
+            border-radius: var(--border-radius);
+            
+            &::before {
+                content: '\f0da';
+            }
+        }
+    }
+    
+    &:not(:has(.foldout-content.display-none)) {
+        .foldout-title {
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            
+            &::before {
+                content: '\f0d7';
+            }
+        }
+    }
+}

@@ -1,5 +1,8 @@
 ﻿using NetTools;
 
+using IHttpMaxRequestBodySizeFeature
+    = Microsoft.AspNetCore.Http.Features.IHttpMaxRequestBodySizeFeature;
+
 namespace Brandmauer;
 
 public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
@@ -136,6 +139,13 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
 
             target = $"http://127.0.0.1:{Utils.HTTP}/{target}";
         }
+
+        var maxBodySize = source.route.MaxBodySize.GetBytes();
+        if (maxBodySize is not null)
+            context.Features.Get<IHttpMaxRequestBodySizeFeature>()
+                .MaxRequestBodySize = Database.Use(
+                    x => maxBodySize
+                );
 
         context.Features.Set(new ReverseProxyFeature()
         {

@@ -53,6 +53,11 @@
     display: none;
 }
 
+.flex {
+    display: flex;
+    gap: .5rem;
+}
+
 .flex-rows,
 .group-string-values {
     display: flex;

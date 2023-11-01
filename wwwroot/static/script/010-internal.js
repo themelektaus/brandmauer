@@ -163,8 +163,10 @@ class Internal
     {
         const binds = bind.split('.')
         let property = model
+        
         while (binds.length > 1)
             property = property[binds.shift()]
+        
         property[binds.shift()] = value
     }
     
