@@ -1,13 +1,15 @@
 ﻿using LibSassHost;
 
+using Microsoft.AspNetCore.StaticFiles;
+
 using System.Text;
 
 namespace Brandmauer;
 
-public class FrontendMiddleware(RequestDelegate next)
+public class FrontendMiddleware(RequestDelegate next)   
 {
-    const string WWWROOT = "wwwroot";
-    const string INDEX_HTML = "index.html";
+    const string WWWROOT = "wwwroot"/*-htmx*/;
+    const string INDEX_HTML = "index.html"/*.htmx*/;
     const string FAVICON_ICO = "favicon.ico";
     const string TITLE = "title";
     const string SEGMENTS = "segments";
@@ -15,22 +17,15 @@ public class FrontendMiddleware(RequestDelegate next)
     const string STYLE = "style";
     const string SCRIPT = "script";
 
-    static string GetWwwRootFolder()
-    {
-        return WWWROOT;
-    }
-
-    static string GetStaticFolder()
-    {
-        return Path.Combine(GetWwwRootFolder(), STATIC);
-    }
-
     static string GetWwwRootFile(string path)
     {
-        return Path.Combine([
-             GetWwwRootFolder(),
-            .. path.TrimStart('/').Split('/')
-         ]);
+        return Path.Combine([WWWROOT, .. path.TrimStart('/').Split('/')]);
+    }
+
+    static async Task<string> GetWwwRootFileContentAsync(string path)
+    {
+        path = GetWwwRootFile(path);
+        return await File.ReadAllTextAsync(path);
     }
 
     public async Task Invoke(HttpContext context)
@@ -43,12 +38,21 @@ public class FrontendMiddleware(RequestDelegate next)
 
             if (path.EndsWith(".scss"))
             {
-                await Css(context, path);
+                static string OnLoadContent(string x)
+                    => SassCompiler.Compile(x).CompiledContent;
+
+                await LoadAsync(context, "text/css", path, OnLoadContent);
                 return;
             }
 
             if (path == "/")
                 path = $"/{INDEX_HTML}";
+
+            //if (path.EndsWith(".htmx"))
+            //{
+            //    await LoadAsync(context, "text/html", path);
+            //    return;
+            //}
 
             if (path == $"/{INDEX_HTML}")
             {
@@ -58,7 +62,7 @@ public class FrontendMiddleware(RequestDelegate next)
 
             if (path == $"/{FAVICON_ICO}" || path.StartsWith($"/{STATIC}/"))
             {
-                await FavIcon(context, path);
+                await SendFileAsync(context, path);
                 return;
             }
 
@@ -69,6 +73,20 @@ public class FrontendMiddleware(RequestDelegate next)
         await next.Invoke(context);
 
         Utils.LogOut<FrontendMiddleware>(context);
+    }
+
+    static async Task LoadAsync(
+        HttpContext context,
+        string contentType,
+        string path,
+        Func<string, string> onLoadContent = null
+    )
+    {
+        var content = await GetWwwRootFileContentAsync(path);
+        if (onLoadContent is not null)
+            content = onLoadContent(content);
+
+        await SetAsync(context, contentType, content);
     }
 
     static async Task SetAsync(
@@ -82,16 +100,9 @@ public class FrontendMiddleware(RequestDelegate next)
         await response.Body.LoadFromAsync(content);
     }
 
-    async Task Css(HttpContext context, string path)
+    static async Task IndexHtml(HttpContext context, string path)
     {
-        var content = await File.ReadAllTextAsync(GetWwwRootFile(path));
-        content = SassCompiler.Compile(content).CompiledContent;
-        await SetAsync(context, "text/css", content);
-    }
-
-    async Task IndexHtml(HttpContext context, string path)
-    {
-        var content = await File.ReadAllTextAsync(GetWwwRootFile(path));
+        var content = await GetWwwRootFileContentAsync(path);
         content = content.Replace($"<!--{TITLE}-->", Utils.Name);
 
         StringBuilder builder = new();
@@ -99,7 +110,7 @@ public class FrontendMiddleware(RequestDelegate next)
         IEnumerable<FileInfo> files;
 
         builder.Clear();
-        folder = Path.Combine(GetStaticFolder(), STYLE);
+        folder = Path.Combine(WWWROOT, STATIC, STYLE);
         files = new DirectoryInfo(folder).EnumerateFiles();
 
         foreach (var file in files.OrderBy(x => x.Name))
@@ -116,7 +127,7 @@ public class FrontendMiddleware(RequestDelegate next)
         );
 
         builder.Clear();
-        folder = Path.Combine(GetStaticFolder(), SCRIPT);
+        folder = Path.Combine(WWWROOT, STATIC, SCRIPT);
         files = new DirectoryInfo(folder).EnumerateFiles();
 
         foreach (var file in files.OrderBy(x => x.Name))
@@ -132,7 +143,7 @@ public class FrontendMiddleware(RequestDelegate next)
             builder.ToString().TrimEnd()
         );
 
-        folder = Path.Combine(GetWwwRootFolder(), SEGMENTS);
+        folder = Path.Combine(WWWROOT, SEGMENTS);
         files = new DirectoryInfo(folder).EnumerateFiles();
         foreach (var file in files)
         {
@@ -146,8 +157,14 @@ public class FrontendMiddleware(RequestDelegate next)
         await SetAsync(context, "text/html", content);
     }
 
-    async Task FavIcon(HttpContext context, string path)
+    static async Task SendFileAsync(HttpContext context, string path)
     {
-        await context.Response.SendFileAsync(GetWwwRootFile(path));
+        var file = GetWwwRootFile(path);
+
+        var provider = new FileExtensionContentTypeProvider();
+        if (provider.TryGetContentType(file, out var contentType))
+            context.Response.ContentType = contentType;
+
+        await context.Response.SendFileAsync(file);
     }
 }

@@ -5,65 +5,68 @@ using static FileUtils;
 
 public class Updater : ConditionalIntervalTask
 {
-    readonly string sourceFile;
-    readonly string sourceFile_libsass;
-    readonly string sourceFolder;
-    readonly string sourceFolder_wwwroot;
+    const string UPDATE_FOLDER = "Update";
 
-    readonly string targetFile;
-    readonly string targetFile_libsass;
-    readonly string targetFolder;
-    readonly string targetFolder_wwwroot;
+    static readonly string[] folders = [
+        "wwwroot"
+    ];
+
+    static readonly FileInfo processFile = new(Environment.ProcessPath);
+
+    static readonly string[] files = [
+        processFile.Name,
+        $"{processFile.Name}.pdb",
+        "libsass.so"
+    ];
+
+    static string GetSourcePath(string name)
+        => Path.GetFullPath(Path.Combine(UPDATE_FOLDER, name));
+
+    static string GetTargetPath(string name)
+        => Path.GetFullPath(name);
+
+    protected override TimeSpan Delay => TimeSpan.Zero;
+    protected override TimeSpan Interval => TimeSpan.FromSeconds(1);
 
     readonly WebApplication app;
 
     public Updater(WebApplication app)
     {
         this.app = app;
-
-        var processFile = new FileInfo(Environment.ProcessPath);
-
-        sourceFile = Path.GetFullPath(
-            Path.Combine("Update", processFile.Name)
-        );
-        sourceFile_libsass = Path.GetFullPath(
-            Path.Combine("Update", "libsass.so")
-        );
-        sourceFolder = Path.GetFullPath("Update");
-        sourceFolder_wwwroot = Path.Combine(sourceFolder, "wwwroot");
-
-        targetFile = processFile.FullName;
-        targetFile_libsass = Path.Combine(
-            processFile.Directory.FullName, "libsass.so"
-        );
-        targetFolder = processFile.Directory.FullName;
-        targetFolder_wwwroot = Path.Combine(targetFolder, "wwwroot");
     }
-
-    protected override TimeSpan Delay => TimeSpan.Zero;
-    protected override TimeSpan Interval => TimeSpan.FromSeconds(1);
 
     protected override bool ShouldTrigger()
     {
-        return Directory.Exists(sourceFolder);
+        return Directory.Exists(UPDATE_FOLDER);
     }
 
     protected override async Task OnTriggerAsync()
     {
+        await Task.Delay(1000);
+
         try
         {
-            MoveFolder(targetFolder_wwwroot, $"{targetFolder_wwwroot}.bak");
-            CopyFolder(sourceFolder_wwwroot, targetFolder_wwwroot);
+            foreach (var folder in folders)
+            {
+                var target = GetTargetPath(folder);
+                MoveFolder(target, $"{target}.bak");
+                CopyFolder(GetSourcePath(folder), target);
+            }
 
-            MoveFile(targetFile, $"{targetFile}.bak");
-            CopyFile(sourceFile, targetFile);
+            foreach (var file in files)
+            {
+                var target = GetTargetPath(file);
+                MoveFile(target, $"{target}.bak");
+                CopyFile(GetSourcePath(file), target);
+            }
 
-            MoveFile(targetFile_libsass, $"{targetFile_libsass}.bak");
-            CopyFile(sourceFile_libsass, targetFile_libsass);
+            foreach (var folder in folders)
+                DeleteFolder($"{GetTargetPath(folder)}.bak");
 
-            DeleteFolder($"{targetFolder_wwwroot}.bak");
-            DeleteFile($"{targetFile}.bak");
-            DeleteFile($"{targetFile_libsass}.bak");
+            foreach (var file in files)
+                DeleteFile($"{GetTargetPath(file)}.bak");
+
+            DeleteFolder(UPDATE_FOLDER);
 
             await app.StopAsync();
         }
@@ -71,36 +74,43 @@ public class Updater : ConditionalIntervalTask
         {
             Console.WriteLine(ex);
 
-            try
+            foreach (var folder in folders)
             {
-                MoveFolder($"{targetFolder_wwwroot}.bak", targetFolder_wwwroot);
-            }
-            catch (Exception _ex)
-            {
-                Console.WriteLine(_ex);
-            }
-
-            try
-            {
-                MoveFile($"{targetFile}.bak", targetFile);
-            }
-            catch (Exception _ex)
-            {
-                Console.WriteLine(_ex);
+                try
+                {
+                    var target = GetTargetPath(folder);
+                    MoveFolder($"{target}.bak", target);
+                }
+                catch (Exception _ex)
+                {
+                    Console.WriteLine(_ex);
+                }
             }
 
-            try
+            foreach (var file in files)
             {
-                MoveFile($"{targetFile_libsass}.bak", targetFile_libsass);
-            }
-            catch (Exception _ex)
-            {
-                Console.WriteLine(_ex);
+                try
+                {
+                    var target = GetTargetPath(file);
+                    MoveFile($"{target}.bak", target);
+                }
+                catch (Exception _ex)
+                {
+                    Console.WriteLine(_ex);
+                }
             }
         }
         finally
         {
-            DeleteFolder(sourceFolder);
+            try
+            {
+                foreach (var folder in folders)
+                    DeleteFolder(GetSourcePath(folder));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
         }
     }
 }

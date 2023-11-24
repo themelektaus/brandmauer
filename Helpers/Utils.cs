@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Http.Extensions;
 
+using Microsoft.Extensions.Primitives;
+
+using System.Net.Http.Headers;
 using System.Net.NetworkInformation;
 
 using System.Reflection;
@@ -130,4 +133,24 @@ public static partial class Utils
         return index;
     }
 #endif
+
+    //https://github.com/microsoft/reverse-proxy/blob/4e32b6b87af17ed1e60bb84aa76d8585c7e5c11f/src/ReverseProxy/Forwarder/RequestUtilities.cs#L350
+    public static StringValues Concat(in StringValues existing, in HeaderStringValues values)
+    {
+        if (values.Count <= 1)
+            return StringValues.Concat(existing, values.ToString());
+        
+        var count = existing.Count;
+        var newArray = new string[count + values.Count];
+
+        if (count == 1)
+            newArray[0] = existing.ToString();
+        else
+            existing.ToArray().CopyTo(newArray, 0);
+
+        foreach (var value in values)
+            newArray[count++] = value;
+            
+        return newArray;
+    }
 }

@@ -8,5 +8,5 @@ public struct Identifier
 
     public static long NextId() => ++lastId;
 
-    public void UpdateLastId() => lastId = Math.Max(lastId, Id);
+    public readonly void UpdateLastId() => lastId = Math.Max(lastId, Id);
 }

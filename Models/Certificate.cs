@@ -88,6 +88,8 @@ public class Certificate : Model, IOnDeserialize
     public string issuerCommonName;
     public string issuerOrganisation;
 
+    [JsonIgnore] public bool ExpiresSoon => daysUntilExpiry <= 10;
+
     public void Write(Database database, X509Certificate2 pfxCert)
     {
         CertPem = pfxCert.ExportCertificatePem();
@@ -153,5 +155,17 @@ public class Certificate : Model, IOnDeserialize
             cache.database = database;
             return cache.Get(domain);
         });
+    }
+
+    public string GetFilename(string format)
+    {
+        if (!string.IsNullOrEmpty(Name))
+            return $"{Name}.{format}";
+
+        var domain = Domains.FirstOrDefault().Value;
+        if (!string.IsNullOrEmpty(domain))
+            return $"{domain}.{format}";
+
+        return $"{Identifier.Id}.{format}";
     }
 }

@@ -6,4 +6,4 @@
 /obj/
 *.user
 appsettings.Development.json
-/upload.bat
+/PostPublish.bat

@@ -1,16 +1,44 @@
-﻿namespace Brandmauer;
+﻿using System.Text;
+
+namespace Brandmauer;
 
 public static partial class Endpoint
 {
     public static class Hosts
     {
-        public static IResult GetAll()
+        public static IResult GetAll(HttpRequest request)
         {
-            var data = Database.Use(x => x.Hosts)
+            if (request.Query.TryGetValue("format", out var format))
+                if (format == "html")
+                    return GetAllAsHtml();
+
+            return Results.Json(EnumerateAll());
+        }
+
+        static IResult GetAllAsHtml()
+        {
+            var data = EnumerateAll().ToList();
+
+            var html = new StringBuilder();
+
+            foreach (var item in data)
+            {
+                html.Append(
+                    $"<div>" +
+                    $"<div>{item.HtmlName}</div>" +
+                    $"<div>{item.HtmlInfo}</div>" +
+                    $"</div>"
+                );
+            }
+
+            return Results.Content(html.ToString(), "text/html");
+        }
+
+        static IEnumerable<Host> EnumerateAll()
+        {
+            return Database.Use(x => x.Hosts)
                 .OrderBy(x => x.Name)
                 .ThenBy(x => x.Identifier.Id);
-
-            return Results.Json(data);
         }
 
         public static IResult Get(long id)
