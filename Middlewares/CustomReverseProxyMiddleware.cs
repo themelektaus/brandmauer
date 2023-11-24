@@ -3,11 +3,7 @@
 public class CustomReverseProxyMiddleware(RequestDelegate next)
     : ReverseProxyMiddleware
 {
-    readonly HttpClient httpClient = new(new HttpClientHandler()
-    {
-        ServerCertificateCustomValidationCallback
-            = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator,
-    });
+    protected readonly HttpClient httpClient = new(handler);
 
     protected override RequestDelegate Next => next;
 
@@ -89,16 +85,22 @@ public class CustomReverseProxyMiddleware(RequestDelegate next)
             context.Response.StatusCode = (int) response.StatusCode;
 
             foreach (var header in response.Headers)
+            {
                 context.Response.Headers.TryAdd(
                     header.Key,
                     header.Value.ToArray()
                 );
+            }
 
-            foreach (var header in response.Content.Headers)
-                context.Response.Headers.TryAdd(
-                    header.Key,
-                    header.Value.ToArray()
-                );
+            if (response.Content is not null)
+            {
+                var headers = context.Response.Headers;
+                foreach (var header in response.Content.Headers.NonValidated)
+                {
+                    var key = header.Key;
+                    headers[key] = Utils.Concat(headers[key], header.Value);
+                }
+            }
 
             context.Response.Headers.Remove("transfer-encoding");
 

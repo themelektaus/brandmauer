@@ -20,7 +20,7 @@ public static partial class Endpoint
         app.MapGet($"{API}/config", Config.Get);
         app.MapPut($"{API}/config", Config.Set);
 
-        app.MapGet($"{API}/hosts", Hosts.GetAll);
+        app.MapGet($"{API}/hosts"/*?format=<json|html>*/, Hosts.GetAll);
         app.MapGet($"{API}/hosts/{{id}}", Hosts.Get);
         app.MapPost($"{API}/hosts", Hosts.Post);
         app.MapPut($"{API}/hosts", Hosts.Put);
@@ -157,9 +157,11 @@ public static partial class Endpoint
     static IResult WhatsMyIp(HttpContext context)
     {
         var headers = context.Request.Headers;
+
         if (!headers.TryGetValue("X-Real-IP", out var ip))
             if (!headers.TryGetValue("X-Forwarded-For", out ip))
                 ip = context.Connection.RemoteIpAddress.ToIp();
+
         return Results.Text(ip);
     }
 }

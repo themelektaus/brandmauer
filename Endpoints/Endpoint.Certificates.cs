@@ -182,7 +182,7 @@ public static partial class Endpoint
             return Results.File(
                 data,
                 "application/octet-stream",
-                $"{certificate.Name}.{format}"
+                certificate.GetFilename(format)
             );
         }
     }

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Net;
+﻿using Microsoft.AspNetCore.Http.Extensions;
 
 using Yarp.ReverseProxy.Forwarder;
 
@@ -10,6 +9,8 @@ public class YarpReverseProxyMiddleware(
     IHttpForwarder forwarder
 ) : ReverseProxyMiddleware
 {
+    protected readonly HttpMessageInvoker httpClient = new(handler);
+
     protected override RequestDelegate Next => next;
 
     protected override async Task OnPassAsync(HttpContext context)
@@ -38,33 +39,28 @@ public class YarpReverseProxyMiddleware(
 
         if (error != ForwarderError.None)
         {
-            var errorFeature = context.GetForwarderErrorFeature();
-            Console.WriteLine(errorFeature.Exception);
+            if (
+                error != ForwarderError.UpgradeRequestCanceled &&
+                error != ForwarderError.UpgradeResponseCanceled
+            )
+            {
+                Console.WriteLine(
+                    $"[ERROR] {error} {context.Request.Method} " +
+                    $"{context.Request.GetDisplayUrl()} {path} " +
+                    $"Status Code: {response.StatusCode}"
+                );
 
-            response.StatusCode = 500;
+                var errorFeature = context.GetForwarderErrorFeature();
+                Console.WriteLine(errorFeature.Exception);
+            }
+
             await NextAsync(context);
-
             return;
         }
 
         if (feature.Route.UseTeapot && response.HasErrorStatus())
             await NextAsync(context);
     }
-
-    readonly HttpMessageInvoker httpClient = new(new SocketsHttpHandler()
-    {
-        UseProxy = false,
-        AllowAutoRedirect = false,
-        AutomaticDecompression = DecompressionMethods.None,
-        UseCookies = false,
-        ActivityHeadersPropagator = new ReverseProxyPropagator(
-            DistributedContextPropagator.Current
-        ),
-        ConnectTimeout = TimeSpan.FromSeconds(15),
-        SslOptions = {
-            RemoteCertificateValidationCallback = (_, _, _, _) => true
-        }
-    });
 
     class CustomHttpTransformer : HttpTransformer
     {

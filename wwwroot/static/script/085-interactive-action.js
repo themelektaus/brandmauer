@@ -117,4 +117,11 @@ class InteractiveAction
         
         enable()
     }
+    
+    static downloadCertificate($sender)
+    {
+        const id = $sender.parentNode.dataset.value
+        const format = $sender.dataset.format
+        window.open(`api/certificates/${id}/download?format=${format}`)
+    }
 }

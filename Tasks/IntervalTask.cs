@@ -8,13 +8,19 @@ public abstract partial class IntervalTask : IAsyncDisposable
     protected abstract Task OnTickAsync();
 
     Task task;
+    CancellationTokenSource ctSource;
 
     bool disposed;
 
     public async ValueTask DisposeAsync()
     {
+        if (disposed)
+            return;
+
         disposed = true;
 
+        ctSource?.Cancel(false);
+        
         if (task is not null)
         {
             await task;
@@ -24,15 +30,18 @@ public abstract partial class IntervalTask : IAsyncDisposable
 
     public void RunInBackground()
     {
+        ctSource = new();
+        var ct = ctSource.Token;
+
         task = Task.Run(async () =>
         {
-            await Task.Delay(Delay);
+            try { await Task.Delay(Delay, ct); } catch { }
 
             while (!disposed)
             {
                 await OnTickAsync();
-                await Task.Delay(Interval);
+                try { await Task.Delay(Interval, ct); } catch { }
             }
-        });
+        }, ct);
     }
 }

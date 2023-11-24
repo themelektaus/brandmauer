@@ -52,6 +52,12 @@
                             Let's Encrypt (Staging)
                         </button>
                     </div>
+                    <div class="buttons" data-bind="identifier.id" data-value>
+                        <label>Download</label>
+                        <button data-action="downloadCertificate" data-format="crt">.crt</button>
+                        <button data-action="downloadCertificate" data-format="key">.key</button>
+                        <button data-action="downloadCertificate" data-format="pfx">.pfx</button>
+                    </div>
                 </div>
             </div>
         </div>

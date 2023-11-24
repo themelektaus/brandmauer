@@ -76,6 +76,7 @@ app.UseMiddleware<TeapotMiddleware>();
 
 #if RELEASE
 app.RunInBackground<Updater>();
+app.RunInBackground<CertificateRenewer>();
 #endif
 
 app.RunInBackground<DatabaseReloader>();
