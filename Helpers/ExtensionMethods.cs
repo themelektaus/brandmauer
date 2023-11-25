@@ -96,50 +96,72 @@ public static class ExtensionMethods
         return $"{prefix}{@this.Join($"{suffix}{prefix}")}{suffix}";
     }
 
-    class DnsCache : ThreadsafeCache<string, string>
+    class DnsCache : ThreadsafeCache<string, string[]>
     {
         protected override bool Logging => true;
 
-        protected override string GetNew(string key)
+        int currentDepth;
+
+        protected override string[] GetNew(Dictionary<string, string[]> x, string key)
         {
+            if (key == string.Empty)
+                return [];
+
+            if (Utils.IsIpAddress(key))
+                return [key];
+
+            List<string> addresses = [];
+
             try
             {
                 var hostEntry = Dns.GetHostEntry(key);
 
                 var ipAddress = hostEntry.AddressList
-                    .OrderByDescending(
+                    .FirstOrDefault(
                         x => x.AddressFamily == AddressFamily.InterNetwork
-                    )
-                    .FirstOrDefault();
+                    );
 
                 if (ipAddress is not null)
-                    return ipAddress.ToString();
+                    addresses.Add(ipAddress.ToString());
             }
             catch
             {
 
             }
-            
-            return default;
+
+            var host = Database.Use(
+                x => x.Hosts.FirstOrDefault(
+                    x => x.Name == key
+                )
+            );
+
+            if (host is not null)
+            {
+                if (currentDepth++ < 5)
+                {
+                    addresses.AddRange(
+                        host.Addresses.SelectMany(y => GetUnsafe(x, y.Value))
+                    );
+                }
+                currentDepth--;
+            }
+
+            return addresses.Distinct().ToArray();
         }
     }
     static readonly DnsCache dnsCache = new();
 
     public static string ToIpAddress(this string @this, bool useCache)
     {
-        if (@this == string.Empty)
-            goto Return;
+        return @this.ToIpAddresses(useCache).FirstOrDefault();
+    }
 
-        if (Utils.IsIpAddress(@this))
-            goto Return;
-
+    public static string[] ToIpAddresses(this string @this, bool useCache)
+    {
         if (!useCache)
             dnsCache.Clear(@this);
 
-        return dnsCache.Get(@this) ?? @this;
-        
-    Return:
-        return @this;
+        return dnsCache.Get(@this);
     }
 
     public static string ToIp(this IPAddress @this)

@@ -13,7 +13,10 @@ public class Certificate : Model, IOnDeserialize
 
         public Database database;
 
-        protected override Certificate GetNew(string key)
+        protected override Certificate GetNew(
+            Dictionary<string, Certificate> _,
+            string key
+        )
         {
             return database.Certificates
                 .FirstOrDefault(x
@@ -88,7 +91,7 @@ public class Certificate : Model, IOnDeserialize
     public string issuerCommonName;
     public string issuerOrganisation;
 
-    [JsonIgnore] public bool ExpiresSoon => daysUntilExpiry <= 10;
+    [JsonIgnore] public bool ExpiresSoon => daysUntilExpiry <= 20;
 
     public void Write(Database database, X509Certificate2 pfxCert)
     {

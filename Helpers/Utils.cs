@@ -59,7 +59,7 @@ public static partial class Utils
 
         ipAddress = address.ToIpAddress(useCache: false);
 
-        if (IsIpAddress(ipAddress))
+        if (ipAddress is not null && IsIpAddress(ipAddress))
             return true;
 
         Error:
@@ -135,22 +135,22 @@ public static partial class Utils
 #endif
 
     //https://github.com/microsoft/reverse-proxy/blob/4e32b6b87af17ed1e60bb84aa76d8585c7e5c11f/src/ReverseProxy/Forwarder/RequestUtilities.cs#L350
-    public static StringValues Concat(in StringValues existing, in HeaderStringValues values)
+    public static StringValues Concat(in StringValues array, in HeaderStringValues values)
     {
         if (values.Count <= 1)
-            return StringValues.Concat(existing, values.ToString());
-        
-        var count = existing.Count;
-        var newArray = new string[count + values.Count];
+            return StringValues.Concat(array, values.ToString());
+
+        var count = array.Count;
+        var result = new string[count + values.Count];
 
         if (count == 1)
-            newArray[0] = existing.ToString();
+            result[0] = array.ToString();
         else
-            existing.ToArray().CopyTo(newArray, 0);
+            array.ToArray().CopyTo(result, 0);
 
         foreach (var value in values)
-            newArray[count++] = value;
-            
-        return newArray;
+            result[count++] = value;
+
+        return result;
     }
 }
