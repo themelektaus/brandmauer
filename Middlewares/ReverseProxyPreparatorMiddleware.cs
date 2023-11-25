@@ -11,26 +11,15 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
     {
         protected override bool Logging => true;
 
-        protected override string GetNew(string key)
+        protected override string GetNew(
+            Dictionary<string, string> _,
+            string key
+        )
         {
             var x = key.Split("://", 2);
             var targetHost = x[1].Split(['/', ':'], 2)[0];
-
-            if (!Utils.IsIpAddress(targetHost))
-            {
-                var host = Database.Use(
-                    x => x.Hosts.FirstOrDefault(
-                        x => x.Name == targetHost
-                    )
-                );
-                if (host is not null && host.Addresses.Count > 0)
-                {
-                    var @new = host.Addresses[0].Value;
-                    key = $"{x[0]}://{@new}{x[1][targetHost.Length..]}";
-                }
-            }
-
-            return key;
+            var targetIpAddress = targetHost.ToIpAddress(useCache: true);
+            return $"{x[0]}://{targetIpAddress}{x[1][targetHost.Length..]}";
         }
     }
     public static readonly TargetCache targetCache = new();
@@ -93,12 +82,16 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
         if (source.route.SourceHosts.Count > 0)
         {
             var ip = context.Connection.RemoteIpAddress.ToIp();
-            foreach (
-                var hostAddresses in source.route.SourceHosts
-                    .SelectMany(x => x.Addresses)
-                    .Select(x => x.Value.ToIpAddress(useCache: true)
-                )
-            )
+
+            var hostAddressesBundle = source.route.SourceHosts
+                .SelectMany(x => x.Addresses)
+                .SelectMany(x => x.Value.ToIpAddresses(useCache: true))
+                .ToList();
+
+            if (hostAddressesBundle.Count == 0)
+                goto Accept;
+
+            foreach (var hostAddresses in hostAddressesBundle)
             {
                 foreach (var a in hostAddresses.Split(','))
                     foreach (var rangeIp in IPAddressRange.Parse(a))

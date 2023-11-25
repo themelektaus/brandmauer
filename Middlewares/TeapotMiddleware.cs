@@ -8,7 +8,10 @@ public class TeapotMiddleware(RequestDelegate next)
     {
         protected override bool Logging => false;
 
-        protected override string GetNew(int key)
+        protected override string GetNew(
+            Dictionary<int, string> _,
+            int key
+        )
         {
             var statusCode = (HttpStatusCode) key;
             var statusCodeString = key == 418

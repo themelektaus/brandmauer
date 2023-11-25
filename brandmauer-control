@@ -27,6 +27,30 @@ case $1 in
     ;;
 
 
+  update)
+
+    rm -rf /app/brandmauer/Download
+
+    mkdir /app/brandmauer/Download
+    wget https://steinalt.online/download/brandmauer/data.zip \
+         -O /app/brandmauer/Download/data.zip
+    unzip /app/brandmauer/Download/data.zip -d /app/brandmauer/Download
+
+    rm /app/brandmauer/Download/data.zip
+
+    systemctl stop brandmauer.service
+    mv /app/brandmauer/Download/Brandmauer /app/brandmauer/
+    mv /app/brandmauer/Download/Brandmauer.pdb /app/brandmauer/
+    mv /app/brandmauer/Download/libsass.so /app/brandmauer/
+    rm -rf /app/brandmauer/wwwroot
+    mv /app/brandmauer/Download/wwwroot /app/brandmauer/
+
+    rm -rf /app/brandmauer/Download
+
+    systemctl start brandmauer.service
+    ;;
+
+
   log|logs)
 
     journalctl --no-pager -n 85 -u brandmauer.service
@@ -47,6 +71,7 @@ case $1 in
     echo "   > stop                 "
     echo "   > restart              "
     echo "   > status               "
+    echo "   > update               "
     echo "   > log, logs            "
     echo "   > script, last-script  "
     echo "                          "
