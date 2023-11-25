@@ -101,8 +101,12 @@ public static class ExtensionMethods
         protected override bool Logging => true;
 
         int currentDepth;
+        readonly Dictionary<string, string[]> pending = new();
 
-        protected override string[] GetNew(Dictionary<string, string[]> x, string key)
+        protected override string[] GetNew(
+            Dictionary<string, string[]> x,
+            string key
+        )
         {
             if (key == string.Empty)
                 return [];
@@ -139,9 +143,15 @@ public static class ExtensionMethods
             {
                 if (currentDepth++ < 5)
                 {
-                    addresses.AddRange(
-                        host.Addresses.SelectMany(y => GetUnsafe(x, y.Value))
-                    );
+                    var hostAddresses = host.Addresses
+                        .Select(x => x.Value)
+                        .ToList();
+
+                    pending.Add(key, [.. addresses]);
+                    foreach (var hostAddress in hostAddresses)
+                        if (!pending.ContainsKey(hostAddress))
+                            addresses.AddRange(GetUnsafe(x, hostAddress));
+                    pending.Remove(key);
                 }
                 currentDepth--;
             }
