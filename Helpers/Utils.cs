@@ -74,6 +74,16 @@ public static partial class Utils
     static readonly Dictionary<string, int> logIndexDict = new();
 #endif
 
+    public static void Log(string category, string message)
+    {
+#if DEBUG
+        lock (logHandle)
+        {
+            Console.WriteLine($" [{category}] {message}");
+        }
+#endif
+    }
+
     public static void Log(HttpContext context, string message)
     {
 #if DEBUG

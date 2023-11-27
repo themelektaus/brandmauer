@@ -30,7 +30,7 @@ builder.Services.Configure<JsonOptions>(options =>
     serializer.Converters.Add(new ExceptionConverter());
 });
 
- builder.WebHost.UseKestrel(options =>
+builder.WebHost.UseKestrel(options =>
 {
     options.Limits.MaxRequestBodySize = null;
 
@@ -81,6 +81,10 @@ app.RunInBackground<CertificateRenewer>();
 
 app.RunInBackground<DatabaseReloader>();
 
-await app.RunAsync();
+var dnsServer = new DnsServer();
+dnsServer.Start();
 
+await app.RunAsync();
 await app.DisposeAllIntervalTasksAsync();
+
+await dnsServer.StopAsync();
