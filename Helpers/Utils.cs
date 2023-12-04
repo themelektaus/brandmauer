@@ -163,4 +163,30 @@ public static partial class Utils
 
         return result;
     }
+
+    public static IConfigurationRoot GetAppSettings()
+    {
+        if (
+            !File.Exists(
+#if DEBUG
+                "appsettings.Development.json"
+#else
+                "appsettings.json"
+#endif
+            )
+        )
+        {
+            return null;
+        }
+
+        IConfigurationBuilder builder = new ConfigurationBuilder();
+
+        return builder.AddJsonFile(
+#if DEBUG
+            "appsettings.Development.json"
+#else
+            "appsettings.json"
+#endif
+        ).Build();
+    }
 }

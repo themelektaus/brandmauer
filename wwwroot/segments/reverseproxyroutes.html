@@ -89,6 +89,28 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="field">
+                                <label>Authentications</label>
+                                <ul class="block" data-bind="authenticationReferences">
+                                    <li>
+                                        <div class="flex-rows">
+                                            <select data-bind="id" data-options="authentications" data-type="number"></select>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="field">
+                                <label>Use Whitelist</label>
+                                <input type="checkbox" data-bind="useWhitelist">
+                            </div>
+                            <div class="field">
+                                <label>Whitelist</label>
+                                <ul class="group group-string-values" data-bind="whitelist">
+                                    <li>
+                                        <input data-bind="value" />
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                     

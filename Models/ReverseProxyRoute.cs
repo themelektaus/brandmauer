@@ -69,7 +69,7 @@ public class ReverseProxyRoute : Model, IOnDeserialize
 
     public List<Identifier> SourceHostReferences { get; set; } = new();
     public List<Host> SourceHosts;
-
+    
     public List<StringValue> SourceDomains { get; set; } = new();
 
     public string Target { get; set; } = string.Empty;
@@ -90,10 +90,20 @@ public class ReverseProxyRoute : Model, IOnDeserialize
     public MemoryValue MaxBodySize { get; set; }
         = new() { Unit = MemoryValue._Unit.Default };
 
+    public List<Identifier> AuthenticationReferences { get; set; } = new();
+    public List<Authentication> Authentications;
+
+    public bool UseWhitelist { get; set; }
+    public List<StringValue> Whitelist { get; set; } = new();
+
     public void OnDeserialize(Database database)
     {
         SourceHosts = database.Hosts
             .Where(x => SourceHostReferences.Any(y => y.Id == x.Identifier.Id))
+            .ToList();
+
+        Authentications = database.Authentications
+            .Where(x => AuthenticationReferences.Any(y => y.Id == x.Identifier.Id))
             .ToList();
     }
 }

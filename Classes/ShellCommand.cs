@@ -19,23 +19,9 @@ public class ShellCommand
 
         public SshClientConfig()
         {
-#if DEBUG
-            if (!File.Exists("appsettings.Development.json"))
+            var appSettings = Utils.GetAppSettings();
+            if (appSettings is null)
                 return;
-#else
-            if (!File.Exists("appsettings.json"))
-                return;
-#endif
-
-            IConfigurationBuilder builder = new ConfigurationBuilder();
-
-#if DEBUG
-            builder = builder.AddJsonFile("appsettings.Development.json");
-#else
-            builder = builder.AddJsonFile("appsettings.json");
-#endif
-
-            var appSettings = builder.Build();
 
             host = appSettings.GetValue<string>("SshClient:Host");
             username = appSettings.GetValue<string>("SshClient:Username");

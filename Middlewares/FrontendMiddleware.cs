@@ -6,12 +6,17 @@ using System.Text;
 
 namespace Brandmauer;
 
-public class FrontendMiddleware(RequestDelegate next)   
+public class FrontendMiddleware(RequestDelegate next)
 {
     const string WWWROOT = "wwwroot"/*-htmx*/;
     const string INDEX_HTML = "index.html"/*.htmx*/;
+    const string LOGIN_HTML = "login.html";
+    const string WHITELIST_REQUEST_HTML = "whitelist.request.html";
+    const string WHITELIST_PROMPT_HTML = "whitelist.prompt.html";
     const string FAVICON_ICO = "favicon.ico";
     const string TITLE = "title";
+    const string HOST = "host";
+    const string CONTEXT = "context";
     const string SEGMENTS = "segments";
     const string STATIC = "static";
     const string STYLE = "style";
@@ -42,7 +47,37 @@ public class FrontendMiddleware(RequestDelegate next)
                     => SassCompiler.Compile(x).CompiledContent;
 
                 await LoadAsync(context, "text/css", path, OnLoadContent);
-                return;
+                goto Exit;
+            }
+
+            if (path == $"/{FAVICON_ICO}" || path.StartsWith($"/{STATIC}/"))
+            {
+                await SendFileAsync(context, path);
+                goto Exit;
+            }
+
+            if (path == $"/{WHITELIST_PROMPT_HTML}")
+            {
+                if (context.Request.Headers.TryGetValue("token", out var token))
+                {
+
+                }
+
+                await Html(context, WHITELIST_PROMPT_HTML);
+                goto Exit;
+            }
+
+            var unauthorizedFeature = context.Features.Get<UnauthorizedFeature>();
+            if (unauthorizedFeature is not null)
+            {
+                if (unauthorizedFeature.WhitelistRequired)
+                {
+                    await Html(context, WHITELIST_REQUEST_HTML);
+                    goto Exit;
+                }
+
+                await Html(context, LOGIN_HTML);
+                goto Exit;
             }
 
             if (path == "/")
@@ -56,14 +91,8 @@ public class FrontendMiddleware(RequestDelegate next)
 
             if (path == $"/{INDEX_HTML}")
             {
-                await IndexHtml(context, path);
-                return;
-            }
-
-            if (path == $"/{FAVICON_ICO}" || path.StartsWith($"/{STATIC}/"))
-            {
-                await SendFileAsync(context, path);
-                return;
+                await Html(context, path);
+                goto Exit;
             }
 
             if (!path.StartsWith("/api"))
@@ -72,6 +101,7 @@ public class FrontendMiddleware(RequestDelegate next)
 
         await next.Invoke(context);
 
+    Exit:
         Utils.LogOut<FrontendMiddleware>(context);
     }
 
@@ -100,10 +130,14 @@ public class FrontendMiddleware(RequestDelegate next)
         await response.Body.LoadFromAsync(content);
     }
 
-    static async Task IndexHtml(HttpContext context, string path)
+    static async Task Html(HttpContext context, string path)
     {
         var content = await GetWwwRootFileContentAsync(path);
         content = content.Replace($"<!--{TITLE}-->", Utils.Name);
+        content = content.Replace($"<!--{HOST}-->", context.Request.Host.Host);
+
+        foreach (var (key, value) in context.Request.Query)
+            content = content.Replace($"<!--{key.ToLower()}-->", value);
 
         StringBuilder builder = new();
         string folder;

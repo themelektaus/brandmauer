@@ -35,6 +35,8 @@ public class Updater : ConditionalIntervalTask
         this.app = app;
     }
 
+    protected override Task OnDisposeAsync() => Task.CompletedTask;
+
     protected override bool ShouldTrigger()
     {
         return Directory.Exists(UPDATE_FOLDER);

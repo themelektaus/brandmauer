@@ -88,8 +88,9 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
                 .SelectMany(x => x.Value.ToIpAddresses(useCache: true))
                 .ToList();
 
-            if (hostAddressesBundle.Count == 0)
-                goto Accept;
+            if (!source.route.UseWhitelist)
+                if (hostAddressesBundle.Count == 0)
+                    goto Accept;
 
             foreach (var hostAddresses in hostAddressesBundle)
             {
@@ -135,10 +136,41 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
 
         var maxBodySize = source.route.MaxBodySize.GetBytes();
         if (maxBodySize is not null)
+        {
             context.Features.Get<IHttpMaxRequestBodySizeFeature>()
                 .MaxRequestBodySize = Database.Use(
                     x => maxBodySize
                 );
+        }
+
+        var authentications = source.route.Authentications;
+        if (authentications.Count > 0)
+        {
+            var cookies = context.Request.Cookies;
+            var key = LoginMiddleware.SessionTokenKey;
+            if (cookies.TryGetValue(key, out var sessionToken))
+                if (authentications.Any(x => LoginMiddleware.IsAuthorized(x, sessionToken)))
+                    goto Authorized;
+
+            context.Features.Set(new UnauthorizedFeature());
+            goto Next;
+        }
+
+    Authorized:
+
+        if (source.route.UseWhitelist)
+        {
+            var ip = context.Connection.RemoteIpAddress.ToIp();
+
+            if (!source.route.Whitelist.Any(x => x.Value == ip))
+            {
+                context.Features.Set(new UnauthorizedFeature
+                {
+                    WhitelistRequired = true
+                });
+                goto Next;
+            }
+        }
 
         context.Features.Set(new ReverseProxyFeature()
         {

@@ -19,15 +19,20 @@ public class Certificate : Model, IOnDeserialize
         )
         {
             return database.Certificates
-                .FirstOrDefault(x
+                .Where(x
                     => x.Enabled
                     && x.isValid
                     && !x.HasAuthority
                     && (
                         x.Domains.Select(y => y.Value).Contains(key) ||
-                        x.Domains.Any(y => y.Value.StartsWith('*') && key.EndsWith(y.Value[1..]))
+                        x.Domains.Any(y
+                            => y.Value.StartsWith('*')
+                            && key.EndsWith(y.Value[1..])
+                        )
                     )
-                );
+                )
+                .OrderByDescending(x => x.Domains.Any(y => y.Value == key))
+                .FirstOrDefault();
         }
     }
     static readonly Cache cache = new();

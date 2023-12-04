@@ -13,13 +13,9 @@ public class WellKnownMiddleware(RequestDelegate next)
             var response = context.Response;
             var token = path.Split('/').LastOrDefault();
 
-            var content = CertificateUtils.acmeChallenges.Use(x =>
-            {
-                if (x.TryGetValue(token, out var value))
-                    return value;
-
-                return null;
-            });
+            var content = CertificateUtils.acmeChallenges.Use(
+                x => x.TryGetValue(token, out var value) ? value : null
+            );
 
             if (content is null)
             {
@@ -29,12 +25,13 @@ public class WellKnownMiddleware(RequestDelegate next)
             {
                 response.ContentType = "text/plain";
                 await response.Body.LoadFromAsync(content);
-                return;
+                goto Exit;
             }
         }
 
         await next.Invoke(context);
 
+    Exit:
         Utils.LogOut<WellKnownMiddleware>(context);
     }
 }

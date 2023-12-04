@@ -10,6 +10,8 @@ public class CertificateRenewer : ConditionalIntervalTask
         return true;
     }
 
+    protected override Task OnDisposeAsync() => Task.CompletedTask;
+
     protected override async Task OnTriggerAsync()
     {
         var certificates = Certificate.GetAll()

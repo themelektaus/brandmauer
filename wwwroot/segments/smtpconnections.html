@@ -1,0 +1,81 @@
+<div data-page="smtpconnections">
+    <div class="title">
+        <h2>
+            <i class="fas fa-envelope"></i>
+            <span>SMTP Connections</span>
+        </h2>
+        <button data-action="saveAll" disabled>Save</button>
+        <button data-action="cancelAll" disabled>Cancel</button>
+    </div>
+    <div class="content">
+        <div class="list-header" style="grid-template-columns: 1fr 4fr; ">
+            <div>Name</div>
+            <div>Info</div>
+        </div>
+        <div class="list" data-bind="smtpconnections">
+            <div class="item">
+                <div style="grid-template-columns: 1fr 4fr; ">
+                    <div data-bind="htmlName"></div>
+                    <div data-bind="htmlInfo"></div>
+                </div>
+                <div>
+                    <div class="field">
+                        <label>Name</label>
+                        <input type="text" data-bind="name">
+                        <button data-action="delete">Delete</button>
+                    </div>
+                    <div class="field">
+                        <label>Host</label>
+                        <input type="text" data-bind="host">
+                    </div>
+                    <div class="field">
+                        <label>Port</label>
+                        <input type="number" value="1" min="1" max="65535" data-bind="port">
+                    </div>
+                    <div class="field">
+                        <label>Username</label>
+                        <input type="text" data-bind="username">
+                    </div>
+                    <div class="field">
+                        <label>Password</label>
+                        <input type="password" data-bind="password">
+                    </div>
+                    <div class="field">
+                        <label>Sender</label>
+                        <input type="text" data-bind="sender">
+                    </div>
+                    <div class="field">
+                        <label>TLS/SSL</label>
+                        <input type="checkbox" data-bind="tls">
+                    </div>
+                    <div class="foldout">
+                        <div class="foldout-title">
+                            Testmail
+                        </div>
+                        <div class="foldout-content">
+                            <div class="field">
+                                <label>Reciever</label>
+                                <input type="text" data-key="to" placeholder="user@example.com">
+                            </div>
+                            <div class="field">
+                                <label>Subject</label>
+                                <input type="text" data-key="subject">
+                            </div>
+                            <div class="field">
+                                <label>Body</label>
+                                <textarea data-key="body" style="background-color: var(--input__background-color); "></textarea>
+                            </div>
+                            <div class="buttons" data-bind="identifier.id" data-value>
+                                <label></label>
+                                <button data-action="sendMail">Send Mail</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <button data-action="add"></button>
+    </div>
+</div>
