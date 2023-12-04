@@ -17,6 +17,8 @@ public class Database
     public List<NatRoute> NatRoutes { get; set; } = new();
     public List<ReverseProxyRoute> ReverseProxyRoutes { get; set; } = new();
     public List<Certificate> Certificates { get; set; } = new();
+    public List<Authentication> Authentications { get; set; } = new();
+    public List<SmtpConnection> SmtpConnections { get; set; } = new();
     public Config Config { get; set; } = new();
 
     static readonly HashSet<Model> models = new();

@@ -68,6 +68,8 @@ app.Urls.Add($"https://0.0.0.0:{Utils.HTTPS}");
 Brandmauer.Endpoint.MapAll(app);
 
 app.UseMiddleware<WellKnownMiddleware>();
+app.UseMiddleware<LoginMiddleware>();
+app.UseMiddleware<WhitelistMiddleware>();
 app.UseMiddleware<ReverseProxyPreparatorMiddleware>();
 app.UseMiddleware<YarpReverseProxyMiddleware>();
 app.UseMiddleware<CustomReverseProxyMiddleware>();
@@ -80,11 +82,7 @@ app.RunInBackground<CertificateRenewer>();
 #endif
 
 app.RunInBackground<DatabaseReloader>();
-
-var dnsServer = new DnsServer();
-dnsServer.Start();
+app.RunInBackground<DnsServer>();
 
 await app.RunAsync();
 await app.DisposeAllIntervalTasksAsync();
-
-await dnsServer.StopAsync();

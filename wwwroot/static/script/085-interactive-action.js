@@ -124,4 +124,30 @@ class InteractiveAction
         const format = $sender.dataset.format
         window.open(`api/certificates/${id}/download?format=${format}`)
     }
+    
+    static async sendMail($sender)
+    {
+        disable()
+        
+        const $parent = $sender.parentNode
+        const $form = $parent.parentNode
+        
+        const data = new URLSearchParams()
+        data.append(`id`, $parent.dataset.value)
+        data.append(`subject`, $form.q(`[data-key="subject"]`).value)
+        data.append(`body`, $form.q(`[data-key="body"]`).value)
+        data.append(`to`, $form.q(`[data-key="to"]`).value)
+        
+        const response = await fetch(`api/smtpconnections/send`,
+        {
+            method: `post`,
+            headers: { "Content-Type": `application/x-www-form-urlencoded` },
+            body: data
+        })
+        
+        log(response.status)
+        log(await response.text())
+        
+        enable()
+    }
 }

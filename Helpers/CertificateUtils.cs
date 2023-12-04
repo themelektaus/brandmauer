@@ -1,19 +1,21 @@
 ﻿// Source: https://github.com/rlipscombe/bouncy-castle-csharp/blob/master/CreateCertificate/Program.cs
 
+extern alias PortableBouncyCastle;
+
 using Certes;
 using Certes.Acme;
 using Certes.Acme.Resource;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Generators;
-using Org.BouncyCastle.Crypto.Prng;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Pkcs;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.X509;
+using PortableBouncyCastle.Org.BouncyCastle.Asn1;
+using PortableBouncyCastle.Org.BouncyCastle.Asn1.X509;
+using PortableBouncyCastle.Org.BouncyCastle.Crypto;
+using PortableBouncyCastle.Org.BouncyCastle.Crypto.Generators;
+using PortableBouncyCastle.Org.BouncyCastle.Crypto.Prng;
+using PortableBouncyCastle.Org.BouncyCastle.Math;
+using PortableBouncyCastle.Org.BouncyCastle.Pkcs;
+using PortableBouncyCastle.Org.BouncyCastle.Security;
+using PortableBouncyCastle.Org.BouncyCastle.Utilities;
+using PortableBouncyCastle.Org.BouncyCastle.X509;
 
 using RSAExtensions
     = System.Security.Cryptography.X509Certificates.RSACertificateExtensions;

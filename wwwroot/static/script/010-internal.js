@@ -61,6 +61,12 @@ class Internal
             return
         }
         
+        if ($input.tagName == `IMG`)
+        {
+            $input.src = value
+            return
+        }
+        
         if ($input.type == `checkbox`)
         {
             $input.checked = value
@@ -125,6 +131,12 @@ class Internal
             $input.transferTo(property, $done)
             return
         }
+        
+        if ($input.hasAttribute(`readonly`))
+            return
+        
+        if ($input.tagName == `IMG`)
+            return
         
         if ($input.type == `number` || $input.dataset.type == `number`)
         {

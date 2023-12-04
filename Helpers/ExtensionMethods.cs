@@ -23,6 +23,11 @@ public static class ExtensionMethods
         return Encoding.UTF8.GetBytes(@this);
     }
 
+    public static string FromBytes(this byte[] @this)
+    {
+        return Encoding.UTF8.GetString(@this);
+    }
+
     public static MemoryStream ToStream(this string @this)
     {
         return @this.ToBytes().ToStream();
@@ -31,6 +36,21 @@ public static class ExtensionMethods
     public static MemoryStream ToStream(this byte[] @this)
     {
         return new MemoryStream(@this);
+    }
+
+    public static string ToBase64(this string @this)
+    {
+        return @this.ToBytes().ToBase64();
+    }
+
+    public static string ToBase64(this byte[] @this)
+    {
+        return Convert.ToBase64String(@this);
+    }
+
+    public static string FromBase64(this string @this)
+    {
+        return Convert.FromBase64String(@this).FromBytes();
     }
 
     public static void AddIfNotNull(this IList<string> @this, string item)

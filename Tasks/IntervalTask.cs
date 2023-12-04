@@ -5,12 +5,13 @@ public abstract partial class IntervalTask : IAsyncDisposable
     protected abstract TimeSpan Delay { get; }
     protected abstract TimeSpan Interval { get; }
 
+    protected abstract Task OnDisposeAsync();
     protected abstract Task OnTickAsync();
 
     Task task;
     CancellationTokenSource ctSource;
 
-    bool disposed;
+    protected bool disposed;
 
     public async ValueTask DisposeAsync()
     {
@@ -18,6 +19,8 @@ public abstract partial class IntervalTask : IAsyncDisposable
             return;
 
         disposed = true;
+
+        await OnDisposeAsync();
 
         ctSource?.Cancel(false);
         

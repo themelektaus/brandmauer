@@ -113,8 +113,25 @@ public static partial class Endpoint
             Certificates.Download
         );
 
-        app.MapGet($"api/resolve"/*?host={{host}}*/, Resolve);
-        app.MapGet($"api/whatsmyip", WhatsMyIp);
+        app.MapGet($"{API}/authentications", Authentications.GetAll);
+        app.MapGet($"{API}/authentications/{{id}}", Authentications.Get);
+        app.MapPost($"{API}/authentications", Authentications.Post);
+        app.MapPut($"{API}/authentications", Authentications.Put);
+        app.MapDelete($"{API}/authentications/{{id}}", Authentications.Delete);
+
+        app.MapGet($"{API}/smtpconnections", SmtpConnections.GetAll);
+        app.MapGet($"{API}/smtpconnections/{{id}}", SmtpConnections.Get);
+        app.MapPost($"{API}/smtpconnections", SmtpConnections.Post);
+        app.MapPut($"{API}/smtpconnections", SmtpConnections.Put);
+        app.MapDelete($"{API}/smtpconnections/{{id}}", SmtpConnections.Delete);
+
+        app.MapPost($"{API}/smtpconnections/send", async (HttpContext context) =>
+        {
+            return await SmtpConnections.SendAsync(context);
+        });
+
+        app.MapGet($"{API}/resolve"/*?host={{host}}*/, Resolve);
+        app.MapGet($"{API}/whatsmyip", WhatsMyIp);
     }
 
     static IResult Api(IEnumerable<EndpointDataSource> endpointSources)
@@ -139,7 +156,7 @@ public static partial class Endpoint
 
     static IResult Resolve([FromQuery] string host)
     {
-        host ??= "";
+        host ??= string.Empty;
 
         foreach (var part in host.Split(','))
             if (!Utils.IsIpAddress(part.Split('/')[0]))

@@ -11,6 +11,8 @@ public class DatabaseReloader : ConditionalIntervalTask
         return Database.LastKnownWriteTime < lastWriteTime;
     }
 
+    protected override Task OnDisposeAsync() => Task.CompletedTask;
+
     protected override async Task OnTriggerAsync()
     {
         Database.Load();
