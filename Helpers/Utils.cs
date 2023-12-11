@@ -57,7 +57,7 @@ public static partial class Utils
         if (address is null)
             goto Error;
 
-        ipAddress = address.ToIpAddress(useCache: false);
+        ipAddress = address.ToIpAddress();
 
         if (ipAddress is not null && IsIpAddress(ipAddress))
             return true;

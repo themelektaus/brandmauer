@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Brandmauer;
 
@@ -84,6 +85,10 @@ public static partial class Endpoint
         app.MapDelete(
             $"{API}/reverseproxyroutes/{{id}}",
             ReverseProxyRoutes.Delete
+        );
+        app.MapGet(
+            $"{API}/reverseproxyroutes/requests",
+            WhitelistMiddleware.GetPendingRequests
         );
 
         app.MapGet($"{API}/certificates", Certificates.GetAll);

@@ -1,0 +1,28 @@
+<i class="fas fa-lock" style="font-size: 2em; "></i>
+<h2><!--host--></h2>
+<div style="width: 15em; display: flex; flex-direction: column; flex: 0; gap: .5rem; ">
+    <button style="align-self: center; " id="submit"><i class="fas fa-unlock"></i>Request Access</button>
+</div>
+<script>
+    addEventListener(`load`, () =>
+    {
+        q(`#submit`).addEventListener(`click`, async () =>
+        {
+            q(`#submit`).disabled = true
+            await fetch(`whitelist?request=<!--id-->`)
+            q(`#submit`).innerHTML = `Waiting for Permission...`
+            checkStatus()
+        })
+    })
+    async function checkStatus()
+    {
+        var response = await fetch(`whitelist?id=<!--id-->&ip=<!--ip-->`)
+        if (response.status != 401)
+        {
+            location.reload()
+            return
+        }
+        await new Promise(x => setTimeout(x, 1000))
+        checkStatus()
+    }
+</script>

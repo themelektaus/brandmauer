@@ -18,7 +18,8 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
         {
             var x = key.Split("://", 2);
             var targetHost = x[1].Split(['/', ':'], 2)[0];
-            var targetIpAddress = targetHost.ToIpAddress(useCache: true);
+            var targetIpAddress = targetHost.ToIpAddress(justLocal: true);
+            targetIpAddress ??= targetHost;
             return $"{x[0]}://{targetIpAddress}{x[1][targetHost.Length..]}";
         }
     }
@@ -85,7 +86,7 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
 
             var hostAddressesBundle = source.route.SourceHosts
                 .SelectMany(x => x.Addresses)
-                .SelectMany(x => x.Value.ToIpAddresses(useCache: true))
+                .SelectMany(x => x.Value.ToIpAddresses())
                 .ToList();
 
             if (!source.route.UseWhitelist)
@@ -166,7 +167,7 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
             {
                 context.Features.Set(new UnauthorizedFeature
                 {
-                    WhitelistRequired = true
+                    ReverseProxyRouteId = source.route.Identifier.Id
                 });
                 goto Next;
             }

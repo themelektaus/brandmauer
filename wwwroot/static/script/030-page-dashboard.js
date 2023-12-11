@@ -2,13 +2,6 @@ class DashboardPage extends Page
 {
     static _ = Page.register(this)
     
-    async setup()
-    {
-        await super.setup()
-        
-        InteractiveAction.checkDirtyBuild()
-    }
-    
     async refresh()
     {
         await super.refresh()

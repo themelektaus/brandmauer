@@ -61,7 +61,7 @@ class Page
     
     async setup()
     {
-        
+        InteractiveAction.checkDirtyBuild()
     }
     
     async refresh()

@@ -1,0 +1,35 @@
+<mjml>
+  <mj-head>
+    <mj-title>🔥 Permission Request</mj-title>
+    <mj-attributes>
+      <mj-all font-family="sans-serif"></mj-all>
+      <mj-text font-size="16px" color="#FFFFFF" line-height="24px"></mj-text>
+      <mj-section padding="0px"></mj-section>
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#111119">
+    <mj-section padding="20px 20px 0 20px">
+      <mj-column width="100%">
+        <mj-text color="#FF9900" align="center" font-weight="300" padding="30px 40px 10px 40px" font-size="32px" line-height="40px">
+            🔥 {{ NAME }}<br>
+            <b>Permission Request</b>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section>
+      <mj-column width="100%">
+        <mj-text align="center" padding="10px 40px 10px 40px" font-weight="300">
+            A device with the ip address <b>{{ IP }}</b><br>
+            wants to access <b>{{ DOMAIN }}</b>.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section>
+      <mj-column width="100%">
+        <mj-button background-color="#996600" color="#FFFFFF" border-radius="2px" href="{{ URL }}" inner-padding="15px 25px">
+            CHECK PERMISSION REQUEST
+        </mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
