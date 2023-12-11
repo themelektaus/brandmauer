@@ -11,12 +11,9 @@ public class FrontendMiddleware(RequestDelegate next)
     const string WWWROOT = "wwwroot"/*-htmx*/;
     const string INDEX_HTML = "index.html"/*.htmx*/;
     const string LOGIN_HTML = "login.html";
-    const string WHITELIST_REQUEST_HTML = "whitelist.request.html";
-    const string WHITELIST_PROMPT_HTML = "whitelist.prompt.html";
+    const string WHITELIST = "whitelist";
+    const string WHITELIST_HTML = "whitelist.html";
     const string FAVICON_ICO = "favicon.ico";
-    const string TITLE = "title";
-    const string HOST = "host";
-    const string CONTEXT = "context";
     const string SEGMENTS = "segments";
     const string STATIC = "static";
     const string STYLE = "style";
@@ -56,27 +53,47 @@ public class FrontendMiddleware(RequestDelegate next)
                 goto Exit;
             }
 
-            if (path == $"/{WHITELIST_PROMPT_HTML}")
+            if (path == $"/{WHITELIST}")
             {
-                if (context.Request.Headers.TryGetValue("token", out var token))
+                if (!context.Request.Query.TryGetValue("token", out var token))
+                    goto NotFound;
+
+                var request = WhitelistMiddleware.GetPendingRequest(token);
+                if (request is null)
+                    goto NotFound;
+
+                var route = Database.Use(
+                    x => x.ReverseProxyRoutes.FirstOrDefault(
+                        y => y.Identifier.Id == request.ReverseProxyRouteId
+                    )
+                );
+
+                await Html(context, WHITELIST_HTML, new()
                 {
-
-                }
-
-                await Html(context, WHITELIST_PROMPT_HTML);
+                    { "ip", request.IpAddress },
+                    { "domain", route.SourceDomains.FirstOrDefault() },
+                    { "token", request.Token },
+                    { "content", "<!--segment: whitelist-permission-->" }
+                });
                 goto Exit;
             }
 
             var unauthorizedFeature = context.Features.Get<UnauthorizedFeature>();
             if (unauthorizedFeature is not null)
             {
-                if (unauthorizedFeature.WhitelistRequired)
+                var id = unauthorizedFeature.ReverseProxyRouteId;
+                if (id != 0)
                 {
-                    await Html(context, WHITELIST_REQUEST_HTML);
+                    await Html(context, WHITELIST_HTML, new()
+                    {
+                        { "id", id },
+                        { "ip", context.Connection.RemoteIpAddress.ToIp() },
+                        { "content", "<!--segment: whitelist-request-->" }
+                    });
                     goto Exit;
                 }
 
-                await Html(context, LOGIN_HTML);
+                await Html(context, LOGIN_HTML, new());
                 goto Exit;
             }
 
@@ -91,10 +108,11 @@ public class FrontendMiddleware(RequestDelegate next)
 
             if (path == $"/{INDEX_HTML}")
             {
-                await Html(context, path);
+                await Html(context, path, new());
                 goto Exit;
             }
 
+        NotFound:
             if (!path.StartsWith("/api"))
                 context.Response.StatusCode = 404;
         }
@@ -130,65 +148,85 @@ public class FrontendMiddleware(RequestDelegate next)
         await response.Body.LoadFromAsync(content);
     }
 
-    static async Task Html(HttpContext context, string path)
+    static async Task Html(
+        HttpContext context,
+        string path,
+        Dictionary<string, object> replacements
+    )
     {
         var content = await GetWwwRootFileContentAsync(path);
-        content = content.Replace($"<!--{TITLE}-->", Utils.Name);
-        content = content.Replace($"<!--{HOST}-->", context.Request.Host.Host);
 
-        foreach (var (key, value) in context.Request.Query)
-            content = content.Replace($"<!--{key.ToLower()}-->", value);
-
-        StringBuilder builder = new();
-        string folder;
-        IEnumerable<FileInfo> files;
-
-        builder.Clear();
-        folder = Path.Combine(WWWROOT, STATIC, STYLE);
-        files = new DirectoryInfo(folder).EnumerateFiles();
-
-        foreach (var file in files.OrderBy(x => x.Name))
-        {
-            var href = $"{STATIC}/{STYLE}/{file.Name}";
-            builder.AppendLine(
-                $"<link rel=\"stylesheet\" href=\"{href}\">"
-            );
-        }
-
-        content = content.Replace(
-            $"<!--{STATIC}: {STYLE}-->",
-            builder.ToString().TrimEnd()
-        );
-
-        builder.Clear();
-        folder = Path.Combine(WWWROOT, STATIC, SCRIPT);
-        files = new DirectoryInfo(folder).EnumerateFiles();
-
-        foreach (var file in files.OrderBy(x => x.Name))
-        {
-            var src = $"{STATIC}/{SCRIPT}/{file.Name}";
-            builder.AppendLine(
-                $"<script src=\"{src}\" defer></script>"
-            );
-        }
-
-        content = content.Replace(
-            $"<!--{STATIC}: {SCRIPT}-->",
-            builder.ToString().TrimEnd()
-        );
-
-        folder = Path.Combine(WWWROOT, SEGMENTS);
-        files = new DirectoryInfo(folder).EnumerateFiles();
-        foreach (var file in files)
-        {
-            var name = Path.GetFileNameWithoutExtension(file.Name);
-            content = content.Replace(
-                $"<!--segment: {name}-->",
-                File.ReadAllText(file.FullName)
-            );
-        }
-
+        ApplyReplacements();
+        ApplySegments();
+        ApplyReplacements();
+        ApplyStyle();
+        ApplyScript();
+        
         await SetAsync(context, "text/html", content);
+
+        void ApplyReplacements()
+        {
+            content = content
+                .Replace($"<!--title-->", Utils.Name)
+                .Replace($"<!--host-->", context.Request.Host.Host);
+
+            foreach (var (key, value) in replacements)
+                content = content.Replace($"<!--{key}-->", value.ToString());
+        }
+
+        void ApplySegments()
+        {
+            var folder = Path.Combine(WWWROOT, SEGMENTS);
+            var files = new DirectoryInfo(folder).EnumerateFiles();
+            foreach (var file in files)
+            {
+                var name = Path.GetFileNameWithoutExtension(file.Name);
+                content = content.Replace(
+                    $"<!--segment: {name}-->",
+                    File.ReadAllText(file.FullName)
+                );
+            }
+        }
+
+        void ApplyStyle()
+        {
+            var builder = new StringBuilder();
+            var folder = Path.Combine(WWWROOT, STATIC, STYLE);
+            var files = new DirectoryInfo(folder).EnumerateFiles();
+
+            foreach (var file in files.OrderBy(x => x.Name))
+            {
+                var href = $"{STATIC}/{STYLE}/{file.Name}";
+                builder.AppendLine(
+                    $"<link rel=\"stylesheet\" href=\"{href}\">"
+                );
+            }
+
+            content = content.Replace(
+                $"<!--{STATIC}: {STYLE}-->",
+                builder.ToString().TrimEnd()
+            );
+        }
+
+        void ApplyScript()
+        {
+            var builder = new StringBuilder();
+            var folder = Path.Combine(WWWROOT, STATIC, SCRIPT);
+            var files = new DirectoryInfo(folder).EnumerateFiles();
+
+            foreach (var file in files.OrderBy(x => x.Name))
+            {
+                var src = $"{STATIC}/{SCRIPT}/{file.Name}";
+                builder.AppendLine(
+                    $"<script src=\"{src}\" defer></script>"
+                );
+            }
+
+            content = content.Replace(
+                $"<!--{STATIC}: {SCRIPT}-->",
+                builder.ToString().TrimEnd()
+            );
+        }
     }
 
     static async Task SendFileAsync(HttpContext context, string path)

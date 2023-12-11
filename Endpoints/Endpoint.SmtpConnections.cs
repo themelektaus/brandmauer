@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using System.Text;
 
 namespace Brandmauer;
@@ -63,67 +64,23 @@ public static partial class Endpoint
                 return Results.BadRequest();
 
             var smtpConnection = Database.Use(
-                x => x.SmtpConnections.FirstOrDefault(y => y.Identifier.Id == id)
+                x => x.SmtpConnections.FirstOrDefault(
+                    y => y.Identifier.Id == id
+                )
             );
 
             if (smtpConnection is null)
                 return Results.BadRequest();
 
-            var client = new SmtpClient
-            {
-                host = smtpConnection.Host,
-                port = smtpConnection.Port,
-                username = smtpConnection.Username,
-                password = smtpConnection.Password,
-                from = smtpConnection.Sender == string.Empty
-                    ? smtpConnection.Username
-                    : smtpConnection.Sender,
-                to = [.. to],
-                subject = subject,
-                body = body,
-                tls = smtpConnection.Tls,
-                html = false
-            };
+            bool html = false;
+            if (form.TryGetValue("html", out var htmlString))
+                if (bool.TryParse(htmlString, out var _html))
+                    html = _html;
 
-            var result = new StringBuilder();
+            var (statusCode, text) = await smtpConnection
+                .SendAsync([.. to], subject, body, html);
 
-            result.AppendLine("-- Begin client options --");
-            result.AppendLine($"Host: {client.host}");
-            result.AppendLine($"Port: {client.port}");
-            result.AppendLine($"TLS/SSL: {(client.tls ? "Yes" : "No")}");
-            result.AppendLine($"From: {client.from}");
-            result.AppendLine($"To: {client.to.Join(", ")}");
-            result.AppendLine($"Subject: {client.subject}");
-            result.AppendLine($"Body: {client.body}");
-            result.AppendLine("-- End client options --");
-
-            var error = false;
-
-            try
-            {
-                var response = await client.Send();
-
-                if (response.sslPolicyErrors == System.Net.Security.SslPolicyErrors.None)
-                {
-                    result.AppendLine("[OK] Success");
-                }
-                else
-                {
-                    result.AppendLine("[WARNING] Success, with SSL Policy Errors");
-                    result.AppendLine(response.sslPolicyErrors.ToString());
-                }
-
-                result.AppendLine(response.result);
-            }
-            catch (Exception ex)
-            {
-                result.AppendLine("[ERROR]");
-                result.AppendLine(ex.Message);
-                error = true;
-            }
-
-            var text = result.ToString();
-            return Results.Text(text, statusCode: error ? 400 : 200);
+            return Results.Text(text, statusCode: statusCode);
         }
 
         public static IResult Put(SmtpConnection data)

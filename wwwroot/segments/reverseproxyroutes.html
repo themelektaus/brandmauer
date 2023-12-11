@@ -103,17 +103,29 @@
                                 <label>Use Whitelist</label>
                                 <input type="checkbox" data-bind="useWhitelist">
                             </div>
+                            <div class="field" data-object="smtpConnectionReference">
+                                <label>SMTP Connection</label>
+                                <select data-bind="id" data-options="smtpconnections" data-type="number"></select>
+                            </div>
                             <div class="field">
-                                <label>Whitelist</label>
-                                <ul class="group group-string-values" data-bind="whitelist">
+                                <label>Receivers</label>
+                                <ul class="group group-string-values" data-bind="receivers">
                                     <li>
                                         <input data-bind="value" />
                                     </li>
                                 </ul>
                             </div>
+                            <div class="field">
+                                <label>Whitelist</label>
+                                <ul class="group group-string-values" data-bind="whitelist">
+                                    <li>
+                                        <input data-bind="value" placeholder="IP Address" style="flex: 1; " />
+                                        <input data-bind="description" placeholder="Description" style="flex: 3; " />
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                    
                 </div>
             </div>
         </div>

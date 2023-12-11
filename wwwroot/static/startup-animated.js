@@ -4,7 +4,7 @@
     function show($) { if ($) { $.style.translate = 0; $.style.opacity = 1 } }
     (async () =>
     {
-        await delay(100)
+        await delay(50)
         show(q(`h1`))
         await delay(50)
         show(q(`.menu`))

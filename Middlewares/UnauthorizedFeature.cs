@@ -2,5 +2,5 @@
 
 public class UnauthorizedFeature
 {
-    public bool WhitelistRequired { get; set; }
+    public long ReverseProxyRouteId { get; set; }
 }

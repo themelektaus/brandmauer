@@ -123,6 +123,8 @@ public static class ExtensionMethods
         int currentDepth;
         readonly Dictionary<string, string[]> pending = new();
 
+        public bool justLocal;
+
         protected override string[] GetNew(
             Dictionary<string, string[]> x,
             string key
@@ -136,21 +138,24 @@ public static class ExtensionMethods
 
             List<string> addresses = [];
 
-            try
+            if (!justLocal)
             {
-                var hostEntry = Dns.GetHostEntry(key);
+                try
+                {
+                    var hostEntry = Dns.GetHostEntry(key);
 
-                var ipAddress = hostEntry.AddressList
-                    .FirstOrDefault(
-                        x => x.AddressFamily == AddressFamily.InterNetwork
-                    );
+                    var ipAddress = hostEntry.AddressList
+                        .FirstOrDefault(
+                            x => x.AddressFamily == AddressFamily.InterNetwork
+                        );
 
-                if (ipAddress is not null)
-                    addresses.Add(ipAddress.ToString());
-            }
-            catch
-            {
+                    if (ipAddress is not null)
+                        addresses.Add(ipAddress.ToString());
+                }
+                catch
+                {
 
+                }
             }
 
             var host = Database.Use(
@@ -181,16 +186,17 @@ public static class ExtensionMethods
     }
     static readonly DnsCache dnsCache = new();
 
-    public static string ToIpAddress(this string @this, bool useCache)
+    public static string ToIpAddress(this string @this, bool justLocal = false)
     {
-        return @this.ToIpAddresses(useCache).FirstOrDefault();
+        return @this.ToIpAddresses(justLocal).FirstOrDefault();
     }
 
-    public static string[] ToIpAddresses(this string @this, bool useCache)
+    public static string[] ToIpAddresses(
+        this string @this,
+        bool justLocal = false
+    )
     {
-        if (!useCache)
-            dnsCache.Clear(@this);
-
+        dnsCache.justLocal = justLocal;
         return dnsCache.Get(@this);
     }
 
@@ -296,6 +302,11 @@ public static class ExtensionMethods
     }
 
     public static bool HasErrorStatus(this HttpStatusCode @this)
+    {
+        return ((int) @this).HasErrorStatus();
+    }
+
+    public static bool HasErrorStatus(this int @this)
     {
         return @this - 400 >= 0;
     }

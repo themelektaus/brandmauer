@@ -75,7 +75,7 @@ public class Rule : Model, IOnDeserialize
         var sourceHosts = Hosts
             .Where(x => x is not null)
             .SelectMany(x => x.Addresses)
-            .SelectMany(x => x.Value.ToIpAddresses(useCache: true))
+            .SelectMany(x => x.Value.ToIpAddresses())
             .Distinct()
             .ToList();
 

@@ -1,0 +1,48 @@
+<i class="fas fa-location-pin-lock" style="font-size: 2em; "></i>
+<h2>Permission Request</h2>
+<div style="width: 15em; display: flex; flex-direction: column; flex: 0; gap: .5rem; ">
+    <div style="display: flex; flex-direction: column; gap: .5rem; align-items: center; ">
+        <div>IP address</div>
+        <div style="font-size: 1.2em; margin-bottom: .5rem; "><!--ip--></div>
+        <div>Domain</div>
+        <div style="font-size: 1.2em; "><!--domain--></div>
+    </div>
+    <div style="display: flex; gap: .75rem; justify-content: center; margin-top: 1rem;">
+        <button style="align-self: center; background-color: #373; " id="accept"><i class="fas fa-check"></i>Accept</button>
+        <button style="align-self: center; background-color: #632;" id="decline"><i class="fas fa-close"></i>Decline</button>
+    </div>
+</div>
+<script>
+    addEventListener(`load`, () =>
+    {
+        q(`#accept`).addEventListener(`click`, async () =>
+        {
+            q(`#accept`).disabled = true
+            q(`#decline`).disabled = true
+            
+            await fetch(`whitelist?token=<!--token-->&action=accept`)
+            
+            q(`#accept`).innerHTML = `Accepted`
+            q(`#decline`).remove()
+            
+            await new Promise(x => setTimeout(x, 1000))
+            
+            window.close()
+        })
+        
+        q(`#decline`).addEventListener(`click`, async () =>
+        {
+            q(`#accept`).disabled = true
+            q(`#decline`).disabled = true
+            
+            await fetch(`whitelist?token=<!--token-->&action=decline`)
+            
+            q(`#accept`).remove()
+            q(`#decline`).innerHTML = `Declined`
+            
+            await new Promise(x => setTimeout(x, 1000))
+            
+            window.close()
+        })
+    })
+</script>
