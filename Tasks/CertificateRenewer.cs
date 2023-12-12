@@ -1,18 +1,21 @@
 ﻿namespace Brandmauer;
 
-public class CertificateRenewer : ConditionalIntervalTask
+public class CertificateRenewer : IntervalTask
 {
     protected override TimeSpan Delay => TimeSpan.FromMinutes(1);
     protected override TimeSpan Interval => TimeSpan.FromDays(1);
 
-    protected override bool ShouldTrigger()
+    protected override Task OnStartAsync()
     {
-        return true;
+        return Task.CompletedTask;
     }
 
-    protected override Task OnDisposeAsync() => Task.CompletedTask;
+    protected override Task OnBeforeFirstTickAsync()
+    {
+        return Task.CompletedTask;
+    }
 
-    protected override async Task OnTriggerAsync()
+    protected override async Task OnTickAsync()
     {
         var certificates = Certificate.GetAll()
             .Where(x => x.ExpiresSoon).ToList();
@@ -39,5 +42,10 @@ public class CertificateRenewer : ConditionalIntervalTask
                 letsEncrypt: false
             );
         }
+    }
+
+    protected override Task OnDisposeAsync()
+    {
+        return Task.CompletedTask;
     }
 }
