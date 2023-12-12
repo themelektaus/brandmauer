@@ -12,19 +12,14 @@ public class DnsServer : IntervalTask
 
     protected override TimeSpan Interval => TimeSpan.FromSeconds(3);
 
-    protected override async Task OnDisposeAsync()
+    protected override Task OnStartAsync()
     {
-        if (dnsServer is not null)
-        {
-            dnsServer.Dispose();
-            dnsServer = null;
-        }
+        return Task.CompletedTask;
+    }
 
-        if (task is not null)
-        {
-            await task;
-            task = null;
-        }
+    protected override Task OnBeforeFirstTickAsync()
+    {
+        return Task.CompletedTask;
     }
 
     protected override async Task OnTickAsync()
@@ -66,5 +61,20 @@ public class DnsServer : IntervalTask
         };
 
         task = dnsServer.Listen();
+    }
+
+    protected override async Task OnDisposeAsync()
+    {
+        if (dnsServer is not null)
+        {
+            dnsServer.Dispose();
+            dnsServer = null;
+        }
+
+        if (task is not null)
+        {
+            await task;
+            task = null;
+        }
     }
 }

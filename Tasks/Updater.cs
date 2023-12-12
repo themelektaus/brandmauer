@@ -35,7 +35,15 @@ public class Updater : ConditionalIntervalTask
         this.app = app;
     }
 
-    protected override Task OnDisposeAsync() => Task.CompletedTask;
+    protected override Task OnStartAsync()
+    {
+        return Task.CompletedTask;
+    }
+
+    protected override Task OnBeforeFirstTickAsync()
+    {
+        return Task.CompletedTask;
+    }
 
     protected override bool ShouldTrigger()
     {
@@ -114,6 +122,11 @@ public class Updater : ConditionalIntervalTask
                 Console.WriteLine(ex);
             }
         }
+    }
+
+    protected override Task OnDisposeAsync()
+    {
+        return Task.CompletedTask;
     }
 }
 #endif

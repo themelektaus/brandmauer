@@ -19,6 +19,7 @@ public class Database
     public List<Certificate> Certificates { get; set; } = new();
     public List<Authentication> Authentications { get; set; } = new();
     public List<SmtpConnection> SmtpConnections { get; set; } = new();
+    public List<PushListener> PushListeners { get; set; } = new();
     public Config Config { get; set; } = new();
 
     static readonly HashSet<Model> models = new();

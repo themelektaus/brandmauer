@@ -135,6 +135,12 @@ public static partial class Endpoint
             return await SmtpConnections.SendAsync(context);
         });
 
+        app.MapGet($"{API}/pushlisteners", PushListeners.GetAll);
+        app.MapGet($"{API}/pushlisteners/{{id}}", PushListeners.Get);
+        app.MapPost($"{API}/pushlisteners", PushListeners.Post);
+        app.MapPut($"{API}/pushlisteners", PushListeners.Put);
+        app.MapDelete($"{API}/pushlisteners/{{id}}", PushListeners.Delete);
+
         app.MapGet($"{API}/resolve"/*?host={{host}}*/, Resolve);
         app.MapGet($"{API}/whatsmyip", WhatsMyIp);
     }

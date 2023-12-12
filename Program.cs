@@ -70,6 +70,7 @@ Brandmauer.Endpoint.MapAll(app);
 app.UseMiddleware<WellKnownMiddleware>();
 app.UseMiddleware<LoginMiddleware>();
 app.UseMiddleware<WhitelistMiddleware>();
+app.UseMiddleware<PushMiddleware>();
 app.UseMiddleware<ReverseProxyPreparatorMiddleware>();
 app.UseMiddleware<YarpReverseProxyMiddleware>();
 app.UseMiddleware<CustomReverseProxyMiddleware>();
@@ -83,6 +84,7 @@ app.RunInBackground<CertificateRenewer>();
 
 app.RunInBackground<DatabaseReloader>();
 app.RunInBackground<DnsServer>();
+app.RunInBackground<PushChecker>();
 
 await app.RunAsync();
 await app.DisposeAllIntervalTasksAsync();

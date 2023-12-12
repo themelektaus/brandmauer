@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Primitives;
-using System.Text;
-
-namespace Brandmauer;
+﻿namespace Brandmauer;
 
 public static partial class Endpoint
 {
