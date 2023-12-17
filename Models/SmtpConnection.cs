@@ -4,6 +4,17 @@ namespace Brandmauer;
 
 public class SmtpConnection : Model
 {
+    public override string ShortName
+    {
+        get
+        {
+            if (Name != string.Empty)
+                return Name;
+
+            return $"{Username} ({Host}:{Port})";
+        }
+    }
+
     public override string HtmlInfo
     {
         get
@@ -13,8 +24,13 @@ public class SmtpConnection : Model
             builder.BeginBadges();
             {
                 builder.AppendBadge("smtp", "host", Host, Port);
-                builder.AppendBadge("smtp", "username", "User", Username);
-                builder.AppendBadge("smtp", "sender", "Sender", Sender);
+
+                if (Username != string.Empty)
+                    builder.AppendBadge("smtp", "username", "User", Username);
+
+                if (Sender != string.Empty)
+                    builder.AppendBadge("smtp", "sender", "Sender", Sender);
+
                 builder.AppendBadge(
                     "smtp",
                     Tls ? "tls-enabled" : "tls-disabled",

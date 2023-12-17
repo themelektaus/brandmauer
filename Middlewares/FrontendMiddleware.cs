@@ -2,22 +2,42 @@
 
 using Microsoft.AspNetCore.StaticFiles;
 
+using System.Reflection;
 using System.Text;
+
+using F = System.Reflection.BindingFlags;
 
 namespace Brandmauer;
 
-public class FrontendMiddleware(RequestDelegate next)
+public class FrontendMiddleware
 {
     const string WWWROOT = "wwwroot"/*-htmx*/;
     const string INDEX_HTML = "index.html"/*.htmx*/;
-    const string LOGIN_HTML = "login.html";
-    const string WHITELIST = "whitelist";
-    const string WHITELIST_HTML = "whitelist.html";
     const string FAVICON_ICO = "favicon.ico";
     const string SEGMENTS = "segments";
     const string STATIC = "static";
     const string STYLE = "style";
     const string SCRIPT = "script";
+
+    readonly RequestDelegate next;
+    readonly List<MethodInfo> frontendMethods = new();
+
+    public FrontendMiddleware(RequestDelegate next)
+    {
+        this.next = next;
+
+        var types = GetType().Assembly.GetTypes();
+        foreach (var type in types)
+        {
+            var methods = type.GetMethods(F.Public | F.NonPublic | F.Static);
+            foreach (var method in methods)
+            {
+                var attribute = method.GetCustomAttribute<FrontendAttribute>();
+                if (attribute is not null)
+                    frontendMethods.Add(method);
+            }
+        }
+    }
 
     static string GetWwwRootFile(string path)
     {
@@ -53,48 +73,17 @@ public class FrontendMiddleware(RequestDelegate next)
                 goto Exit;
             }
 
-            if (path == $"/{WHITELIST}")
+            foreach (var method in frontendMethods)
             {
-                if (!context.Request.Query.TryGetValue("token", out var token))
+                var result = (FrontendResult) method.Invoke(null, [context]);
+                if (result.notFound)
                     goto NotFound;
 
-                var request = WhitelistMiddleware.GetPendingRequest(token);
-                if (request is null)
-                    goto NotFound;
-
-                var route = Database.Use(
-                    x => x.ReverseProxyRoutes.FirstOrDefault(
-                        y => y.Identifier.Id == request.ReverseProxyRouteId
-                    )
-                );
-
-                await Html(context, WHITELIST_HTML, new()
+                if (result.path is not null)
                 {
-                    { "ip", request.IpAddress },
-                    { "domain", route.SourceDomains.FirstOrDefault() },
-                    { "token", request.Token },
-                    { "content", "<!--segment: whitelist-permission-->" }
-                });
-                goto Exit;
-            }
-
-            var unauthorizedFeature = context.Features.Get<UnauthorizedFeature>();
-            if (unauthorizedFeature is not null)
-            {
-                var id = unauthorizedFeature.ReverseProxyRouteId;
-                if (id != 0)
-                {
-                    await Html(context, WHITELIST_HTML, new()
-                    {
-                        { "id", id },
-                        { "ip", context.Connection.RemoteIpAddress.ToIp() },
-                        { "content", "<!--segment: whitelist-request-->" }
-                    });
+                    await Html(context, result.path, result.replacements ?? new());
                     goto Exit;
                 }
-
-                await Html(context, LOGIN_HTML, new());
-                goto Exit;
             }
 
             if (path == "/")
@@ -161,7 +150,7 @@ public class FrontendMiddleware(RequestDelegate next)
         ApplyReplacements();
         ApplyStyle();
         ApplyScript();
-        
+
         await SetAsync(context, "text/html", content);
 
         void ApplyReplacements()

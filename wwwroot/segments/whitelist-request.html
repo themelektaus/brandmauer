@@ -9,14 +9,25 @@
         q(`#submit`).addEventListener(`click`, async () =>
         {
             q(`#submit`).disabled = true
-            await fetch(`whitelist?request=<!--id-->`)
+            await fetch(`whitelist`,
+            {
+                headers: {
+                    "X-<!--title-->-Request": `<!--id-->`
+                }
+            })
             q(`#submit`).innerHTML = `Waiting for Permission...`
             checkStatus()
         })
     })
     async function checkStatus()
     {
-        var response = await fetch(`whitelist?id=<!--id-->&ip=<!--ip-->`)
+        const response = await fetch(`whitelist`,
+        {
+            headers: {
+                "X-<!--title-->-ID": `<!--id-->`,
+                "X-<!--title-->-IP": `<!--ip-->`
+            }
+        })
         if (response.status != 401)
         {
             location.reload()

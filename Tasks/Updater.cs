@@ -1,4 +1,4 @@
-﻿#if RELEASE
+﻿#if LINUX
 namespace Brandmauer;
 
 using static FileUtils;

@@ -15,7 +15,7 @@ public static partial class Utils
 {
     public static readonly string NL = Environment.NewLine;
 
-#if RELEASE
+#if !DEBUG && !WINDOWS
     public const ushort HTTP = 80;
     public const ushort HTTPS = 443;
 #else

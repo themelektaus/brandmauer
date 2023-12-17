@@ -4,20 +4,30 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <InvariantGlobalization>true</InvariantGlobalization>
+        <Configurations>Debug;Linux;Windows</Configurations>
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>0.2.6.6</Version>
+        <Version>0.2.6.8</Version>
         <PrivateLocalDownloadFolder>\\fileserver.lan\slave\app\brandmauer\Download</PrivateLocalDownloadFolder>
         <PublicRemoteDownloadFolder>W:\stacks\web\www\download\brandmauer</PublicRemoteDownloadFolder>
     </PropertyGroup>
 
-    <Target Name="PostPublish" AfterTargets="AfterPublish">
-		<Message Text="----------------------------------------------------------------------" Importance="high" />
+    <PropertyGroup Condition="$(Configuration) == 'Windows'">
+        <DefineConstants>WINDOWS</DefineConstants>
+    </PropertyGroup>
+
+    <Target Condition="$(Configuration) == 'Linux'" Name="PostPublish" AfterTargets="AfterPublish">
+        <Message Text="----------------------------------------------------------------------" Importance="high" />
         <Exec Command="%22$(ProjectDir)PostPublish.bat%22 %22$(PrivateLocalDownloadFolder)%22 %22$(PublicRemoteDownloadFolder)%22 %22$(Version)%22" />
     </Target>
 
     <ItemGroup>
+        <Compile Remove="Build\**" />
+        <Content Remove="Build\**" />
+        <EmbeddedResource Remove="Build\**" />
+        <None Remove="Build\**" />
+
         <Compile Remove="Data\**" />
         <Content Remove="Data\**" />
         <EmbeddedResource Remove="Data\**" />
@@ -27,6 +37,11 @@
         <Content Remove="wwwroot-htmx\**" />
         <EmbeddedResource Remove="wwwroot-htmx\**" />
         <None Remove="wwwroot-htmx\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_WebToolingArtifacts Remove="Properties\PublishProfiles\Linux.pubxml" />
+      <_WebToolingArtifacts Remove="Properties\PublishProfiles\Windows.pubxml" />
     </ItemGroup>
 
     <ItemGroup>
@@ -50,6 +65,10 @@
         <PackageReference Include="SSH.NET" Version="2023.0.0" />
         <PackageReference Include="System.Formats.Asn1" Version="8.0.0" />
         <PackageReference Include="Yarp.ReverseProxy" Version="2.1.0" />
+    </ItemGroup>
+
+    <ItemGroup Condition="$(Configuration) == 'Windows'">
+        <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.0" />
     </ItemGroup>
 
 </Project>

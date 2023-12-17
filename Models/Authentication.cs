@@ -4,6 +4,20 @@ namespace Brandmauer;
 
 public class Authentication : Model, IOnDeserialize
 {
+    public override string ShortName
+    {
+        get
+        {
+            if (Name != string.Empty)
+                return Name;
+
+            if (Username != string.Empty)
+                return Username;
+
+            return Identifier.Id.ToString();
+        }
+    }
+
     public override string HtmlInfo
     {
         get
@@ -34,8 +48,8 @@ public class Authentication : Model, IOnDeserialize
         }
     }
 
-    public string Username { get; set; }
-    public string Password { get; set; }
+    public string Username { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
     public bool EnableTotp { get; set; }
     public string TotpSecret { get; set; } = TotpUtils.GenerateSecret();
 

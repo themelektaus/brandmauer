@@ -2,7 +2,8 @@
 
 public class LoginMiddleware(RequestDelegate next)
 {
-    public static readonly string SessionTokenKey = $"X-{Utils.Name}-Session-Token";
+    public static readonly string SessionTokenKey
+        = $"X-{Utils.Name}-Session-Token";
 
     public class Session
     {
@@ -14,7 +15,8 @@ public class LoginMiddleware(RequestDelegate next)
             this.authenticationId = authenticationId;
             token = string.Empty;
             while (token.Length < 64)
-                token += "abcdefghijklmnopqrstuvwxyz234567"[Random.Shared.Next(0, 32)];
+                token += "abcdefghijklmnopqrstuvwxyz234567"
+                    [Random.Shared.Next(0, 32)];
         }
     }
     static readonly List<Session> sessions = new();
@@ -39,7 +41,7 @@ public class LoginMiddleware(RequestDelegate next)
 
         if (
             path == "/login" &&
-            request.Form.TryGetValue(SessionTokenKey, out var authorization)
+            request.Headers.TryGetValue(SessionTokenKey, out var authorization)
         )
         {
             var authentication = Database.Use(
@@ -70,5 +72,19 @@ public class LoginMiddleware(RequestDelegate next)
 
     Exit:
         Utils.LogOut<LoginMiddleware>(context);
+    }
+
+    [Frontend]
+    static FrontendResult GetFrontend(HttpContext context)
+    {
+        var unauthorizedFeature = context.Features.Get<UnauthorizedFeature>();
+        if (unauthorizedFeature is null)
+            return default;
+
+        var id = unauthorizedFeature.ReverseProxyRouteId;
+        if (id != 0)
+            return default;
+
+        return new() { path = "login.html" };
     }
 }

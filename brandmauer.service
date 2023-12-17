@@ -6,7 +6,7 @@ StartLimitIntervalSec=0
 [Service]
 Type=simple
 Restart=always
-RestartSec=1
+RestartSec=5
 User=root
 WorkingDirectory=/app/brandmauer
 ExecStartPre=/bin/chmod -R 777 /app/brandmauer/Brandmauer

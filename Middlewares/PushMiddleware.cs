@@ -2,6 +2,8 @@
 
 public class PushMiddleware(RequestDelegate next)
 {
+    static readonly string TokenKey = $"X-{Utils.Name}-Token";
+
     public async Task Invoke(HttpContext context)
     {
         Utils.LogIn<PushMiddleware>(context);
@@ -9,14 +11,11 @@ public class PushMiddleware(RequestDelegate next)
         var request = context.Request;
         var response = context.Response;
 
-        if (request.Path == "/push")
+        if (
+            request.Path == "/push" &&
+            request.Headers.TryGetValue(TokenKey, out var token)
+        )
         {
-            if (!request.Query.TryGetValue("token", out var token))
-            {
-                response.StatusCode = 401;
-                goto Exit;
-            }
-
             var pushListener = Database.Use(
                 x => x.PushListeners.FirstOrDefault(
                     y => y.Token == token

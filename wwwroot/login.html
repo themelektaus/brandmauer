@@ -39,19 +39,12 @@
                     
                     q(`#submit`).disabled = true
                     
-                    const type = `application/x-www-form-urlencoded`
-                    
-                    const data = new URLSearchParams()
-                    data.append(
-                        `X-<!--title-->-Session-Token`,
-                        btoa(`${username}:${password}`)
-                    )
-                    
                     const response = await fetch(`login`,
                     {
-                        method: `post`,
-                        headers: { "Content-Type": type },
-                        body: data
+                        headers: {
+                            "X-<!--title-->-Session-Token":
+                                btoa(`${username}:${password}`)
+                        }
                     })
                     
                     location.reload()
