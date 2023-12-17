@@ -1,0 +1,62 @@
+<div data-page="pushers">
+    <div class="title">
+        <h2>
+            <i class="fas fa-circle"></i>
+            <span>Pushers</span>
+        </h2>
+        <button data-action="saveAll" disabled>Save</button>
+        <button data-action="cancelAll" disabled>Cancel</button>
+    </div>
+    <div class="content">
+        <div class="list-header" style="grid-template-columns: 1fr 4fr; ">
+            <div>Name</div>
+        </div>
+        <div class="list" data-bind="pushers">
+            <div class="item">
+                <div style="grid-template-columns: 1fr 4fr; ">
+                    <div data-bind="htmlName"></div>
+                    <div data-bind="htmlInfo"></div>
+                </div>
+                <div>
+                    <input type="checkbox" data-bind="enabled">
+                    <div class="field">
+                        <label>Name</label>
+                        <input type="text" data-bind="name">
+                        <button data-action="delete">Delete</button>
+                    </div>
+                    <div class="field">
+                        <label>Interval</label>
+                        <div class="flex">
+                            <input type="number" min="1" data-bind="interval">
+                            <label>Seconds</label>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>TCP Host</label>
+                        <input type="text" data-bind="tcpHost">
+                    </div>
+                    <div class="field">
+                        <label>TCP Port</label>
+                        <input type="number" value="1" min="1" max="65535" data-bind="tcpPort">
+                    </div>
+                    <div class="field">
+                        <label>Success URL</label>
+                        <input type="text" data-bind="successUrl">
+                    </div>
+                    <div class="field">
+                        <label>Success Headers</label>
+                        <ul class="group group-string-values" data-bind="successHeaders">
+                            <li>
+                                <input data-bind="value" placeholder="Key" style="flex: 1; " />
+                                <input data-bind="description" placeholder="Value" style="flex: 3; " />
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <button data-action="add"></button>
+    </div>
+</div>

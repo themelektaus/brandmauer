@@ -6,6 +6,10 @@ public abstract class Model : IDisposable
 
     public string Name { get; set; } = string.Empty;
 
+    public virtual string ShortName => Name == string.Empty
+        ? Identifier.Id.ToString()
+        : Name;
+
     public DateTime CreationTimestamp { get; set; } = DateTime.UtcNow;
 
     public virtual string HtmlName => ToString();

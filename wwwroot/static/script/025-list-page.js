@@ -143,9 +143,7 @@ class ListPage extends Page
         {
             const $option = $.create(`option`)
             $option.value = item.model.identifier.id
-            $option.text = item.model.name
-                || item.model.address
-                || item.model.identifier.id
+            $option.text = item.model.shortName
         }
         
         $.value = value

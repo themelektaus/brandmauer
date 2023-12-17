@@ -35,6 +35,7 @@ public abstract partial class IntervalTask : IAsyncDisposable
             }
         }, ct);
     }
+
     public async ValueTask DisposeAsync()
     {
         if (disposed)
@@ -52,6 +53,4 @@ public abstract partial class IntervalTask : IAsyncDisposable
             task = null;
         }
     }
-
-
 }

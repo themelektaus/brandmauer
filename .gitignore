@@ -1,6 +1,7 @@
 /.config/
 /.vs/
 /bin/
+/Build/
 /Data
 /Data/
 /obj/

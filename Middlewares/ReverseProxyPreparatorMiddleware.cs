@@ -173,7 +173,7 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
             }
         }
 
-        context.Features.Set(new ReverseProxyFeature()
+        context.Features.Set(new ReverseProxyFeature
         {
             Route = source.route,
             Domain = source.domain,

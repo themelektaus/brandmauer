@@ -62,7 +62,8 @@ public class PushListener : Model, IOnDeserialize
     {
         var token = string.Empty;
         while (token.Length < 64)
-            token += "abcdefghijklmnopqrstuvwxyz234567"[Random.Shared.Next(0, 32)];
+            token += "abcdefghijklmnopqrstuvwxyz234567"
+                [Random.Shared.Next(0, 32)];
         return token;
     }
 }

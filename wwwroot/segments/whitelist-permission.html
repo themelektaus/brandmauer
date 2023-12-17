@@ -1,7 +1,7 @@
 <i class="fas fa-location-pin-lock" style="font-size: 2em; "></i>
 <h2>Permission Request</h2>
 <div style="width: 15em; display: flex; flex-direction: column; flex: 0; gap: .5rem; ">
-    <div style="display: flex; flex-direction: column; gap: .5rem; align-items: center; ">
+    <div id="info" style="display: flex; flex-direction: column; gap: .5rem; align-items: center; ">
         <div>IP address</div>
         <div style="font-size: 1.2em; margin-bottom: .5rem; "><!--ip--></div>
         <div>Domain</div>
@@ -20,14 +20,18 @@
             q(`#accept`).disabled = true
             q(`#decline`).disabled = true
             
-            await fetch(`whitelist?token=<!--token-->&action=accept`)
+            await fetch(`whitelist`,
+            {
+                headers: {
+                    "X-<!--title-->-Token": `<!--token-->`,
+                    "X-<!--title-->-Action": `accept`
+                }
+            })
             
             q(`#accept`).innerHTML = `Accepted`
             q(`#decline`).remove()
             
-            await new Promise(x => setTimeout(x, 1000))
-            
-            window.close()
+            q(`#info`).innerHTML = "This page can now be closed."
         })
         
         q(`#decline`).addEventListener(`click`, async () =>
@@ -35,14 +39,18 @@
             q(`#accept`).disabled = true
             q(`#decline`).disabled = true
             
-            await fetch(`whitelist?token=<!--token-->&action=decline`)
+            await fetch(`whitelist`,
+            {
+                headers: {
+                    "X-<!--title-->-Token": `<!--token-->`,
+                    "X-<!--title-->-Action": `decline`
+                }
+            })
             
             q(`#accept`).remove()
             q(`#decline`).innerHTML = `Declined`
             
-            await new Promise(x => setTimeout(x, 1000))
-            
-            window.close()
+            q(`#info`).innerHTML = "This page can now be closed."
         })
     })
 </script>

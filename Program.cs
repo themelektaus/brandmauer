@@ -1,6 +1,14 @@
 using Microsoft.AspNetCore.Http.Json;
 
+#if WINDOWS
+using Microsoft.Extensions.Hosting.WindowsServices;
+#endif
+
 using Brandmauer;
+
+#if WINDOWS
+Environment.CurrentDirectory = Path.GetDirectoryName(Environment.ProcessPath);
+#endif
 
 Database.Load();
 
@@ -10,10 +18,10 @@ builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddFilter("Default", LogLevel.Information);
 
-#if RELEASE
-builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Error);
-#else
+#if DEBUG
 builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
+#else
+builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Error);
 #endif
 
 builder.Logging.AddFilter(
@@ -60,6 +68,10 @@ builder.WebHost.UseKestrel(options =>
     });
 });
 
+#if WINDOWS
+builder.Host.UseWindowsService();
+#endif
+
 var app = builder.Build();
 
 app.Urls.Add($"http://0.0.0.0:{Utils.HTTP}");
@@ -77,7 +89,7 @@ app.UseMiddleware<CustomReverseProxyMiddleware>();
 app.UseMiddleware<FrontendMiddleware>();
 app.UseMiddleware<TeapotMiddleware>();
 
-#if RELEASE
+#if LINUX
 app.RunInBackground<Updater>();
 app.RunInBackground<CertificateRenewer>();
 #endif
