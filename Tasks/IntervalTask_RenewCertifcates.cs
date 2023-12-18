@@ -1,19 +1,12 @@
 ﻿namespace Brandmauer;
 
-public class CertificateRenewer : IntervalTask
+[Delay(60)]
+[Interval(86400)]
+public class IntervalTask_RenewCertifcates : IntervalTask
 {
-    protected override TimeSpan Delay => TimeSpan.FromMinutes(1);
-    protected override TimeSpan Interval => TimeSpan.FromDays(1);
+    protected override Task OnStartAsync() => default;
 
-    protected override Task OnStartAsync()
-    {
-        return Task.CompletedTask;
-    }
-
-    protected override Task OnBeforeFirstTickAsync()
-    {
-        return Task.CompletedTask;
-    }
+    protected override Task OnBeforeFirstTickAsync() => default;
 
     protected override async Task OnTickAsync()
     {
@@ -44,8 +37,5 @@ public class CertificateRenewer : IntervalTask
         }
     }
 
-    protected override Task OnDisposeAsync()
-    {
-        return Task.CompletedTask;
-    }
+    protected override Task OnDisposeAsync() => default;
 }

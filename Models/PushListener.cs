@@ -5,7 +5,7 @@ public class PushListener : Model, IOnDeserialize
     public bool Enabled { get; set; } = true;
 
     public string Token { get; set; } = GenerateToken();
-    public long AgeThreshold { get; set; }
+    public long AgeThreshold { get; set; } = 120;
 
     public Identifier SmtpConnectionReference { get; set; }
     public SmtpConnection SmtpConnection;
@@ -46,7 +46,7 @@ public class PushListener : Model, IOnDeserialize
                 html: false
             );
 
-        Utils.Log(nameof(PushChecker), $"{statusCode}: {text}");
+        Utils.Log(nameof(IntervalTask_Push), $"{statusCode}: {text}");
     }
 
     public void OnDeserialize(Database database)

@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.StaticFiles;
 using System.Reflection;
 using System.Text;
 
-using F = System.Reflection.BindingFlags;
-
 namespace Brandmauer;
 
 public class FrontendMiddleware
@@ -26,17 +24,9 @@ public class FrontendMiddleware
     {
         this.next = next;
 
-        var types = GetType().Assembly.GetTypes();
-        foreach (var type in types)
-        {
-            var methods = type.GetMethods(F.Public | F.NonPublic | F.Static);
-            foreach (var method in methods)
-            {
-                var attribute = method.GetCustomAttribute<FrontendAttribute>();
-                if (attribute is not null)
-                    frontendMethods.Add(method);
-            }
-        }
+        frontendMethods.AddRange(
+            Utils.GetMethodsByAttribute<FrontendAttribute>()
+        );
     }
 
     static string GetWwwRootFile(string path)
@@ -202,6 +192,18 @@ public class FrontendMiddleware
             var builder = new StringBuilder();
             var folder = Path.Combine(WWWROOT, STATIC, SCRIPT);
             var files = new DirectoryInfo(folder).EnumerateFiles();
+
+#if DEBUG
+            builder.AppendLine("<script>DEBUG = true</script>");
+#else
+            builder.AppendLine("<script>DEBUG = false</script>");
+#endif
+
+#if WINDOWS
+            builder.AppendLine("<script>WINDOWS = true</script>");
+#else
+            builder.AppendLine("<script>WINDOWS = false</script>");
+#endif
 
             foreach (var file in files.OrderBy(x => x.Name))
             {

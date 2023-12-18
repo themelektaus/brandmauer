@@ -1,11 +1,11 @@
-﻿#if !DEBUG
+﻿#if !(DEBUG || WINDOWS)
 using System.IO.Compression;
 using _File = System.IO.File;
 #endif
 
 namespace Brandmauer;
 
-#if !DEBUG
+#if !(DEBUG || WINDOWS)
 using static FileUtils;
 #endif
 
@@ -15,13 +15,13 @@ public static partial class Endpoint
 {
     public static class Update
     {
-#if DEBUG
+#if (DEBUG || WINDOWS)
         public static IResult Check()
         {
             return Json(new
             {
-                remoteVersion = "(Not available in debug mode)",
-                downloadedVersion = "(Not available in debug mode)",
+                remoteVersion = "(Not available in debug/windows mode)",
+                downloadedVersion = "(Not available in debug/windows mode)",
                 installedVersion = Utils.GetAssemblyName().Version.ToString(),
             });
         }

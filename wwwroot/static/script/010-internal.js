@@ -194,6 +194,8 @@ class Internal
     
     static setPageTargetDirty(name, dirty)
     {
-        Internal.getPageTarget(name).setClass(`dirty`, dirty)
+        const page = Internal.getPageTarget(name)
+        if (page)
+            page.setClass(`dirty`, dirty)
     }
 }

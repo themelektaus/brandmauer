@@ -19,7 +19,7 @@ public class Database
     public List<Certificate> Certificates { get; set; } = new();
     public List<Authentication> Authentications { get; set; } = new();
     public List<SmtpConnection> SmtpConnections { get; set; } = new();
-    public List<Pusher> Pushers { get; set; } = new();
+    public List<Monitor> Monitors { get; set; } = new();
     public List<PushListener> PushListeners { get; set; } = new();
     public Config Config { get; set; } = new();
 

@@ -1,10 +1,9 @@
 ﻿namespace Brandmauer;
 
-public class PushChecker : IntervalTask
+[Delay(10)]
+[Interval(1)]
+public class IntervalTask_Push : IntervalTask
 {
-    protected override TimeSpan Delay => TimeSpan.FromSeconds(10);
-    protected override TimeSpan Interval => TimeSpan.FromSeconds(1);
-
     protected override Task OnStartAsync()
     {
         Database.Use(x =>
@@ -16,22 +15,22 @@ public class PushChecker : IntervalTask
         return Task.CompletedTask;
     }
 
-    protected override Task OnBeforeFirstTickAsync()
-    {
-        return Task.CompletedTask;
-    }
+    protected override Task OnBeforeFirstTickAsync() => default;
 
     protected override async Task OnTickAsync()
     {
-        var (pushers, pushListeners) = Database.Use(
+        var (monitors, pushListeners) = Database.Use(
             x => (
-                x.Pushers.Where(x => x.Enabled),
+                x.Monitors
+                    .Where(x => x.Enabled)
+                    .ToList(),
                 x.PushListeners
-                 .Where(x => x.Enabled && x.AgeThreshold > 0).ToList()
+                    .Where(x => x.Enabled && x.AgeThreshold > 0)
+                    .ToList()
             )
         );
 
-        foreach (var pusher in pushers)
+        foreach (var pusher in monitors)
             await pusher.UpdateAsync();
 
         foreach (var pushListener in pushListeners)
