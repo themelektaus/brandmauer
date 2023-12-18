@@ -3,7 +3,9 @@ namespace Brandmauer;
 
 using static FileUtils;
 
-public class Updater : ConditionalIntervalTask
+[Delay(0)]
+[Interval(1)]
+public class IntervalTask_UpdateBrandmauer : IntervalTask
 {
     const string UPDATE_FOLDER = "Update";
 
@@ -25,34 +27,23 @@ public class Updater : ConditionalIntervalTask
     static string GetTargetPath(string name)
         => Path.GetFullPath(name);
 
-    protected override TimeSpan Delay => TimeSpan.Zero;
-    protected override TimeSpan Interval => TimeSpan.FromSeconds(1);
-
     readonly WebApplication app;
 
-    public Updater(WebApplication app)
+    public IntervalTask_UpdateBrandmauer(WebApplication app)
     {
         this.app = app;
     }
 
-    protected override Task OnStartAsync()
-    {
-        return Task.CompletedTask;
-    }
+    protected override Task OnStartAsync() => default;
 
-    protected override Task OnBeforeFirstTickAsync()
-    {
-        return Task.CompletedTask;
-    }
+    protected override Task OnBeforeFirstTickAsync() => default;
 
-    protected override bool ShouldTrigger()
+    protected override async Task OnTickAsync()
     {
-        return Directory.Exists(UPDATE_FOLDER);
-    }
+        if (!Directory.Exists(UPDATE_FOLDER))
+            return;
 
-    protected override async Task OnTriggerAsync()
-    {
-        await Task.Delay(1000);
+		await Task.Delay(1000);
 
         try
         {
@@ -124,9 +115,6 @@ public class Updater : ConditionalIntervalTask
         }
     }
 
-    protected override Task OnDisposeAsync()
-    {
-        return Task.CompletedTask;
-    }
+    protected override Task OnDisposeAsync() => default;
 }
 #endif

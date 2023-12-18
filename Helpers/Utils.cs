@@ -9,6 +9,8 @@ using System.Reflection;
 
 using System.Text.RegularExpressions;
 
+using F = System.Reflection.BindingFlags;
+
 namespace Brandmauer;
 
 public static partial class Utils
@@ -188,5 +190,44 @@ public static partial class Utils
             "appsettings.json"
 #endif
         ).Build();
+    }
+
+    public static List<MethodInfo> GetMethodsByAttribute<T>()
+        where T : Attribute
+    {
+        var methods = new List<MethodInfo>();
+
+        var types = typeof(Utils).Assembly.GetTypes();
+        var flags = F.Public | F.NonPublic | F.Static;
+
+        foreach (var type in types)
+        {
+            var methodInfos = type.GetMethods(flags);
+            foreach (var method in methodInfos)
+            {
+                var attribute = method.GetCustomAttribute<FrontendAttribute>();
+                if (attribute is not null)
+                    methods.Add(method);
+            }
+        }
+
+        return methods;
+    }
+
+    public static List<MethodInfo> GetInstanceMethods()
+    {
+        var methods = new List<MethodInfo>();
+
+        var types = typeof(Utils).Assembly.GetTypes();
+        var flags = F.Public | F.NonPublic | F.Instance;
+
+        foreach (var type in types)
+        {
+            var methodInfos = type.GetMethods(flags);
+            foreach (var method in methodInfos)
+                methods.Add(method);
+        }
+
+        return methods;
     }
 }

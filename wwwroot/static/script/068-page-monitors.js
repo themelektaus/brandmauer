@@ -1,4 +1,4 @@
-class PushersPage extends ListPage
+class MonitorsPage extends ListPage
 {
     static _ = Page.register(this)
 }

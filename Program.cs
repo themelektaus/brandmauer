@@ -90,13 +90,13 @@ app.UseMiddleware<FrontendMiddleware>();
 app.UseMiddleware<TeapotMiddleware>();
 
 #if LINUX
-app.RunInBackground<Updater>();
-app.RunInBackground<CertificateRenewer>();
+app.RunInBackground<IntervalTask_UpdateBrandmauer>();
+app.RunInBackground<IntervalTask_RenewCertifcates>();
 #endif
 
-app.RunInBackground<DatabaseReloader>();
-app.RunInBackground<DnsServer>();
-app.RunInBackground<PushChecker>();
+app.RunInBackground<IntervalTask_ReloadDatabase>();
+app.RunInBackground<IntervalTask_DnsServer>();
+app.RunInBackground<IntervalTask_Push>();
 
 await app.RunAsync();
 await app.DisposeAllIntervalTasksAsync();

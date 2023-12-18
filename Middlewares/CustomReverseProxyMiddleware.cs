@@ -1,4 +1,6 @@
-﻿namespace Brandmauer;
+﻿using Microsoft.AspNetCore.Http.Extensions;
+
+namespace Brandmauer;
 
 public class CustomReverseProxyMiddleware(RequestDelegate next)
     : ReverseProxyMiddleware
@@ -84,6 +86,10 @@ public class CustomReverseProxyMiddleware(RequestDelegate next)
 
             context.Response.StatusCode = (int) response.StatusCode;
 
+            if (context.Response.StatusCode == 301)
+                if (TryRedirect(context))
+                    return;
+
             foreach (var header in response.Headers)
             {
                 context.Response.Headers.TryAdd(
@@ -132,25 +138,29 @@ public class CustomReverseProxyMiddleware(RequestDelegate next)
             Console.WriteLine();
 
             if (ex is HttpRequestException _ex)
-            {
                 if (_ex.HttpRequestError == HttpRequestError.ConnectionError)
-                {
-                    var path = context.Request.Path.ToString();
-                    if (!path.EndsWith('/'))
-                    {
-                        context.Response.Redirect(
-                            $"{path}/",
-                            permanent: false,
-                            preserveMethod: true
-                        );
+                    if (TryRedirect(context))
                         return;
-                    }
-                }
-            }
 
             context.Response.StatusCode = 500;
             await NextAsync(context);
         }
+    }
+
+    static bool TryRedirect(HttpContext context)
+    {
+        var location = context.Request.GetDisplayUrl();
+        if (location.EndsWith('/'))
+            return false;
+        
+        location += '/';
+        Utils.Log("Redirect", location);
+        context.Response.Redirect(
+            location,
+            permanent: false,
+            preserveMethod: true
+        );
+        return true;
     }
 
     static HttpMethod GetMethod(HttpRequest request)

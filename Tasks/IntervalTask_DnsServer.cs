@@ -3,24 +3,16 @@ using DNS.Server;
 
 namespace Brandmauer;
 
-public class DnsServer : IntervalTask
+[Delay(5)]
+[Interval(3)]
+public class IntervalTask_DnsServer : IntervalTask
 {
     DNS.Server.DnsServer dnsServer;
     Task task;
 
-    protected override TimeSpan Delay => TimeSpan.FromSeconds(5);
+    protected override Task OnStartAsync() => default;
 
-    protected override TimeSpan Interval => TimeSpan.FromSeconds(3);
-
-    protected override Task OnStartAsync()
-    {
-        return Task.CompletedTask;
-    }
-
-    protected override Task OnBeforeFirstTickAsync()
-    {
-        return Task.CompletedTask;
-    }
+    protected override Task OnBeforeFirstTickAsync() => default;
 
     protected override async Task OnTickAsync()
     {
