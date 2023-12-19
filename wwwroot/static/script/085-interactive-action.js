@@ -55,6 +55,9 @@ class InteractiveAction
     
     static async checkDirtyBuild()
     {
+        if (WINDOWS)
+            return
+        
         const dirty = await fetchJson(`api/build/dirty`)
         Internal.setPageTargetDirty(`build`, dirty)
     }

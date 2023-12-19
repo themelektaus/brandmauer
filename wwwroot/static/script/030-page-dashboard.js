@@ -18,9 +18,8 @@ class DashboardPage extends Page
         const $installButton = this.$.q(`[data-action="updateInstall"]`)
         
         const version = this.model.update.downloadedVersion
-        const debug = version.includes(`debug`)
         
-        if (debug)
+        if (version.includes(`Not available`))
         {
             this.$.q(`[data-action="updateCheck"]`).setEnabled(false)
             this.$.q(`[data-action="updateDownload"]`).setEnabled(false)

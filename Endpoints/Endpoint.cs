@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Reflection.Metadata.Ecma335;
 
 namespace Brandmauer;
 
@@ -15,8 +14,10 @@ public static partial class Endpoint
         app.MapGet($"{API}/info/requests", Info.GetRequests);
 
         app.MapGet($"{API}/update", Update.Check);
+#if LINUX
         app.MapGet($"{API}/update/download", Update.Download);
         app.MapGet($"{API}/update/install", Update.Install);
+#endif
 
         app.MapGet($"{API}/config", Config.Get);
         app.MapPut($"{API}/config", Config.Set);
@@ -27,6 +28,7 @@ public static partial class Endpoint
         app.MapPut($"{API}/hosts", Hosts.Put);
         app.MapDelete($"{API}/hosts/{{id}}", Hosts.Delete);
 
+#if LINUX
         app.MapGet($"{API}/services", Services.GetAll);
         app.MapGet($"{API}/services/{{id}}", Services.Get);
         app.MapPost($"{API}/services", Services.Post);
@@ -65,6 +67,7 @@ public static partial class Endpoint
             $"{API}/build/clear"/*?output=<script|stdout|stderr|data>*/,
             Build.Clear
         );
+#endif
 
         app.MapGet(
             $"{API}/reverseproxyroutes",
