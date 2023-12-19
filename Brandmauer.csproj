@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>0.2.6.9</Version>
+        <Version>0.2.7.1</Version>
         <PrivateLocalDownloadFolder>\\fileserver.lan\slave\app\brandmauer\Download</PrivateLocalDownloadFolder>
         <PublicRemoteDownloadFolder>W:\stacks\web\www\download\brandmauer</PublicRemoteDownloadFolder>
     </PropertyGroup>
@@ -21,9 +21,14 @@
         <DefineConstants>WINDOWS</DefineConstants>
     </PropertyGroup>
 
-    <Target Condition="$(Configuration) == 'Linux'" Name="PostPublish" AfterTargets="AfterPublish">
+    <Target Condition="$(Configuration) == 'Linux'" Name="PostPublish-Linux" AfterTargets="AfterPublish">
         <Message Text="----------------------------------------------------------------------" Importance="high" />
-        <Exec Command="%22$(ProjectDir)PostPublish.bat%22 %22$(PrivateLocalDownloadFolder)%22 %22$(PublicRemoteDownloadFolder)%22 %22$(Version)%22" />
+        <Exec Command="%22$(ProjectDir)PostPublish-Linux.bat%22 %22$(PrivateLocalDownloadFolder)%22 %22$(PublicRemoteDownloadFolder)%22 %22$(Version)%22" />
+    </Target>
+
+    <Target Condition="$(Configuration) == 'Windows'" Name="PostPublish-Windows" AfterTargets="AfterPublish">
+        <Message Text="----------------------------------------------------------------------" Importance="high" />
+        <Exec Command="%22$(ProjectDir)PostPublish-Windows.bat%22 %22Build\Windows%22 %22$(PublicRemoteDownloadFolder)%22" />
     </Target>
 
     <ItemGroup>
@@ -31,11 +36,16 @@
         <Content Remove="Build\**" />
         <EmbeddedResource Remove="Build\**" />
         <None Remove="Build\**" />
-
+        
         <Compile Remove="Data\**" />
         <Content Remove="Data\**" />
         <EmbeddedResource Remove="Data\**" />
         <None Remove="Data\**" />
+
+        <Compile Remove="Updater\**" />
+        <Content Remove="Updater\**" />
+        <EmbeddedResource Remove="Updater\**" />
+        <None Remove="Updater\**" />
 
         <Compile Remove="wwwroot-htmx\**" />
         <Content Remove="wwwroot-htmx\**" />

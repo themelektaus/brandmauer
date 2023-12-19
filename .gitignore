@@ -2,9 +2,14 @@
 /.vs/
 /bin/
 /Build/
-/Data
 /Data/
 /obj/
+/PostPublish-Windows.bat
+/PostPublish-Linux.bat
+
+/Updater/bin/
+/Updater/Build/
+/Updater/obj/
+
 *.user
 appsettings.Development.json
-/PostPublish.bat
