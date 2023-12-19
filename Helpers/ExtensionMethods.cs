@@ -181,7 +181,8 @@ public static class ExtensionMethods
                 currentDepth--;
             }
 
-            return addresses.Distinct().ToArray();
+            var result = addresses.Distinct().ToArray();
+            return result.Length == 0 ? null : result;
         }
     }
     static readonly DnsCache dnsCache = new();
