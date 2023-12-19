@@ -199,6 +199,12 @@ public class FrontendMiddleware
             builder.AppendLine("<script>DEBUG = false</script>");
 #endif
 
+#if LINUX
+            builder.AppendLine("<script>LINUX = true</script>");
+#else
+            builder.AppendLine("<script>LINUX = false</script>");
+#endif
+
 #if WINDOWS
             builder.AppendLine("<script>WINDOWS = true</script>");
 #else

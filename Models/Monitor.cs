@@ -52,12 +52,14 @@ public partial class Monitor : Model
             return;
 
         var now = DateTime.Now;
-        if (last is not null && (now - last.Value).TotalSeconds < Interval)
-            return;
+
+        if (last is not null)
+            if ((now - last.Value).TotalSeconds < Interval)
+                return;
 
         last = now;
 
-        if ((bool) checkMethods[CheckType].Invoke(this, null))
+        if (!((bool) checkMethods[CheckType].Invoke(this, null)))
             return;
 
         using var httpClient = new HttpClient();

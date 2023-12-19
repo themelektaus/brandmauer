@@ -18,22 +18,18 @@ public static partial class Endpoint
 #if (DEBUG || WINDOWS)
         public static IResult Check()
         {
+            var info =
+#if WINDOWS
+                "(Not available for Windows)";
+#else
+                "(Not available in Debug Mode)";
+#endif
             return Json(new
             {
-                remoteVersion = "(Not available in debug/windows mode)",
-                downloadedVersion = "(Not available in debug/windows mode)",
+                remoteVersion = info,
+                downloadedVersion = info,
                 installedVersion = Utils.GetAssemblyName().Version.ToString(),
             });
-        }
-
-        public static IResult Download()
-        {
-            return Unauthorized();
-        }
-
-        public static IResult Install()
-        {
-            return Unauthorized();
         }
 #else
         const string REMOTE_REPOSITORY_URL

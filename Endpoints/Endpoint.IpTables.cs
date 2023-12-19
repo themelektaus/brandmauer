@@ -1,4 +1,5 @@
-﻿namespace Brandmauer;
+﻿#if LINUX
+namespace Brandmauer;
 
 public static partial class Endpoint
 {
@@ -39,3 +40,4 @@ public static partial class Endpoint
         }
     }
 }
+#endif

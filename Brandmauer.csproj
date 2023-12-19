@@ -13,6 +13,10 @@
         <PublicRemoteDownloadFolder>W:\stacks\web\www\download\brandmauer</PublicRemoteDownloadFolder>
     </PropertyGroup>
 
+    <PropertyGroup Condition="$(Configuration) == 'Linux'">
+        <DefineConstants>LINUX</DefineConstants>
+    </PropertyGroup>
+
     <PropertyGroup Condition="$(Configuration) == 'Windows'">
         <DefineConstants>WINDOWS</DefineConstants>
     </PropertyGroup>

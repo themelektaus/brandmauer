@@ -1,4 +1,6 @@
+#if DEBUG
 using Microsoft.AspNetCore.Http.Extensions;
+#endif
 
 using Microsoft.Extensions.Primitives;
 
@@ -17,7 +19,7 @@ public static partial class Utils
 {
     public static readonly string NL = Environment.NewLine;
 
-#if !DEBUG && !WINDOWS
+#if LINUX
     public const ushort HTTP = 80;
     public const ushort HTTPS = 443;
 #else

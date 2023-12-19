@@ -12,15 +12,17 @@ InteractiveAction.gotoPage(
 {
     (function()
     {
-        const $ = q(`li[data-action="gotoPage"][data-target="build"]`)
-        
-        if (WINDOWS)
-        {
-            $.remove()
-            return
-        }
-        
-        $.setClass(`display-none`, false)
-        
+        qAll(`li[data-action="gotoPage"][data-target].display-none`).forEach(
+            $ =>
+            {
+                if (WINDOWS)
+                {
+                    $.remove()
+                    return
+                }
+                
+                $.setClass(`display-none`, false)
+            }
+        )
     })()
 }
