@@ -55,7 +55,7 @@ class InteractiveAction
     
     static async checkDirtyBuild()
     {
-        if (WINDOWS)
+        if (!LINUX)
             return
         
         const dirty = await fetchJson(`api/build/dirty`)
@@ -152,5 +152,10 @@ class InteractiveAction
         log(await response.text())
         
         enable()
+    }
+    
+    static async refreshPage($sender)
+    {
+        await Page.active.refresh()
     }
 }

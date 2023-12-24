@@ -27,7 +27,10 @@ class Internal
                     .setClass(`display-none`, false)
                     .setClass(`dynamic`)
                 
-                $item.removeAttribute(`data-interactive`)
+                const key = `data-interactive`
+                $item.removeAttribute(key)
+                $item.qAll(`[${key}]`).forEach($ => $.removeAttribute(key))
+                
                 $input.insertBefore($item, $add)
                 
                 $item.create(`button`)
@@ -74,7 +77,7 @@ class Internal
             return
         }
         
-        if ($input.dataset.options && bind.split('.').slice(-1) != `id`)
+        if ($input.dataset.options && bind.split(`.`).slice(-1) != `id`)
         {
             if (!value)
                 return
@@ -154,7 +157,7 @@ class Internal
         {
             let value = $input.value
             
-            if ($input.dataset.options && bind.split('.').slice(-1) != `id`)
+            if ($input.dataset.options && bind.split(`.`).slice(-1) != `id`)
                 value = value ? { id: value } : null
             
             this.setProperty(model, bind, value)
@@ -164,7 +167,7 @@ class Internal
     
     static getProperty(model, bind)
     {
-        const binds = bind.split('.')
+        const binds = bind.split(`.`)
         let property = model
         while (binds.length > 0)
             property = property[binds.shift()]
@@ -173,7 +176,7 @@ class Internal
     
     static setProperty(model, bind, value)
     {
-        const binds = bind.split('.')
+        const binds = bind.split(`.`)
         let property = model
         
         while (binds.length > 1)

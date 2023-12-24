@@ -171,10 +171,8 @@ public class WhitelistMiddleware(RequestDelegate next)
 
                 var subject = $"🔥 Permission Request";
 
-                var baseUrl = Database.Use(x => x.Config.ExternalUrl);
-                if (baseUrl == string.Empty)
-                    goto SkipMail;
-
+                var baseUrl = Database.Use(x => x.GetBaseUrl(context.Request));
+                
                 var domain = reverseProxyRoute
                     .SourceDomains.FirstOrDefault().Value;
 

@@ -9,17 +9,22 @@ public abstract class IntervalTask : IAsyncDisposable
     protected abstract Task OnTickAsync();
     protected abstract Task OnDisposeAsync();
 
+    readonly string name;
+    readonly CancellationTokenSource ctSource;
+    readonly CancellationToken ctToken;
+
     readonly TimeSpan delay;
     readonly TimeSpan interval;
 
-    Task task;
-    CancellationTokenSource ctSource;
-
-    protected bool disposed;
+    protected bool IsDisposed() => ctSource.IsCancellationRequested;
 
     public IntervalTask()
     {
         var t = GetType();
+
+        name = t.Name;
+        ctSource = new();
+        ctToken = ctSource.Token;
 
         delay = TimeSpan.FromSeconds(
             t.GetCustomAttribute<DelayAttribute>()?.seconds ?? 0
@@ -28,53 +33,46 @@ public abstract class IntervalTask : IAsyncDisposable
         interval = TimeSpan.FromSeconds(
             t.GetCustomAttribute<IntervalAttribute>()?.seconds ?? 1
         );
-
     }
 
     public void RunInBackground()
     {
-        ctSource = new();
-        var ct = ctSource.Token;
-
-        task = Task.Run(async () =>
+        Task.Run(async () =>
         {
+            Audit.Info<IntervalTask>($"{name} is starting...");
             await (OnStartAsync() ?? Task.CompletedTask);
 
-            try { await Task.Delay(delay, ct); } catch { }
+            try { await Task.Delay(delay, ctToken); } catch { }
 
             await (OnBeforeFirstTickAsync() ?? Task.CompletedTask);
 
-            while (!disposed)
+            Audit.Info<IntervalTask>($"{name} has started.");
+
+            while (!IsDisposed())
             {
                 await (OnTickAsync() ?? Task.CompletedTask);
-                try { await Task.Delay(interval, ct); } catch { }
+                try { await Task.Delay(interval, ctToken); } catch { }
             }
-        }, ct);
+
+            Audit.Info<IntervalTask>($"{name} has finished.");
+        });
     }
 
     public async ValueTask DisposeAsync()
     {
-        var x = GetType().Name;
-
-        if (disposed)
+        if (IsDisposed())
         {
-            Utils.Log("Dispose", $"{x} already disposed. Skipping...");
+            Audit.Info<IntervalTask>(
+                $"{name} has already been disposed. Skipping..."
+            );
             return;
         }
 
-        Utils.Log("Dispose", $"Waiting for {x} ...");
-        disposed = true;
+        Audit.Info<IntervalTask>($"Disposing {name}...");
 
         await (OnDisposeAsync() ?? Task.CompletedTask);
+        ctSource.Cancel();
 
-        Utils.Log("Dispose", $"Send Cancellation Request for {x}");
-        ctSource?.Cancel(false);
-
-        if (task is not null)
-        {
-            Utils.Log("Dispose", $"Waiting for internal task of {x}");
-            await task;
-            task = null;
-        }
+        Audit.Info<IntervalTask>($"{name} has been disposed.");
     }
 }

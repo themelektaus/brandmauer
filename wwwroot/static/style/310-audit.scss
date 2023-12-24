@@ -1,0 +1,62 @@
+[data-page="audit"] {
+    padding-bottom: 0;
+    
+    [data-object="selected"] {
+        min-height: calc(50vh - 10rem);
+        max-height: calc(50vh - 10rem);
+        overflow: hidden scroll;
+        background-color: var(--group__background-color);
+        padding: .25rem;
+        
+        ul {
+            gap: 0;
+        }
+        
+        li {
+            padding: .25rem;
+            display: grid;
+            grid-template-columns: 2rem 11em 1fr 4fr;
+            
+            &.info *:first-child {
+                color: #99f;
+            }
+            
+            &.warning *:first-child {
+                color: #ff0;
+            }
+            
+            &.error {
+                background-color: #f003;
+                
+                *:first-child {
+                    color: #f60;
+                }
+            }
+            
+            *:nth-child(2) {
+                font-family: DejaVu;
+                font-size: .85em;
+                line-height: 1.25;
+            }
+        }
+    }
+    
+    [data-bind="archive"] {
+        min-height: calc(30vh - 10rem);
+        max-height: calc(30vh - 10rem);
+        overflow: hidden scroll;
+        background-color: var(--group__background-color);
+        padding: .5rem;
+        
+        li {
+            display: grid;
+            grid-template-columns: 11em 1fr;
+            
+            *:first-child {
+                font-family: DejaVu;
+                font-size: .85em;
+                line-height: 1.25;
+            }
+        }
+    }
+}

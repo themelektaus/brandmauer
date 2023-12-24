@@ -8,8 +8,10 @@ public class TeapotMiddleware(RequestDelegate next)
     {
         protected override bool Logging => false;
 
+        protected override TimeSpan? MaxAge => null;
+
         protected override string GetNew(
-            Dictionary<int, string> _,
+            Dictionary<int, TempValue> _,
             int key
         )
         {

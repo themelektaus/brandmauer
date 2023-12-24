@@ -1,0 +1,29 @@
+<div data-page="audit">
+    <div class="title">
+        <h2>
+            <i class="fas fa-file-lines"></i>
+            <span>Audit</span>
+        </h2>
+        <button data-action="refreshPage">Refresh</button>
+    </div>
+    <div class="content flex-rows">
+        <h3>Selected</h3>
+        <div data-object="selected">
+            <ul class="flex-rows" data-bind="entries" readonly>
+                <li>
+                    <div data-bind="status"></div>
+                    <div data-bind="timestamp"></div>
+                    <div data-bind="type"></div>
+                    <div data-bind="message"></div>
+                </li>
+            </ul>
+        </div>
+        <h3>Archive</h3>
+        <ul class="flex-rows" data-bind="archive" readonly>
+            <li>
+                <div data-bind="timestamp"></div>
+                <a data-bind="path" target="_blank"></a>
+            </li>
+        </ul>
+    </div>
+</div>

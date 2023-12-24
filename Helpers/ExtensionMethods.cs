@@ -1,3 +1,6 @@
+using AngleSharp.Dom;
+using Microsoft.AspNetCore.Http.Extensions;
+
 using System.Net;
 using System.Net.Sockets;
 
@@ -120,13 +123,15 @@ public static class ExtensionMethods
     {
         protected override bool Logging => true;
 
+        protected override TimeSpan? MaxAge => TimeSpan.FromHours(1);
+
         int currentDepth;
         readonly Dictionary<string, string[]> pending = new();
 
         public bool justLocal;
 
         protected override string[] GetNew(
-            Dictionary<string, string[]> x,
+            Dictionary<string, TempValue> x,
             string key
         )
         {
