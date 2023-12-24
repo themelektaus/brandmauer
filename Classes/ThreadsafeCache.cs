@@ -23,6 +23,8 @@ public abstract class ThreadsafeCache<TKey, TValue>
 
     public TValue GetUnsafe(Dictionary<TKey, TempValue> x, TKey key)
     {
+        var t = GetType();
+
         if (x.TryGetValue(key, out var tempValue))
         {
             if (!MaxAge.HasValue)
@@ -34,7 +36,7 @@ public abstract class ThreadsafeCache<TKey, TValue>
             x.Remove(key);
 
             if (Logging)
-                Audit.Info(GetType(), $"{key.ToJson()} removed.");
+                Audit.Info(t, $"{key.ToJson()} removed.");
         }
 
         tempValue = new()
@@ -43,20 +45,25 @@ public abstract class ThreadsafeCache<TKey, TValue>
             value = GetNew(x, key)
         };
 
+        var k = key.ToJson();
+
         if (Logging)
-            Audit.Info(GetType(), $"Try adding {key.ToJson()}.");
+            Audit.Info(t, $"Try adding {k}.");
 
         if (tempValue.value is null)
         {
-            x.Add(key, tempValue);
-            Audit.Info(GetType(), $"{tempValue.ToJson()} added.");
+            Audit.Warning(
+                GetType(),
+                $"Could not add {k} because value is null."
+            );
         }
         else
         {
-            Audit.Warning(
-                GetType(),
-                $"Could not add {key.ToJson()} because value is null."
-            );
+            x.Add(key, tempValue);
+            var v = tempValue.value.ToJson();
+            if (v.Length > 90)
+                v = $"{v[..90]}...";
+            Audit.Info(t, $"Added {k} with value {v}.");
         }
 
         return tempValue.value;
