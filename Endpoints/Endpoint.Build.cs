@@ -35,7 +35,7 @@ public static partial class Endpoint
                 LastBuild = Database.Use(x =>
                 {
                     x.Config.LastBuild = build;
-                    x.Save();
+                    x.Save(logging: true);
                     return build;
                 });
             }

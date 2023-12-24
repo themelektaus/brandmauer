@@ -21,48 +21,75 @@ public class Audit
     public static IList<Entry> GetAll()
     {
         lock (Instance.entriesLock)
+        {
             return Instance.Entries.ToList();
+        }
     }
 
-    public static void Info<T>(object message) => Info(typeof(T), message);
-    public static void Info(Type type, object message) => Info(type?.Name, message);
-    public static void Info(string type, object message) => Instance.Add(type, message, Status.Info);
+    public static void CleanUp()
+    {
+        lock (Instance.entriesLock)
+        {
+            var yesterday = DateTime.Now.AddDays(-1);
+            Instance.Entries.RemoveAll(x => x.Timestamp < yesterday);
+        }
+    }
 
-    public static void Warning<T>(object message) => Warning(typeof(T), message);
-    public static void Warning(Type type, object message) => Warning(type?.Name, message);
-    public static void Warning(string type, object message) => Instance.Add(type, message, Status.Warning);
+    public static void Info<T>(object message)
+        => Info(typeof(T), message);
+    public static void Info(Type type, object message)
+        => Info(type?.Name, message);
+    public static void Info(string type, object message)
+        => Instance.Add(type, message, Status.Info);
 
-    public static void Error<T>(object message) => Error(typeof(T), message);
-    public static void Error(Type type, object message) => Error(type?.Name, message);
-    public static void Error(string type, object message) => Instance.Add(type, message, Status.Error);
+    public static void Warning<T>(object message)
+        => Warning(typeof(T), message);
+    public static void Warning(Type type, object message)
+        => Warning(type?.Name, message);
+    public static void Warning(string type, object message)
+        => Instance.Add(type, message, Status.Warning);
+
+    public static void Error<T>(object message)
+        => Error(typeof(T), message);
+    public static void Error(Type type, object message)
+        => Error(type?.Name, message);
+    public static void Error(string type, object message)
+        => Instance.Add(type, message, Status.Error);
 
     void Add(string type, object message, Status status)
     {
         lock (entriesLock)
+        {
             Entries.Add(new()
             {
                 Type = type ?? Utils.Name,
                 Message = message?.ToString() ?? string.Empty,
                 Status = status
             });
+        }
     }
 
     public void Save()
     {
         Info<Audit>("Saving...");
 
-        var x = DateTime.Now.Ticks;
+        var name = DateTime.Now.Ticks;
+
         for (; ; )
         {
-            var file = Path.Combine("Data", "Audit", $"{x}.json");
+            var file = Path.Combine("Data", "Audit", $"{name}.json");
+
             if (File.Exists(file))
             {
-                x++;
+                name++;
                 continue;
             }
+
             try { new FileInfo(file).Directory.Create(); } catch { }
+
             Info<Audit>("Saved.");
             File.WriteAllText(file, this.ToJson());
+
             break;
         }
 

@@ -61,7 +61,7 @@ public static partial class Endpoint
             {
                 var newData = x.Create<Host>();
                 x.Hosts.Add(newData);
-                x.Save();
+                x.Save(logging: true);
                 return newData;
             });
 
@@ -74,7 +74,7 @@ public static partial class Endpoint
             {
                 var index = x.Hosts.FindIndex(data.IsReferenceOf);
                 x.Hosts[index] = x.Replace(x.Hosts[index], data);
-                x.Save();
+                x.Save(logging: true);
             });
 
             ReverseProxyPreparatorMiddleware.targetCache.Clear();
@@ -91,7 +91,7 @@ public static partial class Endpoint
                     x.Dispose();
                     return x.Identifier.Id == id;
                 });
-                x.Save();
+                x.Save(logging: true);
             });
             return Results.Ok();
         }

@@ -37,7 +37,7 @@ public static partial class Endpoint
             {
                 var newData = x.Create<Certificate>();
                 x.Certificates.Add(newData);
-                x.Save();
+                x.Save(logging: true);
                 return newData;
             });
 
@@ -50,7 +50,7 @@ public static partial class Endpoint
             {
                 var index = x.Certificates.FindIndex(data.IsReferenceOf);
                 x.Certificates[index] = x.Replace(x.Certificates[index], data);
-                x.Save();
+                x.Save(logging: true);
             });
 
             return Results.Ok();
@@ -65,7 +65,7 @@ public static partial class Endpoint
                     x.Dispose();
                     return x.Identifier.Id == id;
                 });
-                x.Save();
+                x.Save(logging: true);
             });
             return Results.Ok();
         }
@@ -158,7 +158,7 @@ public static partial class Endpoint
             Database.Use(x =>
             {
                 certificate.Write(x, pfxCert);
-                x.Save();
+                x.Save(logging: true);
             });
 
             return Results.Ok();

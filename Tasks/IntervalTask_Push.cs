@@ -9,7 +9,7 @@ public class IntervalTask_Push : IntervalTask
         Database.Use(x =>
         {
             x.PushListeners.ForEach(y => y.Touch());
-            x.Save();
+            x.Save(logging: false);
         });
 
         return Task.CompletedTask;

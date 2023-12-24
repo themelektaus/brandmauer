@@ -34,7 +34,7 @@ public static partial class Endpoint
             {
                 var newData = x.Create<NatRoute>();
                 x.NatRoutes.Add(newData);
-                x.Save();
+                x.Save(logging: true);
                 return newData;
             });
 
@@ -47,7 +47,7 @@ public static partial class Endpoint
             {
                 var index = x.NatRoutes.FindIndex(data.IsReferenceOf);
                 x.NatRoutes[index] = x.Replace(x.NatRoutes[index], data);
-                x.Save();
+                x.Save(logging: true);
             });
 
             return Results.Ok();
@@ -62,7 +62,7 @@ public static partial class Endpoint
                     x.Dispose();
                     return x.Identifier.Id == id;
                 });
-                x.Save();
+                x.Save(logging: true);
             });
             return Results.Ok();
         }

@@ -34,7 +34,7 @@ public static partial class Endpoint
                 var newData = x.Create<Monitor>();
                 newData.Reset();
                 x.Monitors.Add(newData);
-                x.Save();
+                x.Save(logging: true);
                 return newData;
             });
 
@@ -48,7 +48,7 @@ public static partial class Endpoint
                 var index = x.Monitors.FindIndex(data.IsReferenceOf);
                 x.Monitors[index] = x.Replace(x.Monitors[index], data);
                 x.Monitors[index].Reset();
-                x.Save();
+                x.Save(logging: true);
             });
 
             return Results.Ok();
@@ -63,7 +63,7 @@ public static partial class Endpoint
                     x.Dispose();
                     return x.Identifier.Id == id;
                 });
-                x.Save();
+                x.Save(logging: true);
             });
             return Results.Ok();
         }
