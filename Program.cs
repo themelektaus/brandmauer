@@ -89,14 +89,15 @@ app.UseMiddleware<CustomReverseProxyMiddleware>();
 app.UseMiddleware<FrontendMiddleware>();
 app.UseMiddleware<TeapotMiddleware>();
 
-#if LINUX
-app.RunInBackground<IntervalTask_UpdateBrandmauer>();
-app.RunInBackground<IntervalTask_RenewCertifcates>();
-#endif
-
-app.RunInBackground<IntervalTask_ReloadDatabase>();
+app.RunInBackground<IntervalTask_Daily>();
 app.RunInBackground<IntervalTask_DnsServer>();
 app.RunInBackground<IntervalTask_Push>();
+app.RunInBackground<IntervalTask_ReloadDatabase>();
+
+#if LINUX
+app.RunInBackground<IntervalTask_RenewCertifcates>();
+app.RunInBackground<IntervalTask_UpdateBrandmauer>();
+#endif
 
 await app.RunAsync();
 await app.DisposeAllIntervalTasksAsync();

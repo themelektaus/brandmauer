@@ -34,7 +34,7 @@ public static partial class Endpoint
             {
                 var newData = x.Create<Service>();
                 x.Services.Add(newData);
-                x.Save();
+                x.Save(logging: true);
                 return newData;
             });
 
@@ -47,7 +47,7 @@ public static partial class Endpoint
             {
                 var index = x.Services.FindIndex(data.IsReferenceOf);
                 x.Services[index] = x.Replace(x.Services[index], data);
-                x.Save();
+                x.Save(logging: true);
             });
 
             return Results.Ok();
@@ -62,7 +62,7 @@ public static partial class Endpoint
                     x.Dispose();
                     return x.Identifier.Id == id;
                 });
-                x.Save();
+                x.Save(logging: true);
             });
             return Results.Ok();
         }

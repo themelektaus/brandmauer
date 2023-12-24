@@ -43,7 +43,7 @@ public class IntervalTask_UpdateBrandmauer : IntervalTask
         if (!Directory.Exists(UPDATE_FOLDER))
             return;
 
-		await Task.Delay(1000);
+        await Task.Delay(1000);
 
         try
         {

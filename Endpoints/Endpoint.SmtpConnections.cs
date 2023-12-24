@@ -33,7 +33,7 @@ public static partial class Endpoint
             {
                 var newData = x.Create<SmtpConnection>();
                 x.SmtpConnections.Add(newData);
-                x.Save();
+                x.Save(logging: true);
                 return newData;
             });
 
@@ -85,7 +85,7 @@ public static partial class Endpoint
             {
                 var index = x.SmtpConnections.FindIndex(data.IsReferenceOf);
                 x.SmtpConnections[index] = x.Replace(x.SmtpConnections[index], data);
-                x.Save();
+                x.Save(logging: true);
             });
 
             return Results.Ok();
@@ -100,7 +100,7 @@ public static partial class Endpoint
                     x.Dispose();
                     return x.Identifier.Id == id;
                 });
-                x.Save();
+                x.Save(logging: true);
             });
             return Results.Ok();
         }

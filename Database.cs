@@ -49,7 +49,7 @@ public class Database
             if (!File.Exists(databaseFile))
             {
                 database = new();
-                database.Save();
+                database.Save(logging: false);
             }
 
             var json = File.ReadAllText(databaseFile);
@@ -90,9 +90,10 @@ public class Database
         });
     }
 
-    public void Save()
+    public void Save(bool logging)
     {
-        Audit.Info<Database>("Saving...");
+        if (logging)
+            Audit.Info<Database>("Saving...");
 
         try { new FileInfo(databaseFile).Directory.Create(); } catch { }
         File.WriteAllText(databaseFile, this.ToJson());
@@ -100,7 +101,8 @@ public class Database
 
         PostDeserialize();
 
-        Audit.Info<Database>("Saved.");
+        if (logging)
+            Audit.Info<Database>("Saved.");
     }
 
     static void UpdateLastKnownWriteTime()

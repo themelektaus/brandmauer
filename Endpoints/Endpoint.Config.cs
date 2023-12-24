@@ -16,7 +16,7 @@ public static partial class Endpoint
             Database.Use(x =>
             {
                 x.Config = x.Replace(x.Config, data);
-                x.Save();
+                x.Save(logging: true);
             });
 
             return Results.Ok();

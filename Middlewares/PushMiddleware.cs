@@ -31,7 +31,7 @@ public class PushMiddleware(RequestDelegate next)
             Database.Use(x =>
             {
                 pushListener.Touch();
-                x.Save();
+                x.Save(logging: false);
             });
 
             goto Exit;

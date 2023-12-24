@@ -34,7 +34,7 @@ public static partial class Endpoint
                 var newData = x.Create<PushListener>();
                 newData.Touch();
                 x.PushListeners.Add(newData);
-                x.Save();
+                x.Save(logging: true);
                 return newData;
             });
 
@@ -48,7 +48,7 @@ public static partial class Endpoint
                 var index = x.PushListeners.FindIndex(data.IsReferenceOf);
                 x.PushListeners[index] = x.Replace(x.PushListeners[index], data);
                 x.PushListeners[index].Touch();
-                x.Save();
+                x.Save(logging: true);
             });
 
             return Results.Ok();
@@ -63,7 +63,7 @@ public static partial class Endpoint
                     x.Dispose();
                     return x.Identifier.Id == id;
                 });
-                x.Save();
+                x.Save(logging: true);
             });
             return Results.Ok();
         }
