@@ -4,7 +4,7 @@ public class Audit
 {
     public static readonly string FOLDER = Path.Combine("Data", "Audit");
 
-    public static Audit Instance { get; } = new();
+    static readonly Audit instance = new();
 
     public enum Status { Info, Warning, Error }
 
@@ -15,23 +15,35 @@ public class Audit
         public string Message { get; set; } = string.Empty;
         public Status Status { get; set; }
     }
-    readonly object entriesLock = new();
+    readonly object handle = new();
     public List<Entry> Entries { get; set; } = new();
 
-    public static IList<Entry> GetAll()
+    public static List<Entry> GetAll()
     {
-        lock (Instance.entriesLock)
+        List<Entry> entries;
+
+        lock (instance.handle)
         {
-            return Instance.Entries.ToList();
+            entries = [.. instance.Entries];
+        }
+
+        return entries;
+    }
+
+    public static void Save()
+    {
+        lock (instance.handle)
+        {
+            instance.SaveInternal();
         }
     }
 
     public static void CleanUp()
     {
-        lock (Instance.entriesLock)
+        lock (instance.handle)
         {
             var yesterday = DateTime.Now.AddDays(-1);
-            Instance.Entries.RemoveAll(x => x.Timestamp < yesterday);
+            instance.Entries.RemoveAll(x => x.Timestamp < yesterday);
         }
     }
 
@@ -40,25 +52,25 @@ public class Audit
     public static void Info(Type type, object message)
         => Info(type?.Name, message);
     public static void Info(string type, object message)
-        => Instance.Add(type, message, Status.Info);
+        => instance.Add(type, message, Status.Info);
 
     public static void Warning<T>(object message)
         => Warning(typeof(T), message);
     public static void Warning(Type type, object message)
         => Warning(type?.Name, message);
     public static void Warning(string type, object message)
-        => Instance.Add(type, message, Status.Warning);
+        => instance.Add(type, message, Status.Warning);
 
     public static void Error<T>(object message)
         => Error(typeof(T), message);
     public static void Error(Type type, object message)
         => Error(type?.Name, message);
     public static void Error(string type, object message)
-        => Instance.Add(type, message, Status.Error);
+        => instance.Add(type, message, Status.Error);
 
     void Add(string type, object message, Status status)
     {
-        lock (entriesLock)
+        lock (handle)
         {
             Entries.Add(new()
             {
@@ -69,7 +81,7 @@ public class Audit
         }
     }
 
-    public void Save()
+    void SaveInternal()
     {
         Info<Audit>("Saving...");
 
@@ -77,7 +89,7 @@ public class Audit
 
         for (; ; )
         {
-            var file = Path.Combine("Data", "Audit", $"{name}.json");
+            var file = Path.Combine(FOLDER, $"{name}.json");
 
             if (File.Exists(file))
             {
@@ -85,13 +97,12 @@ public class Audit
                 continue;
             }
 
-            try { new FileInfo(file).Directory.Create(); } catch { }
+            try { Directory.CreateDirectory(FOLDER); } catch { }
 
             Info<Audit>("Saved.");
             File.WriteAllText(file, this.ToJson());
 
             break;
         }
-
     }
 }

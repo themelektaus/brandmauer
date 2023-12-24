@@ -12,7 +12,7 @@ main {
     
     &:has(.dirty) h1 > i {
         &::before, &::after {
-            content: "\f06d";
+            content: '\f06d';
             animation-duration: 1s;
             animation-iteration-count: infinite;
         }
