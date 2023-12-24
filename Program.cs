@@ -102,4 +102,4 @@ app.RunInBackground<IntervalTask_UpdateBrandmauer>();
 await app.RunAsync();
 await app.DisposeAllIntervalTasksAsync();
 
-Audit.Instance.Save();
+Audit.Save();

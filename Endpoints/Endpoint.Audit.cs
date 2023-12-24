@@ -16,12 +16,14 @@ public static partial class Endpoint
         public static IResult Get() => GetById(0);
         public static IResult GetById(long id)
         {
-            var ids = Directory.GetFiles(_Audit.FOLDER, "*.json")
-                .Select(Path.GetFileNameWithoutExtension)
-                .Select(x => long.TryParse(x, out var id) ? id : 0)
-                .Where(x => x != 0)
-                .OrderByDescending(x => x)
-                .ToList();
+            var ids = Directory.Exists(_Audit.FOLDER)
+                ? Directory.GetFiles(_Audit.FOLDER, "*.json")
+                    .Select(Path.GetFileNameWithoutExtension)
+                    .Select(x => long.TryParse(x, out var id) ? id : 0)
+                    .Where(x => x != 0)
+                    .OrderByDescending(x => x)
+                    .ToList()
+                : [];
 
             _Audit audit;
 
@@ -29,9 +31,7 @@ public static partial class Endpoint
             {
                 audit = new()
                 {
-                    Entries = _Audit.Instance.Entries
-                        //.OrderByDescending(x => x.Timestamp)
-                        .ToList()
+                    Entries = _Audit.GetAll()
                 };
             }
             else
