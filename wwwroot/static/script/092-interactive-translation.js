@@ -1,6 +1,6 @@
 class InteractiveTranslation
 {
-    static _ = Interactive.register(this, () => qAll('.translation'))
+    static _ = Interactive.register(this, () => qAll(`.translation`))
     
     static makeInteractive($)
     {

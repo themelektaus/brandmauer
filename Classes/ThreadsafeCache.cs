@@ -2,33 +2,64 @@
 
 public abstract class ThreadsafeCache<TKey, TValue>
 {
-    readonly ThreadsafeObject<Dictionary<TKey, TValue>> cache = new(new());
+    public struct TempValue
+    {
+        public DateTime timestamp;
+        public TValue value;
+    }
+
+    readonly ThreadsafeObject<Dictionary<TKey, TempValue>> cache = new(new());
 
     protected abstract bool Logging { get; }
-    protected abstract TValue GetNew(Dictionary<TKey, TValue> x, TKey key);
+
+    protected abstract TimeSpan? MaxAge { get; }
+
+    protected abstract TValue GetNew(Dictionary<TKey, TempValue> x, TKey key);
 
     public TValue Get(TKey key)
     {
         return cache.Use(x => GetUnsafe(x, key));
     }
 
-    public TValue GetUnsafe(Dictionary<TKey, TValue> x, TKey key)
+    public TValue GetUnsafe(Dictionary<TKey, TempValue> x, TKey key)
     {
-        if (x.TryGetValue(key, out var value))
-            return value;
-
-        value = GetNew(x, key);
-
-        if (Logging)
+        if (x.TryGetValue(key, out var tempValue))
         {
-            var name = GetType().FullName;
-            Console.WriteLine($"{name}.GetNew({key.ToJson()}) => {value.ToJson()}");
+            if (!MaxAge.HasValue)
+                return tempValue.value;
+
+            if ((DateTime.Now - tempValue.timestamp) < MaxAge)
+                return tempValue.value;
+
+            x.Remove(key);
+
+            if (Logging)
+                Audit.Info(GetType(), $"{key.ToJson()} removed.");
         }
 
-        if (value is not null)
-            x.Add(key, value);
+        tempValue = new()
+        {
+            timestamp = DateTime.Now,
+            value = GetNew(x, key)
+        };
 
-        return value;
+        if (Logging)
+            Audit.Info(GetType(), $"Try adding {key.ToJson()}.");
+
+        if (tempValue.value is null)
+        {
+            x.Add(key, tempValue);
+            Audit.Info(GetType(), $"{tempValue.ToJson()} added.");
+        }
+        else
+        {
+            Audit.Warning(
+                GetType(),
+                $"Could not add {key.ToJson()} because value is null."
+            );
+        }
+
+        return tempValue.value;
     }
 
     public void Clear()

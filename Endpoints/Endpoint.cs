@@ -28,7 +28,7 @@ public static partial class Endpoint
         app.MapPut($"{API}/hosts", Hosts.Put);
         app.MapDelete($"{API}/hosts/{{id}}", Hosts.Delete);
 
-#if LINUX
+#if DEBUG || LINUX
         app.MapGet($"{API}/services", Services.GetAll);
         app.MapGet($"{API}/services/{{id}}", Services.Get);
         app.MapPost($"{API}/services", Services.Post);
@@ -51,6 +51,9 @@ public static partial class Endpoint
             $"{API}/iptables"/*?output=<script|stdout|stderr|data>*/,
             IpTables.Get
         );
+#endif
+
+#if LINUX
         app.MapGet(
             $"{API}/build/preview",
             Build.Preview
@@ -152,6 +155,9 @@ public static partial class Endpoint
 
         app.MapGet($"{API}/resolve"/*?host={{host}}*/, Resolve);
         app.MapGet($"{API}/whatsmyip", WhatsMyIp);
+
+        app.MapGet($"{API}/audit", Audit.Get);
+        app.MapGet($"{API}/audit/{{id}}", Audit.GetById);
     }
 
     static IResult Api(IEnumerable<EndpointDataSource> endpointSources)

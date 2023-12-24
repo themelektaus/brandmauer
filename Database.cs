@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http.Extensions;
+
 namespace Brandmauer;
 
 public class Database
@@ -38,9 +40,8 @@ public class Database
     {
         Use(x =>
         {
+            Audit.Info<Database>("Loading...");
             Loading = true;
-
-            Console.WriteLine("Database.Load()");
 
             foreach (var model in models)
                 model.Dispose();
@@ -57,11 +58,14 @@ public class Database
 
             UpdateLastKnownWriteTime();
 
+            Audit.Info<Database>("Loaded.");
             Loading = false;
 
             var ca = database.Certificates.FirstOrDefault(x => x.HasAuthority);
             if (ca is not null)
                 return;
+
+            Audit.Info<Database>("Generating CA.");
 
             var startDate = DateTime.UtcNow;
             var endDate = startDate.AddYears(10);
@@ -81,18 +85,22 @@ public class Database
             };
             ca.Write(database, _ca);
             database.Certificates.Add(ca);
+
+            Audit.Info<Database>("CA created.");
         });
     }
 
     public void Save()
     {
-        Console.WriteLine("Database.Save()");
+        Audit.Info<Database>("Saving...");
 
         try { new FileInfo(databaseFile).Directory.Create(); } catch { }
         File.WriteAllText(databaseFile, this.ToJson());
         UpdateLastKnownWriteTime();
 
         PostDeserialize();
+
+        Audit.Info<Database>("Saved.");
     }
 
     static void UpdateLastKnownWriteTime()
@@ -124,5 +132,19 @@ public class Database
         oldModel.Dispose();
         Register(newModel);
         return newModel;
+    }
+
+    public string GetBaseUrl(HttpRequest request = null)
+    {
+        var baseUrl = Config.ExternalUrl;
+        if (baseUrl != string.Empty)
+            return baseUrl;
+
+        if (request is null)
+            return string.Empty;
+
+        var url = request.GetDisplayUrl();
+        var path = request.Path.ToString();
+        return url[..^path.Length];
     }
 }

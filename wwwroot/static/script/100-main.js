@@ -12,6 +12,18 @@ InteractiveAction.gotoPage(
 {
     (function()
     {
+        qAll(`li[data-action="gotoPage"][data-target="build"].display-none`).forEach(
+            $ =>
+            {
+                if (!LINUX)
+                {
+                    $.remove()
+                    return
+                }
+                
+                $.setClass(`display-none`, false)
+        })
+        
         qAll(`li[data-action="gotoPage"][data-target].display-none`).forEach(
             $ =>
             {

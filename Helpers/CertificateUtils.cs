@@ -72,8 +72,9 @@ public static class CertificateUtils
             accountKey
         );
 
-        Console.WriteLine(
-            $"[ACME] Creating new account: \"{accountMailAddress}\"{(
+        Audit.Info(
+            "ACME",
+            $"Creating new account: \"{accountMailAddress}\"{(
                 staging ? " (STAGING)" : ""
             )}"
         );
@@ -87,11 +88,11 @@ public static class CertificateUtils
             var challengeContext = await authContext.Http();
 
             var token = challengeContext.Token;
-            Console.WriteLine($"[ACME] Token: {token}");
+            Audit.Info("ACME", $"Token: {token}");
 
             var keyAuthz = challengeContext.KeyAuthz;
-            Console.WriteLine($"[ACME] KeyAuthz: {keyAuthz}");
-
+            Audit.Info("ACME", $"KeyAuthz: {keyAuthz}");
+            
             acmeChallenges.Use(x => x.Add(token, keyAuthz));
 
             var challenge = await challengeContext.Validate();
@@ -106,13 +107,13 @@ public static class CertificateUtils
 
                 if (challenge.Status == ChallengeStatus.Invalid)
                 {
-                    Console.WriteLine(challenge.Error.Detail);
+                    Audit.Error("ACME", challenge.Error.Detail);
                     return null;
                 }
 
                 await Task.Delay(500);
             }
-            Console.WriteLine($"[ACME] Challenge Status: {challenge.Status}");
+            Audit.Info("ACME", $"Challenge Status: {challenge.Status}");
         }
 
         var certKey = KeyFactory.NewKey(KeyAlgorithm.RS256);
@@ -136,15 +137,15 @@ public static class CertificateUtils
 
             if (order.Status == OrderStatus.Invalid)
             {
-                Console.WriteLine(order.Error?.ToString());
+                Audit.Error("ACME", order.Error);
                 return null;
             }
 
             await Task.Delay(500);
         }
 
-        Console.WriteLine($"[ACME] Order Status: {order.Status}");
-
+        Audit.Info("ACME", $"Order Status: {order.Status}");
+        
         var cert = await orderContext.Download();
 
         var pfx = cert.ToPfx(certKey);

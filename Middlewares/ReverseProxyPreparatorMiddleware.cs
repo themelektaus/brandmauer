@@ -11,8 +11,10 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
     {
         protected override bool Logging => true;
 
+        protected override TimeSpan? MaxAge => null;
+
         protected override string GetNew(
-            Dictionary<string, string> _,
+            Dictionary<string, TempValue> _,
             string key
         )
         {

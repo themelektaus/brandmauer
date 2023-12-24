@@ -100,3 +100,5 @@ app.RunInBackground<IntervalTask_Push>();
 
 await app.RunAsync();
 await app.DisposeAllIntervalTasksAsync();
+
+Audit.Instance.Save();

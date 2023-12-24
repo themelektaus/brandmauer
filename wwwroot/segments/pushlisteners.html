@@ -25,10 +25,6 @@
                         <button data-action="delete">Delete</button>
                     </div>
                     <div class="field">
-                        <label>Token</label>
-                        <input type="text" data-bind="token" readonly>
-                    </div>
-                    <div class="field">
                         <label>Age Threshold</label>
                         <div class="flex">
                             <input type="number" min="0" data-bind="ageThreshold">
@@ -50,6 +46,14 @@
                     <div class="field">
                         <label>Last Touch</label>
                         <input type="text" data-bind="lastTouchString" readonly>
+                    </div>
+                    <div class="field">
+                        <label>URL</label>
+                        <input type="text" data-bind="url" readonly>
+                    </div>
+                    <div class="field">
+                        <label>Header</label>
+                        <textarea data-bind="header" readonly></textarea>
                     </div>
                 </div>
             </div>

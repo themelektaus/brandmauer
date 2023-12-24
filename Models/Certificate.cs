@@ -11,10 +11,12 @@ public class Certificate : Model, IOnDeserialize
     {
         protected override bool Logging => false;
 
+        protected override TimeSpan? MaxAge => null;
+
         public Database database;
 
         protected override Certificate GetNew(
-            Dictionary<string, Certificate> _,
+            Dictionary<string, TempValue> _,
             string key
         )
         {

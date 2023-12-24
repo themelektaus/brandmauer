@@ -73,7 +73,7 @@ public class IntervalTask_UpdateBrandmauer : IntervalTask
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            Audit.Error<IntervalTask_UpdateBrandmauer>(ex);
 
             foreach (var folder in folders)
             {
@@ -84,7 +84,7 @@ public class IntervalTask_UpdateBrandmauer : IntervalTask
                 }
                 catch (Exception _ex)
                 {
-                    Console.WriteLine(_ex);
+                    Audit.Error<IntervalTask_UpdateBrandmauer>(_ex);
                 }
             }
 
@@ -97,7 +97,7 @@ public class IntervalTask_UpdateBrandmauer : IntervalTask
                 }
                 catch (Exception _ex)
                 {
-                    Console.WriteLine(_ex);
+                    Audit.Error<IntervalTask_UpdateBrandmauer>(_ex);
                 }
             }
         }
@@ -110,7 +110,7 @@ public class IntervalTask_UpdateBrandmauer : IntervalTask
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Audit.Error<IntervalTask_UpdateBrandmauer>(ex);
             }
         }
     }

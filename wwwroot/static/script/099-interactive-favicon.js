@@ -1,6 +1,6 @@
 //class InteractiveFavicon
 //{
-//    static _ = Interactive.register(this, () => qAll('link[rel*="icon"]'))
+//    static _ = Interactive.register(this, () => qAll(`link[rel*="icon"]`))
 //    
 //    static makeInteractive($)
 //    {
