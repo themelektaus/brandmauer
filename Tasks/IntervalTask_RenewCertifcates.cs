@@ -22,7 +22,8 @@ public class IntervalTask_RenewCertifcates : IntervalTask
         {
             await Endpoint.Certificates.Update(
                 id: letsEncryptCertificate.Identifier.Id,
-                letsEncrypt: true
+                letsEncrypt: true,
+                staging: false
             );
         }
 
@@ -32,7 +33,8 @@ public class IntervalTask_RenewCertifcates : IntervalTask
         {
             await Endpoint.Certificates.Update(
                 id: certificate.Identifier.Id,
-                letsEncrypt: false
+                letsEncrypt: false,
+                staging: false
             );
         }
     }

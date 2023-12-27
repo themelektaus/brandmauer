@@ -33,7 +33,7 @@ using (var httpClient = new HttpClient())
     try
     {
         using var stream = await httpClient.GetStreamAsync(
-            "https://steinalt.online/download/brandmauer/windows.zip"
+            "http://steinalt.online/download/brandmauer/windows.zip"
         );
         using var zip = new ZipArchive(stream);
         zip.ExtractToDirectory(".", true);

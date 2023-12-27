@@ -178,9 +178,11 @@ public static class ExtensionMethods
                         .ToList();
 
                     pending.Add(key, [.. addresses]);
+
                     foreach (var hostAddress in hostAddresses)
                         if (!pending.ContainsKey(hostAddress))
                             addresses.AddRange(GetUnsafe(x, hostAddress));
+
                     pending.Remove(key);
                 }
                 currentDepth--;
@@ -194,7 +196,7 @@ public static class ExtensionMethods
 
     public static string ToIpAddress(this string @this, bool justLocal = false)
     {
-        return @this.ToIpAddresses(justLocal).FirstOrDefault();
+        return @this.ToIpAddresses(justLocal)?.FirstOrDefault();
     }
 
     public static string[] ToIpAddresses(
