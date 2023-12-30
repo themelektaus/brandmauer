@@ -51,7 +51,7 @@ public class Authentication : Model, IOnDeserialize
     public string Username { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
     public bool EnableTotp { get; set; }
-    public string TotpSecret { get; set; } = TotpUtils.GenerateSecret();
+    public string TotpSecret { get; set; } = Utils.GenerateToken(24, true);
 
     public string TotpUrl;
     public string TotpQrCode;

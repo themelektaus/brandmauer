@@ -6,14 +6,6 @@ namespace Brandmauer;
 
 public static class TotpUtils
 {
-    public static string GenerateSecret()
-    {
-        var secret = "";
-        while (secret.Length < 24)
-            secret += "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"[Random.Shared.Next(0, 32)];
-        return secret;
-    }
-
     public static string GenerateUrl(string user, string secret)
 
         => new OtpUri(

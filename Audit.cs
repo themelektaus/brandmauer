@@ -11,6 +11,9 @@ public class Audit
     public class Entry
     {
         public DateTime Timestamp { get; set; } = DateTime.Now;
+        public string TimestampString
+            => Timestamp.ToString("dd.MM.yyyy HH:mm:ss");
+
         public string Type { get; set; } = string.Empty;
         public string Message { get; set; } = string.Empty;
         public Status Status { get; set; }

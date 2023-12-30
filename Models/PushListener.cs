@@ -4,7 +4,7 @@ public class PushListener : Model, IOnDeserialize
 {
     public bool Enabled { get; set; } = true;
 
-    public string Token { get; set; } = GenerateToken();
+    public string Token { get; set; } = Utils.GenerateToken();
     public long AgeThreshold { get; set; } = 120;
 
     public Identifier SmtpConnectionReference { get; set; }
@@ -62,14 +62,5 @@ public class PushListener : Model, IOnDeserialize
 
         url = $"{database.GetBaseUrl()}/push";
         header = $"X-{Utils.Name}-Token: {Token}";
-    }
-
-    static string GenerateToken()
-    {
-        var token = string.Empty;
-        while (token.Length < 64)
-            token += "abcdefghijklmnopqrstuvwxyz234567"
-                [Random.Shared.Next(0, 32)];
-        return token;
     }
 }

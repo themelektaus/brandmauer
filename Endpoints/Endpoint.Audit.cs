@@ -11,6 +11,8 @@ public static partial class Endpoint
             public long id;
             public string path;
             public DateTime timestamp;
+            public readonly string TimestampString
+                => timestamp.ToString("dd.MM.yyyy HH:mm:ss");
         }
 
         public static IResult Get() => GetById(0);

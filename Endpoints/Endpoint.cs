@@ -153,6 +153,10 @@ public static partial class Endpoint
         app.MapPut($"{API}/pushlisteners", PushListeners.Put);
         app.MapDelete($"{API}/pushlisteners/{{id}}", PushListeners.Delete);
 
+        app.MapGet($"{API}/shares", Shares.GetAll);
+        app.MapGet($"{API}/shares/{{id}}", Shares.Get);
+        app.MapDelete($"{API}/shares/{{id}}", Shares.Delete);
+
         app.MapGet($"{API}/resolve"/*?host={{host}}*/, Resolve);
         app.MapGet($"{API}/whatsmyip", WhatsMyIp);
 

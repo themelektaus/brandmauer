@@ -158,4 +158,10 @@ class InteractiveAction
     {
         await Page.active.refresh()
     }
+    
+    static openSharedFile($sender)
+    {
+        const $description = $sender.parentNode.q(`[data-bind="description"]`)
+        window.open(`share/${$description.value}`)
+    }
 }

@@ -30,11 +30,7 @@ public class WhitelistMiddleware(RequestDelegate next)
             Timestamp = DateTime.Now;
             ReverseProxyRouteId = reverseProxyRouteId;
             IpAddress = ipAddress;
-            Token = string.Empty;
-
-            while (Token.Length < 64)
-                Token += "abcdefghijklmnopqrstuvwxyz234567"
-                    [Random.Shared.Next(0, 32)];
+            Token = Utils.GenerateToken();
         }
     }
     static readonly List<PendingRequest> pendingRequests = new();
@@ -234,7 +230,7 @@ public class WhitelistMiddleware(RequestDelegate next)
     [Frontend]
     static FrontendResult GetFrontend(HttpContext context)
     {
-        if (context.Request.Path == $"/whitelist")
+        if (context.Request.Path == "/whitelist")
         {
             if (!context.Request.Query.TryGetValue("token", out var token))
                 return new() { notFound = true };
@@ -251,7 +247,7 @@ public class WhitelistMiddleware(RequestDelegate next)
 
             return new()
             {
-                path = "whitelist.html",
+                path = "prompt.html",
                 replacements = new()
                 {
                     { "ip", request.IpAddress },
@@ -272,7 +268,7 @@ public class WhitelistMiddleware(RequestDelegate next)
 
         return new()
         {
-            path = "whitelist.html",
+            path = "prompt.html",
             replacements = new()
             {
                 { "id", id },
