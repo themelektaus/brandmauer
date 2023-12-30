@@ -126,62 +126,61 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
         var target = source.route.Target.Trim('/');
 
         if (target.StartsWith("http://") || target.StartsWith("https://"))
-        {
             target = targetCache.Get(target);
-        }
-        else
-        {
-            if (target == string.Empty)
-                goto Next;
 
+        else if (target != string.Empty)
             target = $"http://127.0.0.1:{Utils.HTTP}/{target}";
-        }
 
-        var maxBodySize = source.route.MaxBodySize.GetBytes();
-        if (maxBodySize is not null)
+        if (context.Features.Get<AuthorizedFeature>() is null)
         {
-            context.Features.Get<IHttpMaxRequestBodySizeFeature>()
-                .MaxRequestBodySize = Database.Use(
-                    x => maxBodySize
-                );
-        }
-
-        var authentications = source.route.Authentications;
-        if (authentications.Count > 0)
-        {
-            var cookies = context.Request.Cookies;
-            var key = LoginMiddleware.SessionTokenKey;
-            if (cookies.TryGetValue(key, out var sessionToken))
-                if (authentications.Any(x => LoginMiddleware.IsAuthorized(x, sessionToken)))
-                    goto Authorized;
-
-            context.Features.Set(new UnauthorizedFeature());
-            goto Next;
-        }
-
-    Authorized:
-
-        if (source.route.UseWhitelist)
-        {
-            var ip = context.Connection.RemoteIpAddress.ToIp();
-
-            if (!source.route.Whitelist.Any(x => x.Value == ip))
+            var authentications = source.route.Authentications;
+            if (authentications.Count > 0)
             {
-                context.Features.Set(new UnauthorizedFeature
-                {
-                    ReverseProxyRouteId = source.route.Identifier.Id
-                });
+                var cookies = context.Request.Cookies;
+                var key = LoginMiddleware.SessionTokenKey;
+                if (cookies.TryGetValue(key, out var sessionToken))
+                    if (authentications.Any(x => LoginMiddleware.IsAuthorized(x, sessionToken)))
+                        goto Authorized;
+
+                context.Features.Set(new UnauthorizedFeature());
                 goto Next;
+            }
+
+            var maxBodySize = source.route.MaxBodySize.GetBytes();
+            if (maxBodySize is not null)
+            {
+                context.Features.Get<IHttpMaxRequestBodySizeFeature>()
+                    .MaxRequestBodySize = Database.Use(
+                        x => maxBodySize
+                    );
+            }
+
+        Authorized:
+            if (source.route.UseWhitelist)
+            {
+                var ip = context.Connection.RemoteIpAddress.ToIp();
+
+                if (!source.route.Whitelist.Any(x => x.Value == ip))
+                {
+                    context.Features.Set(new UnauthorizedFeature
+                    {
+                        ReverseProxyRouteId = source.route.Identifier.Id
+                    });
+                    goto Next;
+                }
             }
         }
 
-        context.Features.Set(new ReverseProxyFeature
+        if (target != string.Empty)
         {
-            Route = source.route,
-            Domain = source.domain,
-            Target = target,
-            Suffix = path[(basePath.Length + 1)..]
-        });
+            context.Features.Set(new ReverseProxyFeature
+            {
+                Route = source.route,
+                Domain = source.domain,
+                Target = target,
+                Suffix = path[(basePath.Length + 1)..]
+            });
+        }
 
     Next:
         await next(context);
