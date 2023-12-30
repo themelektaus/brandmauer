@@ -159,9 +159,9 @@ class InteractiveAction
         await Page.active.refresh()
     }
     
-    static openSharedFile($sender)
+    static openShare($sender)
     {
-        const $description = $sender.parentNode.q(`[data-bind="description"]`)
-        window.open(`share/${$description.value}`)
+        const $token = $sender.parentNode.parentNode.q(`[data-bind="token"]`)
+        window.open(`share/${$token.innerText}`)
     }
 }

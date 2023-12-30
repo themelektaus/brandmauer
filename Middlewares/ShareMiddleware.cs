@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.StaticFiles;
 
+using System.Text;
+
 namespace Brandmauer;
 
 public class ShareMiddleware(RequestDelegate next)
@@ -11,54 +13,34 @@ public class ShareMiddleware(RequestDelegate next)
         public readonly HttpRequest request;
         public readonly string path;
         public readonly string token;
-        public readonly bool isDownload;
+        public readonly int? fileIndex;
 
         public ContextParameters(HttpContext context)
         {
             request = context.Request;
             path = request.Path.ToString();
-            
+
             var subPath = $"{PATH}/";
-            if (path.StartsWith(subPath))
-                if (path.Length == subPath.Length + Utils.DEFAULT_TOKEN_LENGTH)
-                    token = path[subPath.Length..];
 
-            isDownload = request.Query.TryGetValue("download", out _);
+            if (!path.StartsWith(subPath))
+                return;
+
+            var tokenLength = Utils.DEFAULT_TOKEN_LENGTH;
+            var length = subPath.Length + tokenLength;
+
+            if (path.Length < length)
+                return;
+
+            token = path.Substring(subPath.Length, tokenLength);
+
+            if (path.Length < length + 2)
+                return;
+
+            if (!int.TryParse(path[(length + 1)..], out var fileIndex))
+                return;
+
+            this.fileIndex = fileIndex;
         }
-    }
-
-    public readonly struct SharedFile
-    {
-        public readonly string name;
-        public readonly string path;
-
-        public bool IsNull => name is null || path is null;
-
-        SharedFile(string name, string path)
-        {
-            this.name = name;
-            this.path = path;
-        }
-
-        public static SharedFile FindByToken(string token)
-            => Database.Use(x =>
-            {
-                foreach (var share in x.Shares)
-                {
-                    var files = share.Files;
-                    for (var i = 0; i < files.Count; i++)
-                    {
-                        if (files[i].Description != token)
-                            continue;
-
-                        return new SharedFile(
-                            files[i].Value,
-                            share.GetLocalFilePath(i)
-                        );
-                    }
-                }
-                return default;
-            });
     }
 
     public async Task Invoke(HttpContext context)
@@ -76,23 +58,29 @@ public class ShareMiddleware(RequestDelegate next)
             var upload = Upload(p.request);
             if (upload.statusCode == 200)
             {
-                await response.Body.LoadFromAsync(upload.downloadLink);
+                await response.Body.LoadFromAsync(upload.token);
                 goto Exit;
             }
 
             goto Next;
         }
 
-        if (p.token is not null && p.isDownload)
+        if (p.fileIndex.HasValue)
         {
-            var sf = SharedFile.FindByToken(p.token);
-            if (sf.IsNull)
+            var share = Database.Use(
+                x => x.Shares.FirstOrDefault(y => y.Token == p.token)
+            );
+            if (share is null)
             {
                 response.StatusCode = 404;
                 goto Next;
             }
 
-            var fileInfo = new FileInfo(sf.path);
+            var fileIndex = p.fileIndex.Value;
+            var fileName = share.Files[fileIndex].Value;
+            var filePath = share.GetLocalFilePath(fileIndex);
+            var fileInfo = new FileInfo(filePath);
+
             if (!fileInfo.Exists)
             {
                 response.StatusCode = 404;
@@ -102,7 +90,7 @@ public class ShareMiddleware(RequestDelegate next)
             response.Clear();
 
             var h = response.Headers;
-            h.Append("Content-Disposition", $"inline; filename={sf.name}");
+            h.Append("Content-Disposition", $"inline; filename={fileName}");
             h.Append("Content-Length", fileInfo.Length.ToString());
             h.Append("Content-Transfer-Encoding", "binary");
 
@@ -112,7 +100,7 @@ public class ShareMiddleware(RequestDelegate next)
 
             response.ContentType = contentType ?? "application/octet-stream";
 
-            await response.SendFileAsync(sf.path);
+            await response.SendFileAsync(filePath);
 
             goto Exit;
         }
@@ -141,18 +129,36 @@ public class ShareMiddleware(RequestDelegate next)
             };
         }
 
-        if (p.token is not null && !p.isDownload)
+        if (p.token is not null && !p.fileIndex.HasValue)
         {
-            var sf = SharedFile.FindByToken(p.token);
+            var share = Database.Use(
+                x => x.Shares.FirstOrDefault(y => y.Token == p.token)
+            );
             var baseUrl = Database.Use(x => x.GetBaseUrl(p.request));
+
+            var fileListHtml = new StringBuilder();
+
+            for (int i = 0; i < share.Files.Count; i++)
+            {
+                fileListHtml.AppendLine(
+                    "<div>" +
+                        "<div>" +
+                            share.Files[i].Value +
+                        "</div>" +
+                        $"<button data-url=\"{baseUrl}{PATH}/{share.Token}/{i}\">" +
+                            "<i class=\"fas fa-download\"></i>" +
+                            "<div>Download</div>" +
+                        "</button>" +
+                    "</div>"
+                );
+            }
 
             return new()
             {
                 path = "prompt.html",
                 replacements = new()
                 {
-                    { "name", sf.name },
-                    { "link", $"{baseUrl}{PATH}/{p.token}?download={sf.name}" },
+                    { "file-list", fileListHtml.ToString() },
                     { "content", "<!--segment: share-download-->" }
                 }
             };
@@ -161,7 +167,7 @@ public class ShareMiddleware(RequestDelegate next)
         return default;
     }
 
-    static (int statusCode, string downloadLink) Upload(HttpRequest request)
+    static (int statusCode, string token) Upload(HttpRequest request)
     {
         if (!request.HasFormContentType)
             return (400, null);
@@ -177,20 +183,21 @@ public class ShareMiddleware(RequestDelegate next)
             return newData;
         });
 
-        var formFile = formFiles[0];
+        foreach (var formFile in formFiles)
+        {
+            var fileName = formFile.FileName;
+            var file = new StringValue(fileName);
+            var path = share.GetLocalFilePath(
+                share.Files.Count + 1,
+                fileName
+            );
 
-        var fileName = formFile.FileName;
-        var file = new StringValue(fileName, Utils.GenerateToken());
-        var path = share.GetLocalFilePath(
-            share.Files.Count + 1,
-            fileName
-        );
+            using var stream = formFile.OpenReadStream();
+            using var fileStream = File.Create(path);
+            stream.CopyTo(fileStream);
 
-        using var stream = formFile.OpenReadStream();
-        using var fileStream = File.Create(path);
-        stream.CopyTo(fileStream);
-
-        share.Files.Add(file);
+            share.Files.Add(file);
+        }
 
         var baseUrl = Database.Use(x =>
         {
@@ -198,6 +205,6 @@ public class ShareMiddleware(RequestDelegate next)
             return x.GetBaseUrl(request);
         });
 
-        return (200, file.Description);
+        return (200, share.Token);
     }
 }

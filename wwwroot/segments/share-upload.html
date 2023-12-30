@@ -1,7 +1,7 @@
 <i class="fas fa-paperclip" style="font-size: 2em; "></i>
 <h2>Share</h2>
 <div id="form" style="width: 20em; display: flex; flex-direction: column; flex: 0; gap: 1rem; ">
-    <input name="file" id="file" type="file" style="display: none; ">
+    <input name="file" id="file" type="file" multiple style="display: none; ">
     <label for="file">Drop file here or click to open dialog</label>
     <button style="align-self: center; " id="submit"><i class="fas fa-upload"></i>Upload</button>
 </div>
@@ -9,13 +9,24 @@
     label[for="file"] {
         background: #0006;
         border: 2px dashed #fff5;
-        padding: 1rem 1.5rem;
+        padding: 1rem 1rem;
         cursor: pointer;
-        width: max-content;
+        box-sizing: border-box;
         margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: .75rem;
+        text-align: center;
     }
     label[for="file"]:hover {
         filter: brightness(1.4);
+    }
+    label[for="file"],
+    label[for="file"] > div {
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 </style>
 <script>
@@ -25,7 +36,10 @@
         
         const updateLabel = () =>
         {
-            $label.innerHTML = $file.files[0].name
+            let html = ``
+            for (const file of $file.files)
+                html += `<div>${file.name}</div>`
+            $label.innerHTML = html
         }
         
         const $file = q(`#file`)
@@ -56,7 +70,8 @@
             $submit.disabled = true
             
             const formData = new FormData()
-            formData.append('files[]', $file.files[0])
+            for (const file of $file.files)
+                formData.append('files[]', file)
             
             const response = await fetch(`share`,
             {

@@ -6,6 +6,7 @@ public class Share : Model
 {
     static readonly string FILES_FOLDER = Path.Combine("Data", "Shared Files");
 
+    public string Token { get; set; } = Utils.GenerateToken();
     public List<StringValue> Files { get; set; } = new();
 
     public override string HtmlInfo
