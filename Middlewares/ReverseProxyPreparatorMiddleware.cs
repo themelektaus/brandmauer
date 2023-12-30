@@ -82,6 +82,23 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
             goto Next;
         }
 
+        var authorized = context.Features.Get<AuthorizedFeature>() is not null;
+
+        if (!authorized)
+        {
+            if (path == "/favicon.ico")
+                authorized = true;
+
+            else if (path.StartsWith("/segments/"))
+                authorized = true;
+
+            else if (path.StartsWith("/static/"))
+                authorized = true;
+        }
+
+        if (authorized)
+            goto Accept;
+
         if (source.route.SourceHosts.Count > 0)
         {
             var ip = context.Connection.RemoteIpAddress.ToIp();
@@ -131,7 +148,7 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
         else if (target != string.Empty)
             target = $"http://127.0.0.1:{Utils.HTTP}/{target}";
 
-        if (context.Features.Get<AuthorizedFeature>() is null)
+        if (!authorized)
         {
             var authentications = source.route.Authentications;
             if (authentications.Count > 0)
@@ -145,29 +162,29 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
                 context.Features.Set(new UnauthorizedFeature());
                 goto Next;
             }
+        }
 
-            var maxBodySize = source.route.MaxBodySize.GetBytes();
-            if (maxBodySize is not null)
+        var maxBodySize = source.route.MaxBodySize.GetBytes();
+        if (maxBodySize is not null)
+        {
+            context.Features.Get<IHttpMaxRequestBodySizeFeature>()
+                .MaxRequestBodySize = Database.Use(
+                    x => maxBodySize
+                );
+        }
+
+    Authorized:
+        if (!authorized && source.route.UseWhitelist)
+        {
+            var ip = context.Connection.RemoteIpAddress.ToIp();
+
+            if (!source.route.Whitelist.Any(x => x.Value == ip))
             {
-                context.Features.Get<IHttpMaxRequestBodySizeFeature>()
-                    .MaxRequestBodySize = Database.Use(
-                        x => maxBodySize
-                    );
-            }
-
-        Authorized:
-            if (source.route.UseWhitelist)
-            {
-                var ip = context.Connection.RemoteIpAddress.ToIp();
-
-                if (!source.route.Whitelist.Any(x => x.Value == ip))
+                context.Features.Set(new UnauthorizedFeature
                 {
-                    context.Features.Set(new UnauthorizedFeature
-                    {
-                        ReverseProxyRouteId = source.route.Identifier.Id
-                    });
-                    goto Next;
-                }
+                    ReverseProxyRouteId = source.route.Identifier.Id
+                });
+                goto Next;
             }
         }
 
