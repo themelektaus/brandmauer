@@ -160,8 +160,8 @@ public static partial class Endpoint
         app.MapGet($"{API}/resolve"/*?host={{host}}*/, Resolve);
         app.MapGet($"{API}/whatsmyip", WhatsMyIp);
 
-        app.MapGet($"{API}/audit", Audit.Get);
-        app.MapGet($"{API}/audit/{{id}}", Audit.GetById);
+        app.MapGet($"{API}/audit"/*?limit={{limit}}*/, Audit.Get);
+        app.MapGet($"{API}/audit/{{id}}"/*?limit={{limit}}*/, Audit.GetById);
     }
 
     static IResult Api(IEnumerable<EndpointDataSource> endpointSources)

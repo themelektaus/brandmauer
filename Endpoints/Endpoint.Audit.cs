@@ -1,4 +1,6 @@
-﻿namespace Brandmauer;
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace Brandmauer;
 
 using _Audit = Audit;
 
@@ -15,8 +17,8 @@ public static partial class Endpoint
                 => timestamp.ToString("dd.MM.yyyy HH:mm:ss");
         }
 
-        public static IResult Get() => GetById(0);
-        public static IResult GetById(long id)
+        public static IResult Get([FromQuery] int? limit) => GetById(0, limit);
+        public static IResult GetById(long id, [FromQuery] int? limit)
         {
             var ids = Directory.Exists(_Audit.FOLDER)
                 ? Directory.GetFiles(_Audit.FOLDER, "*.json")
@@ -52,6 +54,10 @@ public static partial class Endpoint
                     audit = new();
                 }
             }
+
+            var _limit = limit ?? 0;
+            if (_limit > 0)
+                audit.Entries = audit.Entries.TakeLast(_limit).ToList();
 
             return Results.Json(new
             {

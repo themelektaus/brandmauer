@@ -318,4 +318,9 @@ public static class ExtensionMethods
     {
         return @this - 400 >= 0;
     }
+
+    public static IEnumerable<T> TakeLast<T>(
+        this IEnumerable<T> @this,
+        int count
+    ) => @this.Skip(Math.Max(0, @this.Count() - count));
 }

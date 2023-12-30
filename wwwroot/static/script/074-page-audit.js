@@ -2,7 +2,8 @@ class AuditPage extends Page
 {
     static _ = Page.register(this)
     
-    #apiPath = `api/audit`
+    #limit = 50
+    #apiPath = `api/audit?limit=${this.#limit}`
     
     async refresh()
     {
@@ -48,7 +49,7 @@ class AuditPage extends Page
             $.innerText = `/${text}`
             $.onclick = async () =>
             {
-                this.#apiPath = text
+                this.#apiPath = `${text}?limit=${this.#limit}`
                 await this.refresh()
             }
         })

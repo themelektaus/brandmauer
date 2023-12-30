@@ -111,9 +111,9 @@ public static partial class Endpoint
         }
 
         public static async Task<IResult> Update(
-            long id,
-            bool? letsEncrypt = false,
-            bool? staging = true
+            [FromQuery] long id,
+            [FromQuery] bool? letsEncrypt = false,
+            [FromQuery] bool? staging = true
         )
         {
             var certificate = Certificate.Get(id);
