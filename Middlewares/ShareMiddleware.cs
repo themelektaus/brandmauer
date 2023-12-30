@@ -66,6 +66,8 @@ public class ShareMiddleware(RequestDelegate next)
         Utils.LogIn<ShareMiddleware>(context);
 
         var p = new ContextParameters(context);
+        if (p.path.StartsWith(PATH))
+            context.Features.Set(new AuthorizedFeature());
 
         var response = context.Response;
 

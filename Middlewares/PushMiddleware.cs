@@ -9,6 +9,9 @@ public class PushMiddleware(RequestDelegate next)
         Utils.LogIn<PushMiddleware>(context);
 
         var request = context.Request;
+        if (request.Path.ToString().StartsWith("/push"))
+            context.Features.Set(new AuthorizedFeature());
+
         var response = context.Response;
 
         if (
