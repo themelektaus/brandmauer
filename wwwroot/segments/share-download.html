@@ -1,47 +1,78 @@
 <i class="fas fa-paperclip" style="font-size: 2em; "></i>
 <h2>Share</h2>
-<div id="form" style="width: 20em; display: flex; flex-direction: column; flex: 0; gap: 1.5rem; align-items: center; ">
-    <div style="width: 100%; display: flex; align-items: center; gap: 1rem; ">
-        <div style="flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; "><!--name--></div>
-        <button id="share" style="font-size: .9em; padding: .375em .5em; "><i class="fas fa-paperclip"></i>Share</button>
-    </div>
-    <button id="submit"><i class="fas fa-download"></i>Download</button>
+<div id="form">
+    <!--file-list-->
+    <button id="share" style="margin-top: .5rem; "><i class="fas fa-copy"></i>Clipboard</button>
 </div>
+<style>
+    #form {
+        width: 25em;
+        max-width: 70vw;
+        display: flex;
+        flex-direction: column;
+        flex: 0;
+        align-items: center;
+        gap: 1rem;
+        padding: .75rem 0 0;
+    }
+    #form > div {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+    }
+    #form > div:hover > div {
+        color: yellow;
+        text-shadow: 0 0 .2em orange;
+    }
+    #form > div > div {
+        flex: 1;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        padding: .125rem;
+    }
+    #form > div > button {
+        font-size: .9em;
+        padding: .375em .5em;
+        display: flex;
+    }
+    #form > div > button > i {
+        flex: 0;
+    }
+    #form > div > button > i + div {
+        flex: 1;
+        text-align: center;
+    }
+</style>
 <script>
     addEventListener(`load`, () =>
     {
         const $share = q(`#share`)
         $share.addEventListener(`click`, async () =>
         {
-            const text = $share.innerText
             $share.disabled = true
             
-            const key = { name: "clipboard-write" }
-            const permission = await navigator.permissions.query(key)
+            await navigator.clipboard.writeText(location.href)
             
-            if (permission.state == "denied")
-            {
-                $share.innerText = `Failed`
-            }
-            else
-            {
-                await navigator.clipboard.writeText(location.href)
-                $share.innerText = "Copied"
-            }
+            const html = $share.innerHTML
+            $share.innerHTML = `<i class="fas fa-check"></i>Copied`
             
             await new Promise(x => setTimeout(x, 1000))
             
             $share.disabled = false
-            $share.innerText = text
+            $share.innerHTML = html
         })
         
-        const $submit = q(`#submit`)
-        $submit.addEventListener(`click`, async () =>
+        qAll(`[data-url]`).forEach($ =>
         {
-            $submit.disabled = true
-            location.href = `<!--link-->`
-            await new Promise(x => setTimeout(x, 1000))
-            $submit.disabled = false
+            $.addEventListener(`click`, async () =>
+            {
+                $.disabled = true
+                location.href = $.dataset.url
+                await new Promise(x => setTimeout(x, 1000))
+                $.disabled = false
+            })
         })
     })
 </script>

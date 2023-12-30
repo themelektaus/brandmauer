@@ -29,10 +29,16 @@
                         <ul class="group group-string-values" data-bind="files" readonly>
                             <li>
                                 <input data-bind="value" readonly />
-                                <input data-bind="description" readonly class="display-none" />
-                                <button data-action="openSharedFile"><i class="fas fa-arrow-up-right-from-square"></i></button>
                             </li>
                         </ul>
+                    </div>
+                    <div data-bind="token" class="display-none"></div>
+                    <div class="buttons">
+                        <label></label>
+                        <button data-action="openShare">
+                            <i class="fas fa-arrow-up-right-from-square"></i>
+                            Open Shared Link
+                        </button>
                     </div>
                 </div>
             </div>
