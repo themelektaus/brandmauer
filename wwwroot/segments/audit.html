@@ -12,7 +12,7 @@
             <ul class="flex-rows" data-bind="entries" readonly>
                 <li>
                     <div data-bind="status"></div>
-                    <div data-bind="timestamp"></div>
+                    <div data-bind="timestampString"></div>
                     <div data-bind="type"></div>
                     <div data-bind="message"></div>
                 </li>
@@ -21,7 +21,7 @@
         <h3>Archive</h3>
         <ul class="flex-rows" data-bind="archive" readonly>
             <li>
-                <div data-bind="timestamp"></div>
+                <div data-bind="timestampString"></div>
                 <a data-bind="path" target="_blank"></a>
             </li>
         </ul>

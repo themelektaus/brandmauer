@@ -17,6 +17,8 @@ namespace Brandmauer;
 
 public static partial class Utils
 {
+    public const int DEFAULT_TOKEN_LENGTH = 64;
+
     public static readonly string NL = Environment.NewLine;
 
 #if LINUX
@@ -149,7 +151,10 @@ public static partial class Utils
 #endif
 
     //https://github.com/microsoft/reverse-proxy/blob/4e32b6b87af17ed1e60bb84aa76d8585c7e5c11f/src/ReverseProxy/Forwarder/RequestUtilities.cs#L350
-    public static StringValues Concat(in StringValues array, in HeaderStringValues values)
+    public static StringValues Concat(
+        in StringValues array,
+        in HeaderStringValues values
+    )
     {
         if (values.Count <= 1)
             return StringValues.Concat(array, values.ToString());
@@ -231,5 +236,22 @@ public static partial class Utils
         }
 
         return methods;
+    }
+
+    public static string GenerateToken(
+        int length = DEFAULT_TOKEN_LENGTH,
+        bool upperCase = false
+    )
+    {
+        var token = string.Empty;
+        
+        var characters = "abcdefghijklmnopqrstuvwxyz234567";
+        if (upperCase)
+            characters = characters.ToUpper();
+
+        while (token.Length < DEFAULT_TOKEN_LENGTH)
+            token += characters[Random.Shared.Next(0, 32)];
+
+        return token;
     }
 }

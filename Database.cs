@@ -23,6 +23,7 @@ public class Database
     public List<SmtpConnection> SmtpConnections { get; set; } = new();
     public List<Monitor> Monitors { get; set; } = new();
     public List<PushListener> PushListeners { get; set; } = new();
+    public List<Share> Shares { get; set; } = new();
     public Config Config { get; set; } = new();
 
     static readonly HashSet<Model> models = new();

@@ -13,10 +13,7 @@ public class LoginMiddleware(RequestDelegate next)
         public Session(long authenticationId)
         {
             this.authenticationId = authenticationId;
-            token = string.Empty;
-            while (token.Length < 64)
-                token += "abcdefghijklmnopqrstuvwxyz234567"
-                    [Random.Shared.Next(0, 32)];
+            token = Utils.GenerateToken();
         }
     }
     static readonly List<Session> sessions = new();
@@ -85,6 +82,13 @@ public class LoginMiddleware(RequestDelegate next)
         if (id != 0)
             return default;
 
-        return new() { path = "login.html" };
+        return new()
+        {
+            path = "prompt.html",
+            replacements = new()
+            {
+                { "content", "<!--segment: login-->" }
+            }
+        };
     }
 }

@@ -1,0 +1,77 @@
+<i class="fas fa-paperclip" style="font-size: 2em; "></i>
+<h2>Share</h2>
+<div id="form" style="width: 20em; display: flex; flex-direction: column; flex: 0; gap: 1rem; ">
+    <input name="file" id="file" type="file" style="display: none; ">
+    <label for="file">Drop file here or click to open dialog</label>
+    <button style="align-self: center; " id="submit"><i class="fas fa-upload"></i>Upload</button>
+</div>
+<style>
+    label[for="file"] {
+        background: #0006;
+        border: 2px dashed #fff5;
+        padding: 1rem 1.5rem;
+        cursor: pointer;
+        width: max-content;
+        margin: 0 auto;
+    }
+    label[for="file"]:hover {
+        filter: brightness(1.4);
+    }
+</style>
+<script>
+    addEventListener(`load`, () =>
+    {
+        const $label = q(`label[for="file"]`)
+        
+        const updateLabel = () =>
+        {
+            $label.innerHTML = $file.files[0].name
+        }
+        
+        const $file = q(`#file`)
+        $file.addEventListener('change', () => updateLabel())
+        
+        const register = (a, b) =>
+        {
+            for (const _a of a)
+                document.body.addEventListener(_a, b)
+        }
+        
+        register(['dragover', 'dragenter'], e =>
+        {
+            e.preventDefault()
+        })
+        
+        register(['drop'], e =>
+        {
+            e.preventDefault()
+            $file.files = e.dataTransfer.files
+            updateLabel()
+        })
+        
+        const $submit = q(`#submit`)
+        
+        $submit.addEventListener(`click`, async () =>
+        {
+            $submit.disabled = true
+            
+            const formData = new FormData()
+            formData.append('files[]', $file.files[0])
+            
+            const response = await fetch(`share`,
+            {
+                method: "POST",
+                body: formData
+            })
+            
+            if (response.ok)
+            {
+                const token = await response.text()
+                location.href = `share/${token}`
+                return
+            }
+            
+            $submit.disabled = false
+        })
+    })
+</script>

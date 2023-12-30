@@ -1,0 +1,48 @@
+<i class="fas fa-lock" style="font-size: 2em; "></i>
+<h2><!--host--></h2>
+<div style="width: 15em; display: flex; flex-direction: column; flex: 0; gap: .5rem; ">
+    <input type="text" id="username" placeholder="Username" style="text-align: center; ">
+    <input type="password" id="password" placeholder="Password" style="text-align: center; ">
+    <button style="align-self: center; " id="submit"><i class="fas fa-unlock"></i>Unlock</button>
+</div>
+<script>
+    addEventListener(`load`, () =>
+    {
+        function onKeyDown(e)
+        {
+            if (e.keyCode != 13)
+                return
+            
+            e.preventDefault = true
+            q(`#submit`).click()
+        }
+        
+        q(`#username`).addEventListener(`keydown`, onKeyDown)
+        q(`#password`).addEventListener(`keydown`, onKeyDown)
+        
+        q(`#username`).focus()
+        
+        q(`#submit`).addEventListener(`click`, async () =>
+        {
+            const username = q(`#username`).value
+            if (!username)
+                return
+            
+            const password = q(`#password`).value
+            if (!password)
+                return
+            
+            q(`#submit`).disabled = true
+            
+            const response = await fetch(`login`,
+            {
+                headers: {
+                    "X-<!--title-->-Session-Token":
+                        btoa(`${username}:${password}`)
+                }
+            })
+            
+            location.reload()
+        })
+    })
+</script>
