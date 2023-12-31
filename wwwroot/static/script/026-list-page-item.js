@@ -45,10 +45,7 @@ class ListPageItem
         
         const hashCode = this.model.getHashCode()
         if (this.hashCode == hashCode)
-        {
-            debugLog(`[SKIP] ${this.model.identifier.id}`)
             return
-        }
         
         this.hashCode = hashCode
         

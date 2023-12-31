@@ -45,9 +45,7 @@ public static partial class Endpoint
                 {
                     var json = File.ReadAllText(file);
                     audit = json.FromJson<_Audit>();
-                    audit.Entries = audit.Entries
-                        //.OrderByDescending(x => x.Timestamp)
-                        .ToList();
+                    audit.Entries = audit.Entries.ToList();
                 }
                 else
                 {

@@ -82,7 +82,6 @@ class InteractiveAction
         disable()
         
         const response = await fetch(`api/update/install`)
-        debugLog(response)
         
         if (response.status != 200)
         {

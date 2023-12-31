@@ -164,7 +164,7 @@ public static partial class Utils
     }
 #endif
 
-    //https://github.com/microsoft/reverse-proxy/blob/4e32b6b87af17ed1e60bb84aa76d8585c7e5c11f/src/ReverseProxy/Forwarder/RequestUtilities.cs#L350
+    // Source: https://github.com/microsoft/reverse-proxy/blob/4e32b6b87af17ed1e60bb84aa76d8585c7e5c11f/src/ReverseProxy/Forwarder/RequestUtilities.cs#L350
     public static StringValues Concat(
         in StringValues array,
         in HeaderStringValues values
