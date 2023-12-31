@@ -8,67 +8,38 @@ public class ShareMiddleware(RequestDelegate next)
 {
     const string PATH = "/share";
 
-    public class ContextParameters
-    {
-        public readonly HttpRequest request;
-        public readonly string path;
-        public readonly string token;
-        public readonly int? fileIndex;
-
-        public ContextParameters(HttpContext context)
-        {
-            request = context.Request;
-            path = request.Path.ToString();
-
-            var subPath = $"{PATH}/";
-
-            if (!path.StartsWith(subPath))
-                return;
-
-            var tokenLength = Utils.DEFAULT_TOKEN_LENGTH;
-            var length = subPath.Length + tokenLength;
-
-            if (path.Length < length)
-                return;
-
-            token = path.Substring(subPath.Length, tokenLength);
-
-            if (path.Length < length + 2)
-                return;
-
-            if (!int.TryParse(path[(length + 1)..], out var fileIndex))
-                return;
-
-            this.fileIndex = fileIndex;
-        }
-    }
-
     public async Task Invoke(HttpContext context)
     {
         Utils.LogIn<ShareMiddleware>(context);
 
-        var p = new ContextParameters(context);
-        if (p.path.StartsWith(PATH))
-            context.Features.Set(new AuthorizedFeature());
+        var request = context.Request;
+        var path = request.Path.ToString();
+
+        if (path.StartsWith(PATH))
+            context.Features.Set(new PermissionFeature { Authorized = true });
 
         var response = context.Response;
 
-        if (p.path == PATH && p.request.Method == "POST")
+        if (path == PATH && request.Method == "POST")
         {
-            var upload = Upload(p.request);
-            if (upload.statusCode == 200)
+            var (statusCode, token) = Upload(request);
+            if (statusCode == 200)
             {
-                await response.Body.LoadFromAsync(upload.token);
+                await response.Body.LoadFromAsync(token);
                 goto Exit;
             }
 
             goto Next;
         }
 
-        if (p.fileIndex.HasValue)
+        var contextParameters = new ContextParameters(PATH, path);
+        var _fileIndex = contextParameters.fileIndex;
+        var _token = contextParameters.token;
+
+        if (_fileIndex.HasValue)
         {
             var share = Database.Use(
-                x => x.Shares.FirstOrDefault(y => y.Token == p.token)
+                x => x.Shares.FirstOrDefault(y => y.Token == _token)
             );
             if (share is null)
             {
@@ -76,7 +47,7 @@ public class ShareMiddleware(RequestDelegate next)
                 goto Next;
             }
 
-            var fileIndex = p.fileIndex.Value;
+            var fileIndex = _fileIndex.Value;
             var fileName = share.Files[fileIndex].Value;
             var filePath = share.GetLocalFilePath(fileIndex);
             var fileInfo = new FileInfo(filePath);
@@ -115,9 +86,15 @@ public class ShareMiddleware(RequestDelegate next)
     [Frontend]
     static FrontendResult GetFrontend(HttpContext context)
     {
-        var p = new ContextParameters(context);
+        var request = context.Request;
+        var path = request.Path.ToString();
 
-        if (p.request.Path == PATH)
+        var contextParameters = new ContextParameters(PATH, path);
+        var _fileIndex = contextParameters.fileIndex;
+        var _token = contextParameters.token;
+
+
+        if (request.Path == PATH)
         {
             return new()
             {
@@ -129,12 +106,12 @@ public class ShareMiddleware(RequestDelegate next)
             };
         }
 
-        if (p.token is not null && !p.fileIndex.HasValue)
+        if (_token is not null && !_fileIndex.HasValue)
         {
             var share = Database.Use(
-                x => x.Shares.FirstOrDefault(y => y.Token == p.token)
+                x => x.Shares.FirstOrDefault(y => y.Token == _token)
             );
-            var baseUrl = Database.Use(x => x.GetBaseUrl(p.request));
+            var baseUrl = Database.Use(x => x.GetBaseUrl(request));
 
             var fileListHtml = new StringBuilder();
 
@@ -206,5 +183,35 @@ public class ShareMiddleware(RequestDelegate next)
         });
 
         return (200, share.Token);
+    }
+
+    public class ContextParameters
+    {
+        public readonly string token;
+        public readonly int? fileIndex;
+
+        public ContextParameters(string basePath, string path)
+        {
+            var subPath = $"{basePath}/";
+
+            if (!path.StartsWith(subPath))
+                return;
+
+            var tokenLength = Utils.DEFAULT_TOKEN_LENGTH;
+            var length = subPath.Length + tokenLength;
+
+            if (path.Length < length)
+                return;
+
+            token = path.Substring(subPath.Length, tokenLength);
+
+            if (path.Length < length + 2)
+                return;
+
+            if (!int.TryParse(path[(length + 1)..], out var fileIndex))
+                return;
+
+            this.fileIndex = fileIndex;
+        }
     }
 }

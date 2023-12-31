@@ -258,12 +258,15 @@ public class WhitelistMiddleware(RequestDelegate next)
             };
         }
 
-        var unauthorizedFeature = context.Features.Get<UnauthorizedFeature>();
-        if (unauthorizedFeature is null)
+        var permission = context.Features.Get<PermissionFeature>();
+
+        if (permission is null)
             return default;
 
-        var id = unauthorizedFeature.ReverseProxyRouteId;
-        if (id == 0)
+        if (permission.Authorized)
+            return default;
+
+        if (permission.ReverseProxyRouteId == 0)
             return default;
 
         return new()
@@ -271,7 +274,7 @@ public class WhitelistMiddleware(RequestDelegate next)
             path = "prompt.html",
             replacements = new()
             {
-                { "id", id },
+                { "id", permission.ReverseProxyRouteId },
                 { "ip", context.Connection.RemoteIpAddress.ToIp() },
                 { "content", "<!--segment: whitelist-request-->" }
             }

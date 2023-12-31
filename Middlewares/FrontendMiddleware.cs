@@ -11,9 +11,9 @@ public class FrontendMiddleware
 {
     const string WWWROOT = "wwwroot"/*-htmx*/;
     const string INDEX_HTML = "index.html"/*.htmx*/;
-    const string FAVICON_ICO = "favicon.ico";
+    const string FAVICON_ICO = Utils.FAVICON_ICO;
     const string SEGMENTS = "segments";
-    const string STATIC = "static";
+    const string STATIC = Utils.STATIC;
     const string STYLE = "style";
     const string SCRIPT = "script";
 
@@ -44,7 +44,9 @@ public class FrontendMiddleware
     {
         Utils.LogIn<FrontendMiddleware>(context);
 
-        if (context.Response.StatusCode == 200 && !context.Response.HasStarted)
+        var response = context.Response;
+
+        if (response.StatusCode == 200 && !response.HasStarted)
         {
             var path = context.Request.Path.ToString();
 
@@ -57,7 +59,7 @@ public class FrontendMiddleware
                 goto Exit;
             }
 
-            if (path == $"/{FAVICON_ICO}" || path.StartsWith($"/{STATIC}/"))
+            if (Utils.IsPublicPath(path))
             {
                 await SendFileAsync(context, path);
                 goto Exit;
@@ -71,7 +73,8 @@ public class FrontendMiddleware
 
                 if (result.path is not null)
                 {
-                    await Html(context, result.path, result.replacements ?? new());
+                    var replacements = result.replacements ?? new();
+                    await SetHtmlAsync(context, result.path, replacements);
                     goto Exit;
                 }
             }
@@ -87,13 +90,13 @@ public class FrontendMiddleware
 
             if (path == $"/{INDEX_HTML}")
             {
-                await Html(context, path, new());
+                await SetHtmlAsync(context, path, new());
                 goto Exit;
             }
 
         NotFound:
             if (!path.StartsWith("/api"))
-                context.Response.StatusCode = 404;
+                response.StatusCode = 404;
         }
 
         await next.Invoke(context);
@@ -122,12 +125,11 @@ public class FrontendMiddleware
         string content
     )
     {
-        var response = context.Response;
-        response.ContentType = contentType;
-        await response.Body.LoadFromAsync(content);
+        context.Response.ContentType = contentType;
+        await context.Response.Body.LoadFromAsync(content);
     }
 
-    static async Task Html(
+    static async Task SetHtmlAsync(
         HttpContext context,
         string path,
         Dictionary<string, object> replacements

@@ -2,6 +2,8 @@
 
 public class PushMiddleware(RequestDelegate next)
 {
+    const string PATH = "/push";
+
     static readonly string TokenKey = $"X-{Utils.Name}-Token";
 
     public async Task Invoke(HttpContext context)
@@ -9,15 +11,15 @@ public class PushMiddleware(RequestDelegate next)
         Utils.LogIn<PushMiddleware>(context);
 
         var request = context.Request;
-        if (request.Path.ToString().StartsWith("/push"))
-            context.Features.Set(new AuthorizedFeature());
+        var path = request.Path.ToString();
+        
+        if (path.StartsWith(PATH))
+            context.Features.Set(new PermissionFeature { Authorized = true });
 
+        var headers = request.Headers;
         var response = context.Response;
 
-        if (
-            request.Path == "/push" &&
-            request.Headers.TryGetValue(TokenKey, out var token)
-        )
+        if (path == PATH && headers.TryGetValue(TokenKey, out var token))
         {
             var pushListener = Database.Use(
                 x => x.PushListeners.FirstOrDefault(
