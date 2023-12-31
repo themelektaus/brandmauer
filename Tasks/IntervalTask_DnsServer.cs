@@ -36,11 +36,6 @@ public class IntervalTask_DnsServer : IntervalTask
 
         dnsServer = new(new MasterFile(), "208.67.222.222");
 
-        //208.67.220.220
-        //1.1.1.1
-        //8.8.8.8
-        //192.168.0.60
-
 #if DEBUG
         dnsServer.Responded += (sender, e)
             => Audit.Info<DnsServer>($"{e.Request} => {e.Response}");

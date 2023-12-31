@@ -35,20 +35,6 @@ Object.defineProperties(Window.prototype,
             console.log(...arguments)
         }
     },
-    debugLog:
-    {
-        value: function()
-        {
-            //console.log(...arguments)
-        }
-    },
-    debugLogWarning:
-    {
-        value: function()
-        {
-            //console.warn(...arguments)
-        }
-    },
     fetchText:
     {
         value: function()

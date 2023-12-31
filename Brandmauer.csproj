@@ -46,11 +46,6 @@
         <Content Remove="Updater\**" />
         <EmbeddedResource Remove="Updater\**" />
         <None Remove="Updater\**" />
-
-        <Compile Remove="wwwroot-htmx\**" />
-        <Content Remove="wwwroot-htmx\**" />
-        <EmbeddedResource Remove="wwwroot-htmx\**" />
-        <None Remove="wwwroot-htmx\**" />
     </ItemGroup>
 
     <ItemGroup>

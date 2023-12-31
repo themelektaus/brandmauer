@@ -9,8 +9,8 @@ namespace Brandmauer;
 
 public class FrontendMiddleware
 {
-    const string WWWROOT = "wwwroot"/*-htmx*/;
-    const string INDEX_HTML = "index.html"/*.htmx*/;
+    const string WWWROOT = "wwwroot";
+    const string INDEX_HTML = "index.html";
     const string FAVICON_ICO = Utils.FAVICON_ICO;
     const string SEGMENTS = "segments";
     const string STATIC = Utils.STATIC;
@@ -81,12 +81,6 @@ public class FrontendMiddleware
 
             if (path == "/")
                 path = $"/{INDEX_HTML}";
-
-            //if (path.EndsWith(".htmx"))
-            //{
-            //    await LoadAsync(context, "text/html", path);
-            //    return;
-            //}
 
             if (path == $"/{INDEX_HTML}")
             {
