@@ -82,21 +82,17 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
             goto Next;
         }
 
-        var authorized = context.Features.Get<AuthorizedFeature>() is not null;
+        var authorized = false;
+        var unauthorized = false;
 
-        if (!authorized)
+        var permission = context.Features.Get<PermissionFeature>();
+        if (permission is not null)
         {
-            if (path == "/favicon.ico")
-                authorized = true;
-
-            else if (path.StartsWith("/segments/"))
-                authorized = true;
-
-            else if (path.StartsWith("/static/"))
-                authorized = true;
+            authorized = permission.Authorized;
+            unauthorized = !authorized;
         }
 
-        if (authorized)
+        if (authorized || Utils.IsPublicPath(path))
             goto Accept;
 
         if (source.route.SourceHosts.Count > 0)
@@ -159,7 +155,10 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
                     if (authentications.Any(x => LoginMiddleware.IsAuthorized(x, sessionToken)))
                         goto Authorized;
 
-                context.Features.Set(new UnauthorizedFeature());
+                context.Features.Set(new PermissionFeature
+                {
+                    Authorized = false
+                });
                 goto Next;
             }
         }
@@ -180,15 +179,16 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
 
             if (!source.route.Whitelist.Any(x => x.Value == ip))
             {
-                context.Features.Set(new UnauthorizedFeature
+                context.Features.Set(new PermissionFeature
                 {
+                    Authorized = false,
                     ReverseProxyRouteId = source.route.Identifier.Id
                 });
                 goto Next;
             }
         }
 
-        if (target != string.Empty)
+        if (!unauthorized && target != string.Empty)
         {
             context.Features.Set(new ReverseProxyFeature
             {

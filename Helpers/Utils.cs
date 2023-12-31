@@ -19,6 +19,9 @@ public static partial class Utils
 {
     public const int DEFAULT_TOKEN_LENGTH = 64;
 
+    public const string FAVICON_ICO = "favicon.ico";
+    public const string STATIC = "static";
+
     public static readonly string NL = Environment.NewLine;
 
 #if LINUX
@@ -70,6 +73,17 @@ public static partial class Utils
 
         Error:
         ipAddress = null;
+        return false;
+    }
+
+    public static bool IsPublicPath(string path)
+    {
+        if (path == $"/{FAVICON_ICO}")
+            return true;
+
+        if (path.StartsWith($"/{STATIC}/"))
+            return true;
+
         return false;
     }
 
