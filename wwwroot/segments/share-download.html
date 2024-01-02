@@ -1,6 +1,6 @@
 <h2><i class="fas fa-paperclip"></i>Share</h2>
 <div id="form">
-    <span id="text" type="text" readonly><!--text--></span>
+    <pre id="text" type="text" readonly><!--text--></pre>
     <div id="file-list"><!--file-list--></div>
 </div>
 <button id="clipboard"><i class="fas fa-copy"></i>Clipboard</button>
@@ -28,6 +28,8 @@
         background-color: var(--menu-item__background-color);
         box-sizing: border-box;
         width: 100%;
+        font-family: inherit;
+        font-size: inherit;
     }
     #form > #file-list {
         width: 100%;
@@ -68,6 +70,10 @@
 <script>
     addEventListener(`load`, () =>
     {
+        const $text = q(`#text`)
+        if (!$text.innerHTML)
+            $text.remove()
+        
         const $clipboard = q(`#clipboard`)
         $clipboard.addEventListener(`click`, async () =>
         {
