@@ -1,12 +1,33 @@
-<i class="fas fa-paperclip" style="font-size: 2em; "></i>
-<h2>Share</h2>
-<div id="form" style="width: 20em; display: flex; flex-direction: column; flex: 0; gap: 1rem; ">
-    <input name="file" id="file" type="file" multiple style="display: none; ">
+<h2><i class="fas fa-paperclip"></i>Share</h2>
+<div id="form">
+    <textarea id="text" type="text" placeholder="Title / Description / Notes"></textarea>
+    <input id="file" type="file" multiple>
     <label for="file">Drop file here or click to open dialog</label>
-    <button style="align-self: center; " id="submit"><i class="fas fa-upload"></i>Upload</button>
 </div>
+<button id="submit"><i class="fas fa-paper-plane"></i>Submit</button>
 <style>
-    label[for="file"] {
+    h2 {
+        font-size: 2em;
+    }
+    h2 > i {
+        color: #f90;
+        margin-right: .375em;
+    }
+    #form {
+        width: 25em;
+        display: flex;
+        flex-direction: column;
+        flex: 0;
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+    #form > #text {
+        height: 7.75em;
+    }
+    #form > #file {
+        display: none;
+    }
+    #form > #file + label {
         background: #0006;
         border: 2px dashed #fff5;
         padding: 1rem 1rem;
@@ -18,15 +39,18 @@
         gap: .75rem;
         text-align: center;
     }
-    label[for="file"]:hover {
+    #form > #file + label:hover {
         filter: brightness(1.4);
     }
-    label[for="file"],
-    label[for="file"] > div {
-        width: 100%;
+    #form > #file + label,
+    #form > #file + label > div {
+        width: 21em;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+    #form > #submit {
+        align-self: center;
     }
 </style>
 <script>
@@ -42,7 +66,9 @@
             $label.innerHTML = html
         }
         
+        const $text = q(`#text`)
         const $file = q(`#file`)
+        
         $file.addEventListener('change', () => updateLabel())
         
         const register = (a, b) =>
@@ -70,6 +96,7 @@
             $submit.disabled = true
             
             const formData = new FormData()
+            formData.append('text', $text.value)
             for (const file of $file.files)
                 formData.append('files[]', file)
             
