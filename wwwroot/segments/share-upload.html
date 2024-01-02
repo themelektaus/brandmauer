@@ -38,6 +38,7 @@
         flex-direction: column;
         gap: .75rem;
         text-align: center;
+        display: block;
     }
     #form > #file + label:hover {
         filter: brightness(1.4);
@@ -48,6 +49,9 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+    #form > #file + label > div {
+        width: 100%;
     }
     #form > #submit {
         align-self: center;

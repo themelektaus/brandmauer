@@ -62,9 +62,16 @@ public class IntervalTask_DnsServer : IntervalTask
         if (dnsServer is not null)
         {
             Audit.Info<DnsServer>("Stopping...");
-            dnsServer.Dispose();
-            dnsServer = null;
-            Audit.Info<DnsServer>("Stopped.");
+            try
+            {
+                dnsServer.Dispose();
+                dnsServer = null;
+                Audit.Info<DnsServer>("Stopped.");
+            }
+            catch
+            {
+                Audit.Error<DnsServer>("Stopping failed.");
+            }
         }
 
         if (task is not null)
