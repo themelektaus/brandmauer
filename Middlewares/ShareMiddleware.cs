@@ -29,6 +29,12 @@ public class ShareMiddleware(RequestDelegate next)
                 goto Exit;
             }
 
+            if (statusCode == 400)
+            {
+                response.StatusCode = 400;
+                goto Exit;
+            }
+            
             goto Next;
         }
 
@@ -111,6 +117,9 @@ public class ShareMiddleware(RequestDelegate next)
             var share = Database.Use(
                 x => x.Shares.FirstOrDefault(y => y.Token == _token)
             );
+            if (share is null)
+                return default;
+
             var baseUrl = Database.Use(x => x.GetBaseUrl(request));
 
             var fileListHtml = new StringBuilder();
@@ -135,6 +144,7 @@ public class ShareMiddleware(RequestDelegate next)
                 path = "prompt.html",
                 replacements = new()
                 {
+                    { "text", share.Text },
                     { "file-list", fileListHtml.ToString() },
                     { "content", "<!--segment: share-download-->" }
                 }
@@ -149,8 +159,12 @@ public class ShareMiddleware(RequestDelegate next)
         if (!request.HasFormContentType)
             return (400, null);
 
+        if (!request.Form.TryGetValue("text", out var text))
+            text = string.Empty;
+
         var formFiles = request.Form.Files;
-        if (formFiles.Count == 0)
+
+        if (text == string.Empty && formFiles.Count == 0)
             return (400, null);
 
         var share = Database.Use(x =>
@@ -159,6 +173,8 @@ public class ShareMiddleware(RequestDelegate next)
             x.Shares.Add(newData);
             return newData;
         });
+
+        share.Text = text;
 
         foreach (var formFile in formFiles)
         {

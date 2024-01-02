@@ -1,10 +1,17 @@
-<i class="fas fa-paperclip" style="font-size: 2em; "></i>
-<h2>Share</h2>
+<h2><i class="fas fa-paperclip"></i>Share</h2>
 <div id="form">
-    <!--file-list-->
-    <button id="share" style="margin-top: .5rem; "><i class="fas fa-copy"></i>Clipboard</button>
+    <span id="text" type="text" readonly><!--text--></span>
+    <div id="file-list"><!--file-list--></div>
 </div>
+<button id="clipboard"><i class="fas fa-copy"></i>Clipboard</button>
 <style>
+    h2 {
+        font-size: 2em;
+    }
+    h2 > i {
+        color: #f90;
+        margin-right: .375em;
+    }
     #form {
         width: 25em;
         max-width: 70vw;
@@ -13,34 +20,47 @@
         flex: 0;
         align-items: center;
         gap: 1rem;
-        padding: .75rem 0 0;
+        margin: 1rem 0;
     }
-    #form > div {
+    #form > #text {
+        padding: .5rem;
+        line-height: 1.5;
+        background-color: var(--menu-item__background-color);
+        box-sizing: border-box;
         width: 100%;
+    }
+    #form > #file-list {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: .5rem;
+    }
+    #form > #file-list > div {
         display: flex;
         align-items: center;
         gap: .5rem;
     }
-    #form > div:hover > div {
+    #form > #file-list > div:hover > div {
         color: yellow;
         text-shadow: 0 0 .2em orange;
     }
-    #form > div > div {
+    #form > #file-list > div > div {
         flex: 1;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
         padding: .125rem;
     }
-    #form > div > button {
+    #form > #file-list > div > button {
         font-size: .9em;
         padding: .375em .5em;
         display: flex;
+        margin-top: .25em;
     }
-    #form > div > button > i {
+    #form > #file-list > div > button > i {
         flex: 0;
     }
-    #form > div > button > i + div {
+    #form > #file-list > div > button > i + div {
         flex: 1;
         text-align: center;
     }
@@ -48,20 +68,20 @@
 <script>
     addEventListener(`load`, () =>
     {
-        const $share = q(`#share`)
-        $share.addEventListener(`click`, async () =>
+        const $clipboard = q(`#clipboard`)
+        $clipboard.addEventListener(`click`, async () =>
         {
-            $share.disabled = true
+            $clipboard.disabled = true
             
             await navigator.clipboard.writeText(location.href)
             
-            const html = $share.innerHTML
-            $share.innerHTML = `<i class="fas fa-check"></i>Copied`
+            const html = $clipboard.innerHTML
+            $clipboard.innerHTML = `<i class="fas fa-check"></i>Copied`
             
             await new Promise(x => setTimeout(x, 1000))
             
-            $share.disabled = false
-            $share.innerHTML = html
+            $clipboard.disabled = false
+            $clipboard.innerHTML = html
         })
         
         qAll(`[data-url]`).forEach($ =>
