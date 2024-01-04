@@ -42,7 +42,7 @@ public class FrontendMiddleware
 
     public async Task Invoke(HttpContext context)
     {
-        Utils.LogIn<FrontendMiddleware>(context);
+        Utils.LogBegin<FrontendMiddleware>(context);
 
         var response = context.Response;
 
@@ -96,7 +96,7 @@ public class FrontendMiddleware
         await next.Invoke(context);
 
     Exit:
-        Utils.LogOut<FrontendMiddleware>(context);
+        Utils.LogEnd<FrontendMiddleware>(context);
     }
 
     static async Task LoadAsync(

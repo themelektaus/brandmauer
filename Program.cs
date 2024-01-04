@@ -84,6 +84,7 @@ app.UseMiddleware<LoginMiddleware>();
 app.UseMiddleware<WhitelistMiddleware>();
 app.UseMiddleware<PushMiddleware>();
 app.UseMiddleware<ShareMiddleware>();
+app.UseMiddleware<IconMiddleware>();
 app.UseMiddleware<ReverseProxyPreparatorMiddleware>();
 app.UseMiddleware<YarpReverseProxyMiddleware>();
 app.UseMiddleware<CustomReverseProxyMiddleware>();

@@ -39,6 +39,11 @@ public static partial class Endpoint
         {
             Database.Use(x =>
             {
+                var shares = x.Shares.Where(x => x.Identifier.Id == id);
+                foreach (var s in shares)
+                    for (var i = 0; i < s.Files.Count; i++)
+                        try { File.Delete(s.GetLocalFilePath(i)); } catch { }
+
                 x.Shares.RemoveAll(x =>
                 {
                     x.Dispose();

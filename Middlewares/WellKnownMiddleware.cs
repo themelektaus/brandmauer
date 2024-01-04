@@ -4,7 +4,7 @@ public class WellKnownMiddleware(RequestDelegate next)
 {
     public async Task Invoke(HttpContext context)
     {
-        Utils.LogIn<WellKnownMiddleware>(context);
+        Utils.LogBegin<WellKnownMiddleware>(context);
 
         var path = context.Request.Path.ToString();
 
@@ -32,6 +32,6 @@ public class WellKnownMiddleware(RequestDelegate next)
         await next.Invoke(context);
 
     Exit:
-        Utils.LogOut<WellKnownMiddleware>(context);
+        Utils.LogEnd<WellKnownMiddleware>(context);
     }
 }

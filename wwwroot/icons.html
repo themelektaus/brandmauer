@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Icons</title>
+        <base href="/">
+        <style>
+            ::-webkit-scrollbar { width: 7px; height: 7px; }
+            ::-webkit-scrollbar-track { background: #433; }
+            ::-webkit-scrollbar-thumb { background: #655; }
+            ::-webkit-scrollbar-thumb:hover { background: #766; }
+            ::-webkit-scrollbar-corner { background: none; }
+            body {
+                margin: 15rem 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 5rem;
+                overflow: auto scroll;
+            }
+            body, input {
+                font-family: monospace;
+                color: white;
+            }
+            .background {
+                position: fixed;
+                top: 0;
+                width: 100vw;
+                height: 100vh;
+                background: linear-gradient(#332633, #131216);
+                z-index: -1;
+            }
+            h1 {
+                display: block;
+                font-size: 3em;
+                margin: 0;
+                color: orange;
+            }
+            input {
+                border: none;
+                outline: none;
+                background-color: #423;
+                display: block;
+                font-size: 1.5em;
+                padding: .75rem;
+                
+            }
+            input, .icons {
+                width: min(80%, 1200px);
+            }
+            .icons {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .icons > div {
+                width: 96px;
+                aspect-ratio: 1;
+                background-size: 50%;
+                background-position: center;
+                background-repeat: no-repeat;
+                cursor: pointer;
+                border-radius: 1rem;
+            }
+            .icons > div:hover {
+                background-color: #f9c3;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="background"></div>
+        <h1>/icon</h1>
+        <input id="search" type="text" placeholder="Search">
+        <div class="icons"><!--icons--></div>
+        <script>
+            
+            const iconLoader = new IntersectionObserver(
+                entries =>
+                {
+                    entries.forEach(entry =>
+                    {
+                        const $ = entry.target
+                        const off = entry.intersectionRatio <= 0
+                        const url = off
+                            ? `static/res/fire1.svg`
+                            : $.dataset.image
+                        $.style.opacity = off ? .2 : 1
+                        $.style.backgroundImage = `url(${url})`
+                    })
+                }
+            )
+            
+            const $h1 = q(`h1`)
+            const $search = q(`#search`)
+            const $icons = qAll(`.icons > div`)
+            
+            $search.addEventListener(`input`, e =>
+            {
+                $icons.forEach($ =>
+                {
+                    const name = $.dataset.url.substring(5)
+                    const value = $search.value.toLowerCase()
+                    const visible = value && name.includes(value)
+                    $.style.display = visible ? `` : `none`
+                })
+            })
+            $search.dispatchEvent(new Event(`input`))
+            
+            $icons.forEach($ =>
+            {
+                iconLoader.observe($)
+                $.addEventListener(`click`, async e =>
+                {
+                    const url = e.target.dataset.url
+                    if (!url)
+                        return
+                    
+                    $h1.innerHTML = url
+                    await navigator.clipboard.writeText(url)
+                })
+            })
+            
+            function q() { return document.querySelector(...arguments) }
+            function qAll() { return document.querySelectorAll(...arguments) }
+            
+        </script>
+    </body>
+</html>

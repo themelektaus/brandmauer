@@ -1,10 +1,12 @@
 <h2><i class="fas fa-paperclip"></i>Share</h2>
 <div id="form">
     <textarea id="text" type="text" placeholder="Title / Description / Notes"></textarea>
-    <input id="file" type="file" multiple>
-    <label for="file">Drop file here or click to open dialog</label>
+    <label id="dropzone" for="file"></label>
 </div>
-<button id="submit"><i class="fas fa-paper-plane"></i>Submit</button>
+<div id="buttons">
+    <button id="submit"><i class="fas fa-paper-plane"></i>Submit</button>
+    <button id="clear"><i class="fas fa-trash"></i>Clear</button>
+</div>
 <style>
     h2 {
         font-size: 2em;
@@ -21,17 +23,13 @@
         gap: 1rem;
         margin: 1rem 0;
     }
-    #form > #text {
+    #text {
         height: 7.75em;
     }
-    #form > #file {
-        display: none;
-    }
-    #form > #file + label {
+    #dropzone {
         background: #0006;
         border: 2px dashed #fff5;
         padding: 1rem 1rem;
-        cursor: pointer;
         box-sizing: border-box;
         margin: 0 auto;
         display: flex;
@@ -39,85 +37,152 @@
         gap: .75rem;
         text-align: center;
         display: block;
+        line-height: 1.5;
     }
-    #form > #file + label:hover {
+    #dropzone:not(.disabled) {
+        cursor: pointer;
+    }
+    #dropzone:not(.disabled):hover {
         filter: brightness(1.4);
     }
-    #form > #file + label,
-    #form > #file + label > div {
+    #dropzone.disabled {
+        cursor: default;
+        filter: brightness(0.6);
+    }
+    #dropzone,
+    #dropzone > div {
         width: 21em;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    #form > #file + label > div {
+    #dropzone > div {
         width: 100%;
     }
-    #form > #submit {
-        align-self: center;
+    #clear {
+        background-color: #632;
+    }
+    input[type="file"] {
+        display: none;
+    }
+    #buttons {
+        display: flex;
+        gap: .5rem;
     }
 </style>
 <script>
     addEventListener(`load`, () =>
     {
-        const $label = q(`label[for="file"]`)
-        
-        const updateLabel = () =>
-        {
-            let html = ``
-            for (const file of $file.files)
-                html += `<div>${file.name}</div>`
-            $label.innerHTML = html
-        }
-        
-        const $text = q(`#text`)
-        const $file = q(`#file`)
-        
-        $file.addEventListener('change', () => updateLabel())
-        
-        const register = (a, b) =>
-        {
-            for (const _a of a)
-                document.body.addEventListener(_a, b)
-        }
-        
-        register(['dragover', 'dragenter'], e =>
-        {
-            e.preventDefault()
-        })
+        register(['dragover', 'dragenter'], e => e.preventDefault())
         
         register(['drop'], e =>
         {
             e.preventDefault()
-            $file.files = e.dataTransfer.files
-            updateLabel()
-        })
-        
-        const $submit = q(`#submit`)
-        
-        $submit.addEventListener(`click`, async () =>
-        {
-            $submit.disabled = true
-            
-            const formData = new FormData()
-            formData.append('text', $text.value)
-            for (const file of $file.files)
-                formData.append('files[]', file)
-            
-            const response = await fetch(`share`,
-            {
-                method: "POST",
-                body: formData
-            })
-            
-            if (response.ok)
-            {
-                const token = await response.text()
-                location.href = `share/${token}`
+            if (q(`#file`).disabled)
                 return
-            }
-            
-            $submit.disabled = false
+            addFiles(e.dataTransfer.files)
         })
+        
+        q(`#submit`).addEventListener(`click`, async e =>
+        {
+            setEnabled(false)
+            if (await submitAsync())
+                return
+            setEnabled(true)
+        })
+        
+        q(`#clear`).addEventListener(`click`, () => clearFiles())
+        
+        clearFiles()
+        addFiles()
     })
+    
+    function setEnabled(enabled)
+    {
+        q(`#text`).disabled = !enabled
+        q(`#dropzone`).setClass(`disabled`, !enabled)
+        q(`#file`).disabled = !enabled
+        q(`#submit`).disabled = !enabled
+        q(`#clear`).disabled = !enabled
+    }
+    
+    function addFiles(files)
+    {
+        if (window.$file)
+        {
+            $file.id = ``
+            $file.files = files
+        }
+        $file = $body.create(`input`)
+        $file.id = `file`
+        $file.type = `file`
+        $file.setAttribute(`multiple`, ``)
+        $file.addEventListener('change', () => addFiles())
+        updateLabel()
+    }
+    
+    function clearFiles()
+    {
+        qAll(`input[type="file"]`).forEach($ =>
+        {
+            if (!$.id)
+                $.remove()
+        })
+        updateLabel()
+    }
+    
+    function iterateFiles()
+    {
+        const files = []
+        qAll(`input[type="file"]`).forEach($ =>
+        {
+            for (const file of $.files)
+                files.push(file)
+        })
+        return files
+    }
+    
+    function updateLabel()
+    {
+        let html = ``
+        qAll(`input[type="file"]`).forEach($ =>
+        {
+            for (const file of $.files)
+                html += `<div>${file.name}</div>`
+        })
+        q(`#dropzone`).innerHTML = html || `Drop file here or click to open dialog`
+    }
+    
+    function register(a, b)
+    {
+        for (const _a of a)
+            document.body.addEventListener(_a, b)
+    }
+    
+    async function submitAsync()
+    {
+        const formData = new FormData()
+        formData.append('text', q(`#text`).value)
+        
+        qAll(`input[type="file"]`).forEach($ =>
+        {
+            for (const file of $.files)
+                formData.append('files[]', file)
+        })
+        
+        const response = await fetch(`share`,
+        {
+            method: "POST",
+            body: formData
+        })
+        
+        if (response.ok)
+        {
+            const token = await response.text()
+            location.href = `share/${token}`
+            return true
+        }
+        
+        return false
+    }
 </script>
