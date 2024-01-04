@@ -28,7 +28,7 @@ public abstract class ReverseProxyMiddleware
 
     public async Task Invoke(HttpContext context)
     {
-        Utils.LogIn(GetType(), context);
+        Utils.LogBegin(GetType(), context);
 
         var feature = context.Features.Get<ReverseProxyFeature>();
         if (feature is null || feature.Target is null)
@@ -44,6 +44,6 @@ public abstract class ReverseProxyMiddleware
     {
         await Next(context);
 
-        Utils.LogOut(GetType(), context);
+        Utils.LogEnd(GetType(), context);
     }
 }

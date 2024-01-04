@@ -7,12 +7,15 @@
         <!--static: style-->
         <link rel="stylesheet" href="static/startup-animated.css">
         <link rel="stylesheet" href="static/fas/css/all.min.css">
-        <style> button i.fas { margin-right: .5rem } </style>
+        <style>button i.fas { margin-right: .5rem }</style>
+        <script src="static/script/001-window.js"></script>
         <script src="static/script/002-event-target.js"></script>
+        <script src="static/script/080-interactive.js"></script>
+        <script src="static/script/097-interactive-tooltip.js"></script>
         <script src="static/startup-animated.js"></script>
     </head>
     <body>
-        <h1>
+        <h1 class="dirty">
             <i class="fas fa-fire"></i>
             <!--title-->
         </h1>
@@ -25,4 +28,7 @@
             </div>
         </main>
     </body>
+    <script>
+        Interactive.init()
+    </script>
 </html>

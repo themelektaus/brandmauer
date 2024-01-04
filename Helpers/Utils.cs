@@ -115,14 +115,14 @@ public static partial class Utils
 #endif
     }
 
-    public static void LogIn<T>(HttpContext context)
+    public static void LogBegin<T>(HttpContext context)
     {
 #if DEBUG
-        LogIn(typeof(T), context);
+        LogBegin(typeof(T), context);
 #endif
     }
 
-    public static void LogIn(Type type, HttpContext context)
+    public static void LogBegin(Type type, HttpContext context)
     {
 #if DEBUG
         var statusCode = context.Response.StatusCode;
@@ -132,14 +132,14 @@ public static partial class Utils
 #endif
     }
 
-    public static void LogOut<T>(HttpContext context)
+    public static void LogEnd<T>(HttpContext context)
     {
 #if DEBUG
-        LogOut(typeof(T), context);
+        LogEnd(typeof(T), context);
 #endif
     }
 
-    public static void LogOut(Type type, HttpContext context)
+    public static void LogEnd(Type type, HttpContext context)
     {
 #if DEBUG
         Log(context, $"{type.Name} > {context.Response.StatusCode}");

@@ -1,6 +1,3 @@
-using AngleSharp.Dom;
-using Microsoft.AspNetCore.Http.Extensions;
-
 using System.Net;
 using System.Net.Sockets;
 
@@ -323,4 +320,13 @@ public static class ExtensionMethods
         this IEnumerable<T> @this,
         int count
     ) => @this.Skip(Math.Max(0, @this.Count() - count));
+
+    public static string ToHumanizedSize(this long @this)
+    {
+        float x = @this;
+        var u = new[] { "B", "KiB", "MiB", "GiB", "TiB" };
+        var i = 0;
+        while (x >= 1024 && i++ < u.Length - 1) x /= 1024;
+        return $"{x:0.00} {u[i]}";
+    }
 }

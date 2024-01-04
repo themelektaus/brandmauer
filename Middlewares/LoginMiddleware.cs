@@ -31,7 +31,7 @@ public class LoginMiddleware(RequestDelegate next)
 
     public async Task Invoke(HttpContext context)
     {
-        Utils.LogIn<LoginMiddleware>(context);
+        Utils.LogBegin<LoginMiddleware>(context);
 
         var request = context.Request;
         var path = request.Path.ToString();
@@ -68,7 +68,7 @@ public class LoginMiddleware(RequestDelegate next)
         await next.Invoke(context);
 
     Exit:
-        Utils.LogOut<LoginMiddleware>(context);
+        Utils.LogEnd<LoginMiddleware>(context);
     }
 
     [Frontend]

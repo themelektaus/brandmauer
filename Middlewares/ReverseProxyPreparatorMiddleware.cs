@@ -29,7 +29,7 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
 
     public async Task Invoke(HttpContext context)
     {
-        Utils.LogIn<ReverseProxyPreparatorMiddleware>(context);
+        Utils.LogBegin<ReverseProxyPreparatorMiddleware>(context);
 
         var host = context.Request.Host.Host;
 
@@ -202,6 +202,6 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
     Next:
         await next(context);
 
-        Utils.LogOut<ReverseProxyPreparatorMiddleware>(context);
+        Utils.LogEnd<ReverseProxyPreparatorMiddleware>(context);
     }
 }

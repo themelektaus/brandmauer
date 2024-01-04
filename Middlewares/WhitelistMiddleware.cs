@@ -82,7 +82,7 @@ public class WhitelistMiddleware(RequestDelegate next)
 
     public async Task Invoke(HttpContext context)
     {
-        Utils.LogIn<WhitelistMiddleware>(context);
+        Utils.LogBegin<WhitelistMiddleware>(context);
 
         var request = context.Request;
         var hasCorrectPath = request.Path == "/whitelist";
@@ -224,7 +224,7 @@ public class WhitelistMiddleware(RequestDelegate next)
         await next.Invoke(context);
 
     Exit:
-        Utils.LogOut<WhitelistMiddleware>(context);
+        Utils.LogEnd<WhitelistMiddleware>(context);
     }
 
     [Frontend]

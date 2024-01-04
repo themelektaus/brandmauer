@@ -31,7 +31,7 @@ public class TeapotMiddleware(RequestDelegate next)
 
     public async Task Invoke(HttpContext context)
     {
-        Utils.LogIn<TeapotMiddleware>(context);
+        Utils.LogBegin<TeapotMiddleware>(context);
 
         var response = context.Response;
 
@@ -46,6 +46,6 @@ public class TeapotMiddleware(RequestDelegate next)
 
         await next.Invoke(context);
 
-        Utils.LogOut<TeapotMiddleware>(context);
+        Utils.LogEnd<TeapotMiddleware>(context);
     }
 }

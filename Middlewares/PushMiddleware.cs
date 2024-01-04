@@ -8,7 +8,7 @@ public class PushMiddleware(RequestDelegate next)
 
     public async Task Invoke(HttpContext context)
     {
-        Utils.LogIn<PushMiddleware>(context);
+        Utils.LogBegin<PushMiddleware>(context);
 
         var request = context.Request;
         var path = request.Path.ToString();
@@ -45,6 +45,6 @@ public class PushMiddleware(RequestDelegate next)
         await next.Invoke(context);
 
     Exit:
-        Utils.LogOut<PushMiddleware>(context);
+        Utils.LogEnd<PushMiddleware>(context);
     }
 }

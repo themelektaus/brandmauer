@@ -1,0 +1,42 @@
+.tooltip {
+    position: absolute;
+    width: max-content;
+    height: max-content;
+    padding: .5rem .75rem;
+    border-radius: .125rem;
+    pointer-events: none;
+    text-align: center;
+    line-height: 1.375;
+    opacity: 0;
+    transform: translateY(-1.5rem);
+    transition: opacity 90ms cubic-bezier(.75, 0, 1, 1),
+                transform 120ms;
+    
+    &,
+    &::after {
+        background-color: #111013;
+    }
+    &::after {
+        content: '';
+        position: absolute;
+        width: 1rem;
+        aspect-ratio: 1;
+        transform: translateX(-.5rem);
+        clip-path: polygon(0 50%, 100% 50%, 50% 100%);
+    }
+    
+    b {
+        color: yellow;
+        font-weight: normal;
+        text-shadow: 0 0 .175rem orange;
+    }
+    
+    &.visible {
+        opacity: 1;
+        transform: translateY(-.75rem);
+    }
+    
+    &.no-transition {
+        transition: none !important;
+    }
+}

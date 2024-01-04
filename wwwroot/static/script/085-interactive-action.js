@@ -158,6 +158,11 @@ class InteractiveAction
         await Page.active.refresh()
     }
     
+    static openSharePage()
+    {
+        window.open(`share`)
+    }
+    
     static openShare($sender)
     {
         const $token = $sender.parentNode.parentNode.q(`[data-bind="token"]`)

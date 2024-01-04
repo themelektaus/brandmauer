@@ -10,7 +10,7 @@ public class ShareMiddleware(RequestDelegate next)
 
     public async Task Invoke(HttpContext context)
     {
-        Utils.LogIn<ShareMiddleware>(context);
+        Utils.LogBegin<ShareMiddleware>(context);
 
         var request = context.Request;
         var path = request.Path.ToString();
@@ -86,7 +86,7 @@ public class ShareMiddleware(RequestDelegate next)
         await next.Invoke(context);
 
     Exit:
-        Utils.LogOut<ShareMiddleware>(context);
+        Utils.LogEnd<ShareMiddleware>(context);
     }
 
     [Frontend]
@@ -99,8 +99,7 @@ public class ShareMiddleware(RequestDelegate next)
         var _fileIndex = contextParameters.fileIndex;
         var _token = contextParameters.token;
 
-
-        if (request.Path == PATH)
+        if (path.TrimEnd('/') == PATH)
         {
             return new()
             {
@@ -117,6 +116,7 @@ public class ShareMiddleware(RequestDelegate next)
             var share = Database.Use(
                 x => x.Shares.FirstOrDefault(y => y.Token == _token)
             );
+
             if (share is null)
                 return default;
 
@@ -126,16 +126,25 @@ public class ShareMiddleware(RequestDelegate next)
 
             for (int i = 0; i < share.Files.Count; i++)
             {
+                var name = share.Files[i].Value;
+                var info = new FileInfo(share.GetLocalFilePath(i));
+                var tooltip = $"<div>{name}</div>" +
+                    $"<div><b>{info.Length.ToHumanizedSize()}</b></div>";
+                name = Path.GetFileNameWithoutExtension(name).Replace('_', ' ');
+                var url = $"{baseUrl}{PATH}/{share.Token}/{i}";
+                var ext = info.Extension.TrimStart('.');
+                var iconUrl = $"icon?file-extension={ext}";
                 fileListHtml.AppendLine(
-                    "<div>" +
-                        "<div>" +
-                            share.Files[i].Value +
-                        "</div>" +
-                        $"<button data-url=\"{baseUrl}{PATH}/{share.Token}/{i}\">" +
-                            "<i class=\"fas fa-download\"></i>" +
-                            "<div>Download</div>" +
-                        "</button>" +
-                    "</div>"
+                    $" <div>                                               " +
+                    $"   <div>                                             " +
+                    $"     <div style='background: url({iconUrl})'></div>  " +
+                    $"     <div>{name}</div>                               " +
+                    $"   </div>                                            " +
+                    $"   <button data-url=\"{url}\"                        " +
+                    $"           data-tooltip=\"{tooltip}\">               " +
+                    $"     <i class=\"fas fa-download\"></i>               " +
+                    $"   </button>                                         " +
+                    $" </div>                                              "
                 );
             }
 

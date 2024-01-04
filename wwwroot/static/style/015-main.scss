@@ -1,3 +1,21 @@
+h1.dirty > i,
+main:has(.dirty) h1 > i {
+    &::before, &::after {
+        content: '\f06d';
+        animation-duration: 1s;
+        animation-iteration-count: infinite;
+    }
+    
+    &::before {
+        animation-name: fire-1;
+    }
+    
+    &::after {
+        animation-name: fire-2;
+        color: #ff00;
+    }
+}
+
 main {
     display: flex;
     flex-direction: column;
@@ -8,22 +26,5 @@ main {
         display: flex;
         flex: 1;
         max-width: calc(var(--main-div-width) + var(--menu-width) - .5rem);
-    }
-    
-    &:has(.dirty) h1 > i {
-        &::before, &::after {
-            content: '\f06d';
-            animation-duration: 1s;
-            animation-iteration-count: infinite;
-        }
-        
-        &::before {
-            animation-name: fire-1;
-        }
-        
-        &::after {
-            animation-name: fire-2;
-            color: #ff00;
-        }
     }
 }
