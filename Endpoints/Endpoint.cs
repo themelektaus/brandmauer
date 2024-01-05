@@ -155,6 +155,7 @@ public static partial class Endpoint
 
         app.MapGet($"{API}/shares", Shares.GetAll);
         app.MapGet($"{API}/shares/{{id}}", Shares.Get);
+        app.MapPut($"{API}/shares", Shares.Put);
         app.MapDelete($"{API}/shares/{{id}}", Shares.Delete);
 
         app.MapGet($"{API}/resolve"/*?host={{host}}*/, Resolve);

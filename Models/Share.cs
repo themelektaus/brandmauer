@@ -9,6 +9,7 @@ public class Share : Model
     public string Token { get; set; } = Utils.GenerateToken();
     public string Text { get; set; } = string.Empty;
     public List<StringValue> Files { get; set; } = new();
+    public string Password { get; set; } = string.Empty;
 
     public override string HtmlInfo
     {

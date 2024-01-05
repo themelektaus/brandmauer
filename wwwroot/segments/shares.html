@@ -6,10 +6,7 @@
         </h2>
         <button data-action="saveAll" disabled>Save</button>
         <button data-action="cancelAll" disabled>Cancel</button>
-        <button data-action="openSharePage">
-            <i class="fas fa-arrow-up-right-from-square"></i>&nbsp;
-            Open Share Page
-        </button>
+        <button data-action="openSharePage">Create Share</button>
     </div>
     <div class="content">
         <div class="list-header" style="grid-template-columns: 1fr 4fr; ">
@@ -30,23 +27,21 @@
                     </div>
                     <div class="field">
                         <label>Text</label>
-                        <textarea data-bind="text" readonly style="height: 7.75em; "></textarea>
+                        <textarea data-bind="text" style="height: 7.75em; "></textarea>
                     </div>
                     <div class="field">
-                        <label>Files</label>
-                        <ul class="group group-string-values" data-bind="files" readonly>
-                            <li>
-                                <input data-bind="value" readonly />
-                            </li>
-                        </ul>
+                        <label>Password</label>
+                        <input data-bind="password" type="password" disabled>
                     </div>
                     <div data-bind="token" class="display-none"></div>
                     <div class="buttons">
                         <label></label>
-                        <button data-action="openShare">
-                            <i class="fas fa-arrow-up-right-from-square"></i>
-                            Open Shared Link
-                        </button>
+                        <a data-action="openShare1" style="margin-right: 1rem; ">
+                            <i class="fas fa-lock"></i>&nbsp;&nbsp;Open Protected Share
+                        </a>
+                        <a data-action="openShare2" style="filter: brightness(.75); ">
+                            <i class="fas fa-unlock"></i>&nbsp;&nbsp;Open Unprotected Share
+                        </a>
                     </div>
                 </div>
             </div>

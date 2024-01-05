@@ -1,5 +1,5 @@
 input, textarea, button, select {
-    background-color: var(--input__background-color);
+    background-color: var(--menu-item__background-color);
     border: none;
     outline: none;
     padding: .5rem;
@@ -29,7 +29,6 @@ button {
 }
 
 textarea {
-    background-color: var(--menu-item__background-color);
     height: 20rem;
     line-height: 1.5;
     resize: none;
@@ -40,7 +39,7 @@ input:not(:disabled):hover,
 select:not(:disabled):focus,
 select:not(:disabled):hover,
 button:not(:disabled):active {
-    filter: brightness(1.4);
+    filter: brightness(1.2);
 }
 
 select {

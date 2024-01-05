@@ -163,9 +163,16 @@ class InteractiveAction
         window.open(`share`)
     }
     
-    static openShare($sender)
+    static openShare1($sender)
     {
         const $token = $sender.parentNode.parentNode.q(`[data-bind="token"]`)
         window.open(`share/${$token.innerText}`)
+    }
+    
+    static openShare2($sender)
+    {
+        const $token = $sender.parentNode.parentNode.q(`[data-bind="token"]`)
+        const $password = $sender.parentNode.parentNode.q(`[data-bind="password"]`)
+        window.open(`share/${$token.innerText}$${$password.value}`)
     }
 }
