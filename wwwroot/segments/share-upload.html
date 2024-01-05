@@ -1,12 +1,12 @@
 <h2><i class="fas fa-paperclip"></i>Share</h2>
 <div id="form">
-    <textarea id="text" type="text" placeholder="Title / Description / Notes"></textarea>
-    <label id="dropzone" for="file"></label>
-</div>
-<div id="buttons">
-    <button id="submit"><i class="fas fa-paper-plane"></i>Submit</button>
+    <label id="dropzone" for="file">Drop files here or click to open dialog</label>
+    <div class="file-list"></div>
     <button id="clear"><i class="fas fa-trash"></i>Clear</button>
+    <textarea id="text" type="text" placeholder="Title / Description / Notes"></textarea>
+    <input id="password" type="password" placeholder="Password">
 </div>
+<button id="submit"><i class="fas fa-paper-plane"></i>Submit</button>
 <style>
     h2 {
         font-size: 2em;
@@ -19,6 +19,7 @@
         width: 25em;
         display: flex;
         flex-direction: column;
+        max-width: 70vw;
         flex: 0;
         gap: 1rem;
         margin: 1rem 0;
@@ -27,11 +28,10 @@
         height: 7.75em;
     }
     #dropzone {
-        background: #0006;
-        border: 2px dashed #fff5;
-        padding: 1rem 1rem;
+        background: #0003;
+        border: 2px dashed #fff3;
+        padding: 1.25rem;
         box-sizing: border-box;
-        margin: 0 auto;
         display: flex;
         flex-direction: column;
         gap: .75rem;
@@ -51,7 +51,6 @@
     }
     #dropzone,
     #dropzone > div {
-        width: 21em;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -59,15 +58,15 @@
     #dropzone > div {
         width: 100%;
     }
+    .file-list {
+        max-height: calc(100vh - 50.75rem);
+    }
     #clear {
         background-color: #632;
+        align-self: center;
     }
     input[type="file"] {
         display: none;
-    }
-    #buttons {
-        display: flex;
-        gap: .5rem;
     }
 </style>
 <script>
@@ -81,6 +80,15 @@
             if (q(`#file`).disabled)
                 return
             addFiles(e.dataTransfer.files)
+        })
+        
+        q(`#password`).addEventListener(`keydown`, e =>
+        {
+            if (e.keyCode == 13)
+            {
+                e.preventDefault = true
+                q(`#submit`).click()
+            }
         })
         
         q(`#submit`).addEventListener(`click`, async e =>
@@ -102,6 +110,7 @@
         q(`#text`).disabled = !enabled
         q(`#dropzone`).setClass(`disabled`, !enabled)
         q(`#file`).disabled = !enabled
+        q(`#password`).disabled = !enabled
         q(`#submit`).disabled = !enabled
         q(`#clear`).disabled = !enabled
     }
@@ -118,7 +127,7 @@
         $file.type = `file`
         $file.setAttribute(`multiple`, ``)
         $file.addEventListener('change', () => addFiles())
-        updateLabel()
+        updateFileList()
     }
     
     function clearFiles()
@@ -128,7 +137,7 @@
             if (!$.id)
                 $.remove()
         })
-        updateLabel()
+        updateFileList()
     }
     
     function iterateFiles()
@@ -142,15 +151,31 @@
         return files
     }
     
-    function updateLabel()
+    function updateFileList()
     {
         let html = ``
         qAll(`input[type="file"]`).forEach($ =>
         {
             for (const file of $.files)
-                html += `<div>${file.name}</div>`
+            {
+                const fileName = file.name
+                const fileExtension = fileName.split('.').pop()
+                const iconUrl = `icon?file-extension=${fileExtension}`
+                html += `
+                    <div>
+                        <div>
+                            <div style="background: url(${iconUrl})"></div>
+                            <div>${fileName}</div>
+                        </div>
+                    </div>
+                `
+            }
         })
-        q(`#dropzone`).innerHTML = html || `Drop file here or click to open dialog`
+        q(`.file-list`).innerHTML = html
+        
+        const display = html ? `` : `none`
+        q(`.file-list`).style.display = display
+        q(`#clear`).style.display = display
     }
     
     function register(a, b)
@@ -161,8 +186,11 @@
     
     async function submitAsync()
     {
+        const password = btoa(q(`#password`).value)
+        
         const formData = new FormData()
         formData.append('text', q(`#text`).value)
+        formData.append('password', password)
         
         qAll(`input[type="file"]`).forEach($ =>
         {
@@ -179,7 +207,7 @@
         if (response.ok)
         {
             const token = await response.text()
-            location.href = `share/${token}`
+            location.href = `share/${token}$${password}`
             return true
         }
         

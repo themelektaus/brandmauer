@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.StaticFiles;
 
 using System.Text;
+using System.Web;
 
 namespace Brandmauer;
 
@@ -41,12 +42,16 @@ public class ShareMiddleware(RequestDelegate next)
         var contextParameters = new ContextParameters(PATH, path);
         var _fileIndex = contextParameters.fileIndex;
         var _token = contextParameters.token;
+        var _password = contextParameters.password;
 
         if (_fileIndex.HasValue)
         {
             var share = Database.Use(
-                x => x.Shares.FirstOrDefault(y => y.Token == _token)
+                x => x.Shares.FirstOrDefault(
+                    y => y.Token == _token && y.Password == _password
+                )
             );
+
             if (share is null)
             {
                 response.StatusCode = 404;
@@ -98,6 +103,7 @@ public class ShareMiddleware(RequestDelegate next)
         var contextParameters = new ContextParameters(PATH, path);
         var _fileIndex = contextParameters.fileIndex;
         var _token = contextParameters.token;
+        var _password = contextParameters.password;
 
         if (path.TrimEnd('/') == PATH)
         {
@@ -114,11 +120,25 @@ public class ShareMiddleware(RequestDelegate next)
         if (_token is not null && !_fileIndex.HasValue)
         {
             var share = Database.Use(
-                x => x.Shares.FirstOrDefault(y => y.Token == _token)
+                x => x.Shares.FirstOrDefault(
+                    y => y.Token == _token
+                )
             );
 
             if (share is null)
                 return default;
+
+            if (share.Password != _password)
+            {
+                return new()
+                {
+                    path = "prompt.html",
+                    replacements = new()
+                    {
+                        { "content", "<!--segment: share-download-password-->" }
+                    }
+                };
+            }
 
             var baseUrl = Database.Use(x => x.GetBaseUrl(request));
 
@@ -131,7 +151,7 @@ public class ShareMiddleware(RequestDelegate next)
                 var tooltip = $"<div>{name}</div>" +
                     $"<div><b>{info.Length.ToHumanizedSize()}</b></div>";
                 name = Path.GetFileNameWithoutExtension(name).Replace('_', ' ');
-                var url = $"{baseUrl}{PATH}/{share.Token}/{i}";
+                var url = $"{baseUrl}{PATH}/{share.Token}/{i}${share.Password}";
                 var ext = info.Extension.TrimStart('.');
                 var iconUrl = $"icon?file-extension={ext}";
                 fileListHtml.AppendLine(
@@ -184,6 +204,8 @@ public class ShareMiddleware(RequestDelegate next)
         });
 
         share.Text = text;
+        share.Password = request.Form.TryGetValue("password", out var password)
+            ? password : string.Empty;
 
         foreach (var formFile in formFiles)
         {
@@ -214,6 +236,7 @@ public class ShareMiddleware(RequestDelegate next)
     {
         public readonly string token;
         public readonly int? fileIndex;
+        public readonly string password = string.Empty;
 
         public ContextParameters(string basePath, string path)
         {
@@ -230,6 +253,11 @@ public class ShareMiddleware(RequestDelegate next)
 
             token = path.Substring(subPath.Length, tokenLength);
 
+            var parts = path.Split('$', 2);
+            if (parts.Length == 2)
+                password = parts[1];
+
+            path = parts[0];
             if (path.Length < length + 2)
                 return;
 

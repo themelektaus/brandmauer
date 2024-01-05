@@ -1,12 +1,15 @@
 <h2><i class="fas fa-paperclip"></i>Share</h2>
 <div id="form">
+    <div class="file-list"><!--file-list--></div>
     <pre id="text" type="text" readonly><!--text--></pre>
-    <div id="file-list"><!--file-list--></div>
 </div>
-<div id="buttons">
-    <button id="clipboard"><i class="fas fa-copy"></i>Copy to Clipboard</button>
-    <button id="new"><i class="fas fa-plus"></i>New</button>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 1rem; margin-bottom: 1rem; ">
+    <a id="clipboard1"><i class="fas fa-paperclip"></i>Copy Link</a>
+    <a id="clipboard2"
+       class="display-none"
+       style="font-size: .8em; filter: brightness(.75); ">Copy Unprotected Link (not recommended)</a>
 </div>
+<a href="share">Create another Share</a>
 <style>
     h2 {
         font-size: 2em;
@@ -15,13 +18,16 @@
         color: #f90;
         margin-right: .375em;
     }
+    a.disabled {
+        color: #6f6;
+        pointer-events: none;
+    }
     #form {
         width: 25em;
         max-width: 70vw;
         display: flex;
         flex-direction: column;
         flex: 0;
-        align-items: center;
         gap: 1rem;
         margin: 1rem 0;
     }
@@ -33,53 +39,6 @@
         width: 100%;
         font-family: inherit;
         font-size: inherit;
-    }
-    #file-list {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: .5rem;
-        max-height: calc(100vh - 32rem);
-        overflow: hidden scroll;
-        padding: 0 .45rem;
-    }
-    #file-list::-webkit-scrollbar { width: 5px; height: 5px; }
-    #file-list > div {
-        display: flex;
-        align-items: center;
-        gap: .5rem;
-    }
-    #file-list > div:has(button:hover) > div {
-        color: yellow;
-        text-shadow: 0 0 .2em orange;
-    }
-    #file-list > div > div {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        gap: .5rem;
-        overflow: hidden;
-    }
-    #file-list > div > div > div:first-child {
-        width: 1.25rem;
-        aspect-ratio: 1;
-        background-size: contain !important;
-    }
-    #file-list > div > div > div:first-child + div {
-        flex: 1;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        translate: 0 .05rem;
-    }
-    #file-list > div > button {
-        font-size: .9em;
-        padding: .4em .55em;
-        display: flex;
-    }
-    #file-list > div > button > i {
-        flex: 0;
-        margin: 0;
     }
     #buttons {
         display: flex;
@@ -94,31 +53,45 @@
     {
         const $text = q(`#text`)
         if (!$text.innerHTML)
-            $text.remove()
+        $text.remove()
         
-        const $clipboard = q(`#clipboard`)
-        const $new = q(`#new`)
+        const $clipboard1 = q(`#clipboard1`)
+        const $clipboard2 = q(`#clipboard2`)
+        
+        const url = location.href.split('$')
+        if (url.length > 1 && url[1])
+        {
+            const icon = `<i class="fas fa-paperclip"></i>`
+            $clipboard1.innerHTML = `${icon}Copy Protected Link`
+            $clipboard2.setClass(`display-none`, false)
+        }
         
         const setEnabled = enabled =>
         {
-            $clipboard.disabled = !enabled
+            $clipboard1.setClass(`disabled`, !enabled)
+            $clipboard2.setClass(`disabled`, !enabled)
             $new.disabled = !enabled
         }
-        $clipboard.addEventListener(`click`, async () =>
+        
+        const copyToClipboard = async ($target, value) =>
         {
-            $clipboard.disabled = true
-            await navigator.clipboard.writeText(location.href)
-            const html = $clipboard.innerHTML
-            $clipboard.innerHTML = `<i class="fas fa-check"></i>Copied`
+            $target.setClass(`disabled`, true)
+            await navigator.clipboard.writeText(value)
+            const html = $target.innerHTML
+            $target.innerHTML = `<i class="fas fa-check"></i>Copied`
             await new Promise(x => setTimeout(x, 1000))
-            $clipboard.innerHTML = html
-            $clipboard.disabled = false
+            $target.innerHTML = html
+            $target.setClass(`disabled`, false)
+        }
+        
+        $clipboard1.addEventListener(`click`, async e =>
+        {
+            await copyToClipboard(e.target, location.href.split('$')[0])
         })
         
-        $new.addEventListener(`click`, () =>
+        $clipboard2.addEventListener(`click`, async e =>
         {
-            $new.disabled = true
-            location.href = `share`
+            await copyToClipboard(e.target, location.href)
         })
         
         qAll(`[data-url]`).forEach($ =>

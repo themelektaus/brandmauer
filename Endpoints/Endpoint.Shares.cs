@@ -26,6 +26,19 @@ public static partial class Endpoint
             return Results.Json(data);
         }
 
+        public static IResult Put(Share data)
+        {
+            Database.Use(x =>
+            {
+                var index = x.Shares.FindIndex(data.IsReferenceOf);
+                data.Files = x.Shares[index].Files;
+                x.Shares[index] = x.Replace(x.Shares[index], data);
+                x.Save(logging: true);
+            });
+
+            return Results.Ok();
+        }
+
         static Share GetById(long id)
         {
             return Database.Use(

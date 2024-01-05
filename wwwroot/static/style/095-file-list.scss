@@ -1,0 +1,59 @@
+.file-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    max-height: calc(100vh - 32rem);
+    overflow: hidden scroll;
+    padding: 0 .45rem;
+    
+    &::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+    
+    & > div {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        
+        &:has(button:hover) > div {
+            color: yellow;
+            text-shadow: 0 0 .2em orange;
+        }
+    
+        & > div {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            overflow: hidden;
+            
+            & > div:first-child {
+                width: 1.25rem;
+                aspect-ratio: 1;
+                background-size: contain !important;
+                
+                & + div {
+                    flex: 1;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    translate: 0 .05rem;
+                    line-height: 1.25;
+                }
+            }
+        }
+        
+        & > button {
+            font-size: .9em;
+            padding: .4em .55em;
+            display: flex;
+            
+            & > i {
+                flex: 0;
+                margin: 0;
+            }
+        }
+    }
+}
