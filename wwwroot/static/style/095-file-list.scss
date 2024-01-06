@@ -7,6 +7,11 @@
     overflow: hidden scroll;
     padding: 0 .45rem;
     
+    &.disabled {
+        pointer-events: none;
+        opacity: .5;
+    }
+    
     &::-webkit-scrollbar {
         width: 5px;
         height: 5px;

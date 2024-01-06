@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.StaticFiles;
 
 using System.Text;
-using System.Web;
 
 namespace Brandmauer;
 
@@ -112,7 +111,10 @@ public class ShareMiddleware(RequestDelegate next)
                 path = "prompt.html",
                 replacements = new()
                 {
-                    { "content", "<!--segment: share-upload-->" }
+                    { "upload-display", "inherit" },
+                    { "password-display", "none" },
+                    { "download-display", "none" },
+                    { "content", "<!--segment: share-->" }
                 }
             };
         }
@@ -135,7 +137,10 @@ public class ShareMiddleware(RequestDelegate next)
                     path = "prompt.html",
                     replacements = new()
                     {
-                        { "content", "<!--segment: share-download-password-->" }
+                        { "upload-display", "none" },
+                        { "password-display", "inherit" },
+                        { "download-display", "none" },
+                        { "content", "<!--segment: share-->" }
                     }
                 };
             }
@@ -173,9 +178,12 @@ public class ShareMiddleware(RequestDelegate next)
                 path = "prompt.html",
                 replacements = new()
                 {
+                    { "upload-display", "none" },
+                    { "password-display", "none" },
+                    { "download-display", "inherit" },
                     { "text", share.Text },
                     { "file-list", fileListHtml.ToString() },
-                    { "content", "<!--segment: share-download-->" }
+                    { "content", "<!--segment: share-->" }
                 }
             };
         }

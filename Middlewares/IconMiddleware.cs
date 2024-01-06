@@ -11,7 +11,7 @@ public class IconMiddleware(RequestDelegate next)
     static readonly Dictionary<string[], (string name, string color)> fileExtensionIcons = new()
     {
         { [ "jpg", "jpeg", "png", "bmp" ], ("fileimage", "#f9d") },
-        { [ "tif", "tiff", "gif", "svg", "dds" ], ("fileimage", "white") },
+        { [ "tif", "tiff", "gif", "svg", "dds" ], ("fileimage", "#f9d") },
         { [ "psd" ], ("fileimage", "#99f") },
         { [ "mp4", "mpg", "mpeg", "mov", "wmv", "avi", "mkv" ], ("localmovies", "#99f") },
         { [ "pdf", ], ("filedocument", "#f66") },
@@ -36,6 +36,12 @@ public class IconMiddleware(RequestDelegate next)
         { [ "cs" ], ("languagecsharp", "#3f6") },
         { [ "nes" ], ("cassette", "white") },
         { [ "apk" ], ("android", "white") },
+        { [ "razor" ], ("razordoubleedge", "white") },
+        { [ "css" ], ("languagecss3", "#99f") },
+        { [ "scss" ], ("sass", "#f9d") },
+        { [ "html" ], ("languagehtml5", "orange") },
+        { [ "js" ], ("languagejavascript", "#f33") },
+        { [ "ico" ], ("star", "white") },
     };
 
     class IconCache : ThreadsafeCache<(string path, string color), string>
