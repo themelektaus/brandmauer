@@ -70,7 +70,15 @@ public abstract class IntervalTask : IAsyncDisposable
 
         Audit.Info<IntervalTask>($"Disposing {name}...");
 
-        await (OnDisposeAsync() ?? Task.CompletedTask);
+        try
+        {
+            await (OnDisposeAsync() ?? Task.CompletedTask);
+        }
+        catch (Exception ex)
+        {
+            Audit.Warning<IntervalTask>(ex.Message);
+        }
+
         ctSource.Cancel();
 
         Audit.Info<IntervalTask>($"{name} has been disposed.");

@@ -46,7 +46,7 @@ public class IntervalTask_DnsServer : IntervalTask
         dnsServer.Errored += (sender, e) =>
         {
             Audit.Error<DnsServer>(e.Exception);
-            
+
             var error = e.Exception as ResponseException;
             if (error is not null)
                 Audit.Error<DnsServer>(error.Response);
