@@ -1,0 +1,339 @@
+<h2><i class="fas fa-paperclip"></i>Share</h2>
+
+<div class="form" style="display: <!--upload-display-->; ">
+    <label id="dropzone" for="file">Drop files here or click to open dialog</label>
+    <div class="file-list"></div>
+    <button id="clear">Clear</button>
+    <textarea id="text" type="text" placeholder="Title / Description / Notes"></textarea>
+    <input id="password" type="password" placeholder="Password">
+    <button id="upload"><i class="fas fa-paper-plane"></i>Submit</button>
+</div>
+
+<div class="form" style="display: <!--password-display-->; ">
+    <input id="unlock-password" type="password" placeholder="Password">
+    <button id="unlock" style="align-self: center; ">
+        <i class="fas fa-unlock"></i>Unlock
+    </button>
+</div>
+
+<div class="form" style="display: <!--download-display-->; ">
+    <div class="file-list"><!--file-list--></div>
+    <pre id="download-text" type="text"><!--text--></pre>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: .75rem; margin-bottom: 1rem; ">
+        <a id="clipboard1"><i class="fas fa-paperclip"></i>Copy Link</a>
+        <a id="clipboard2" class="display-none"
+           style="font-size: .8em; filter: brightness(.75); ">Copy Unprotected Link (not recommended)</a>
+    </div>
+    <a style="align-self: center; " href="share">Create another Share</a>
+</div>
+
+<style>
+    h2 {
+        font-size: 2em;
+        margin-bottom: 1rem;
+    }
+    h2 > i {
+        color: #f90;
+        margin-right: .375em;
+    }
+    a.disabled {
+        color: #6f6;
+        pointer-events: none;
+    }
+    .form {
+        width: 25em;
+        max-width: 70vw;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    #text {
+        height: 7.75em;
+    }
+    #download-text {
+        padding: .5rem;
+        line-height: 1.5;
+        background-color: var(--menu-item__background-color);
+        box-sizing: border-box;
+        width: 100%;
+        font-family: inherit;
+        font-size: inherit;
+    }
+    #buttons {
+        display: flex;
+        gap: .5rem;
+    }
+    #dropzone {
+        background: #0003;
+        border: 2px dashed #fff3;
+        padding: 1.25rem;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: .75rem;
+        text-align: center;
+        display: block;
+        line-height: 1.5;
+    }
+    #dropzone:not(.disabled) {
+        cursor: pointer;
+    }
+    #dropzone:not(.disabled):hover {
+        filter: brightness(1.4);
+    }
+    #dropzone.disabled {
+        cursor: default;
+        filter: brightness(0.6);
+    }
+    #dropzone,
+    #dropzone > div {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    #dropzone > div {
+        width: 100%;
+    }
+    #dropzone + .file-list {
+        max-height: calc(100vh - 50.75rem);
+    }
+    #clear, #upload {
+        align-self: center;
+    }
+    #clear {
+        background-color: #632;
+    }
+    input[type="file"] {
+        display: none;
+    }
+</style>
+<script>
+    addEventListener(`load`, () =>
+    {
+        if (`<!--upload-display-->` != `none`)
+        {
+            register(['dragover', 'dragenter'], e => e.preventDefault())
+            
+            register(['drop'], e =>
+            {
+                e.preventDefault()
+                if (q(`#file`).disabled)
+                    return
+                addFiles(e.dataTransfer.files)
+            })
+            
+            q(`#password`).addEventListener(`keydown`, e =>
+            {
+                if (e.keyCode == 13)
+                {
+                    e.preventDefault = true
+                    q(`#upload`).click()
+                }
+            })
+            
+            q(`#upload`).addEventListener(`click`, async e =>
+            {
+                setEnabled(false)
+                if (await submitAsync())
+                    return
+                setEnabled(true)
+            })
+            
+            q(`#clear`).addEventListener(`click`, () => clearFiles())
+            
+            clearFiles()
+            addFiles()
+            
+            function setEnabled(enabled)
+            {
+                q(`#text`).disabled = !enabled
+                q(`#dropzone`).setClass(`disabled`, !enabled)
+                q(`#dropzone + .file-list`).setClass(`disabled`, !enabled)
+                q(`#file`).disabled = !enabled
+                q(`#password`).disabled = !enabled
+                q(`#upload`).disabled = !enabled
+                q(`#clear`).disabled = !enabled
+            }
+            
+            function addFiles(files)
+            {
+                if (window.$file)
+                {
+                    $file.id = ``
+                    $file.files = files
+                }
+                $file = $body.create(`input`)
+                $file.id = `file`
+                $file.type = `file`
+                $file.setAttribute(`multiple`, ``)
+                $file.addEventListener('change', () => addFiles())
+                updateFileList()
+            }
+            
+            function clearFiles()
+            {
+                qAll(`input[type="file"]`).forEach($ =>
+                {
+                    if (!$.id)
+                        $.remove()
+                })
+                updateFileList()
+            }
+            
+            function iterateFiles()
+            {
+                const files = []
+                qAll(`input[type="file"]`).forEach($ =>
+                {
+                    for (const file of $.files)
+                        files.push(file)
+                })
+                return files
+            }
+            
+            function updateFileList()
+            {
+                let html = ``
+                qAll(`input[type="file"]`).forEach($ =>
+                {
+                    for (const file of $.files)
+                    {
+                        const fileName = file.name
+                        const fileExtension = fileName.split('.').pop()
+                        const icon = `icon?file-extension=${fileExtension}`
+                        html += `
+                            <div>
+                                <div>
+                                    <div style="background: url(${icon})"></div>
+                                    <div>${fileName}</div>
+                                </div>
+                            </div>
+                        `
+                    }
+                })
+                q(`#dropzone + .file-list`).innerHTML = html
+                
+                const display = html ? `` : `none`
+                q(`#dropzone + .file-list`).style.display = display
+                q(`#clear`).style.display = display
+            }
+            
+            function register(a, b)
+            {
+                for (const _a of a)
+                    document.body.addEventListener(_a, b)
+            }
+            
+            async function submitAsync()
+            {
+                const password = btoa(q(`#password`).value)
+                
+                const formData = new FormData()
+                formData.append('text', q(`#text`).value)
+                formData.append('password', password)
+                
+                qAll(`input[type="file"]`).forEach($ =>
+                {
+                    for (const file of $.files)
+                        formData.append('files[]', file)
+                })
+                
+                const response = await fetch(`share`,
+                {
+                    method: "POST",
+                    body: formData
+                })
+                
+                if (response.ok)
+                {
+                    const token = await response.text()
+                    location.href = `share/${token}$${password}`
+                    return true
+                }
+                
+                return false
+            }
+            
+            return
+        }
+        
+        if (`<!--password-display-->` != `none`)
+        {
+            q(`#unlock-password`).addEventListener(`keydown`, e =>
+            {
+                if (e.keyCode == 13)
+                {
+                    e.preventDefault = true
+                    q(`#unlock`).click()
+                }
+            })
+            q(`#unlock-password`).focus()
+            q(`#unlock`).addEventListener(`click`, () =>
+            {
+                q(`#unlock-password`).disabled = true
+                q(`#unlock`).disabled = true
+                
+                let password = q(`#unlock-password`).value
+                if (password)
+                    location.href = location.href.split('$')[0]
+                        + '$' + btoa(password)
+            })
+            
+            return
+        }
+        
+        if (`<!--download-display-->` != `none`)
+        {
+            if (!q(`#download-text`).innerHTML)
+                q(`#download-text`).remove()
+            
+            const url = location.href.split('$')
+            if (url.length > 1 && url[1])
+            {
+                const icon = `<i class="fas fa-paperclip"></i>`
+                q(`#clipboard1`).innerHTML = `${icon}Copy Protected Link`
+                q(`#clipboard2`).setClass(`display-none`, false)
+            }
+            
+            const setEnabled = enabled =>
+            {
+                q(`#clipboard1`).setClass(`disabled`, !enabled)
+                q(`#clipboard2`).setClass(`disabled`, !enabled)
+            }
+            
+            const copyToClipboard = async ($target, value) =>
+            {
+                $target.setClass(`disabled`, true)
+                await navigator.clipboard.writeText(value)
+                const html = $target.innerHTML
+                $target.innerHTML = `<i class="fas fa-check"></i>Copied`
+                await new Promise(x => setTimeout(x, 1000))
+                $target.innerHTML = html
+                $target.setClass(`disabled`, false)
+            }
+            
+            q(`#clipboard1`).addEventListener(`click`, async e =>
+            {
+                await copyToClipboard(e.target, location.href.split('$')[0])
+            })
+            
+            q(`#clipboard2`).addEventListener(`click`, async e =>
+            {
+                await copyToClipboard(e.target, location.href)
+            })
+            
+            qAll(`[data-url]`).forEach($ =>
+            {
+                $.addEventListener(`click`, async () =>
+                {
+                    $.disabled = true
+                    location.href = $.dataset.url
+                    await new Promise(x => setTimeout(x, 1000))
+                    $.disabled = false
+                })
+            })
+            
+            return
+        }
+    })
+</script>
