@@ -14,9 +14,7 @@ public static partial class Endpoint
                 return new
                 {
                     path = file?.FullName ?? "",
-                    timestamp = file?
-                        .LastWriteTime
-                        .ToString("yyyy-MM-dd HH:mm:ss") ?? ""
+                    timestamp = file?.LastWriteTime.ToHumanizedString() ?? ""
                 };
             }
 

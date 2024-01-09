@@ -57,6 +57,13 @@ public class ShareMiddleware(RequestDelegate next)
                 goto Next;
             }
 
+            share.OnDeserialize();
+            if (share.Lifetime > 0 && share.expiresIn.HasExpired())
+            {
+                response.StatusCode = 404;
+                goto Next;
+            }
+
             var fileIndex = _fileIndex.Value;
             var fileName = share.Files[fileIndex].Value;
             var filePath = share.GetLocalFilePath(fileIndex);
@@ -128,6 +135,10 @@ public class ShareMiddleware(RequestDelegate next)
             );
 
             if (share is null)
+                return default;
+
+            share.OnDeserialize();
+            if (share.Lifetime > 0 && share.expiresIn.HasExpired())
                 return default;
 
             if (share.Password != _password)
@@ -211,8 +222,12 @@ public class ShareMiddleware(RequestDelegate next)
             return newData;
         });
 
+        var form = request.Form;
+
         share.Text = text;
-        share.Password = request.Form.TryGetValue("password", out var password)
+        share.Lifetime = form.TryGetValue("lifetime", out var lifetime)
+            ? int.TryParse(lifetime, out var _lifetime) ? _lifetime : 0 : 0;
+        share.Password = form.TryGetValue("password", out var password)
             ? password : string.Empty;
 
         foreach (var formFile in formFiles)

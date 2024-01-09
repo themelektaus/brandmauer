@@ -46,7 +46,9 @@
     &-reverseproxy-source-host,
     &-reverseproxy-yarp,
     &-certificate-valid,
-    &-authentication-totp-enabled {
+    &-authentication-totp-enabled,
+    &-share-expires-on,
+    &-share-expires-never {
         background-color: #473;
     }
     
@@ -56,7 +58,8 @@
     }
     
     &-certificate-invalid,
-    &-authentication-totp-disabled {
+    &-authentication-totp-disabled,
+    &-share-expired-on {
         background-color: #743;
     }
 }

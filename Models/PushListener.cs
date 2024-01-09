@@ -58,7 +58,7 @@ public class PushListener : Model, IOnDeserialize
             x => x.Identifier.Id == SmtpConnectionReference.Id
         );
 
-        LastTouchString = LastTouch.ToString("yyyy-MM-dd HH:mm:ss");
+        LastTouchString = LastTouch.ToHumanizedString();
 
         url = $"{database.GetBaseUrl()}/push";
         header = $"X-{Utils.Name}-Token: {Token}";

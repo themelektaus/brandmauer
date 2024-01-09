@@ -255,19 +255,6 @@ public static class ExtensionMethods
         return @this;
     }
 
-    public static string ToHumanReadableDaysString(this TimeSpan @this)
-    {
-        var days = (int) @this.TotalDays;
-
-        if (days < 1)
-            return "today";
-
-        if (days == 1)
-            return "1 day";
-
-        return $"{days} days";
-    }
-
     public static Dictionary<string, string> ToDictonary(
         this X500DistinguishedName @this
     )
@@ -320,6 +307,69 @@ public static class ExtensionMethods
         this IEnumerable<T> @this,
         int count
     ) => @this.Skip(Math.Max(0, @this.Count() - count));
+
+    public static string ToHumanizedString(this DateTime @this)
+    {
+        return @this.ToString("dd.MM.yyyy HH:mm:ss");
+    }
+
+    public static bool HasExpired(this TimeSpan @this)
+    {
+        return @this.Ticks <= 0;
+    }
+
+    public static string ToHumanizedString(this TimeSpan @this)
+    {
+        string result = null;
+
+        var days = Math.Abs(@this.Days);
+        var hours = Math.Abs(@this.Hours);
+        var minutes = Math.Abs(@this.Minutes);
+        var seconds = Math.Abs(@this.Seconds);
+
+        if (days > 0)
+        {
+            var temp = $"{days} day";
+            if (days > 1)
+                temp += 's';
+            result = temp;
+        }
+
+        if (hours != 0)
+        {
+            var temp = $"{hours} hour";
+            if (hours > 1)
+                temp += 's';
+            if (result is not null)
+                return $"{result}, {temp}";
+            result = temp;
+        }
+
+        if (minutes != 0)
+        {
+            var temp = $"{minutes} minute";
+            if (minutes > 1)
+                temp += 's';
+            if (result is not null)
+                return $"{result}, {temp}";
+            result = temp;
+        }
+
+        if (seconds != 0)
+        {
+            var temp = $"{seconds} second";
+            if (seconds > 1)
+                temp += 's';
+            if (result is not null)
+                return $"{result}, {temp}";
+            result = temp;
+        }
+
+        if (result is not null)
+            return result;
+
+        return "now";
+    }
 
     public static string ToHumanizedSize(this long @this)
     {

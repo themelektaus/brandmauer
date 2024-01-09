@@ -1,19 +1,67 @@
-﻿namespace Brandmauer;
+﻿using System.Text;
+
+namespace Brandmauer;
 
 public static partial class Endpoint
 {
     public static class Shares
     {
-        public static IResult GetAll()
+        public static IResult GetAll(HttpRequest request)
         {
-            return Results.Json(EnumerateAll());
+            if (request.Query.TryGetValue("format", out var format))
+                if (format == "html")
+                    return GetAllAsHtml();
+
+            return Results.Json(ListAll());
         }
 
-        static IEnumerable<Share> EnumerateAll()
+        static IResult GetAllAsHtml()
         {
-            return Database.Use(x => x.Shares)
+            var rows = new StringBuilder();
+
+            foreach (var item in ListAll())
+            {
+                var expires = item.expiresIn.Ticks > 0;
+                var expiresOn = expires
+                    ? item.expiresOn.ToHumanizedString()
+                    : "";
+                var expiresIn = item.expiresIn.Ticks > 0
+                    ? item.expiresIn.ToHumanizedString()
+                    : "Never";
+                var files = item.Files.JoinWrap("<li>", "</li>");
+                var text = item.Text;
+                rows.AppendLine("<div class=\"row\">");
+                rows.AppendLine($"<div class=\"expires-on\">{expiresOn}</div>");
+                rows.AppendLine($"<div class=\"expires-in\">{expiresIn}</div>");
+                rows.AppendLine($"<div class=\"files\"><ul>{files}</ul></div>");
+                rows.AppendLine($"<div class=\"text\">{text}</div>");
+                rows.AppendLine(
+                    "<div class=\"link\">" +
+                        $"<a href=\"share/{item.Token}\" target=\"_blank\">" +
+                            "Open Share" +
+                        $"</a>" +
+                    "</div>"
+                );
+                rows.AppendLine("</div>");
+            }
+
+            var html = File.ReadAllText("wwwroot/shares-table.html")
+                .Replace("<!--rows-->", rows.ToString());
+
+            return Results.Content(html, "text/html");
+        }
+
+        static List<Share> ListAll()
+        {
+            var data = Database.Use(x => x.Shares)
                 .OrderBy(x => x.Name)
-                .ThenBy(x => x.Identifier.Id);
+                .ThenBy(x => x.Identifier.Id)
+                .ToList();
+
+            foreach (var item in data)
+                item.OnDeserialize();
+
+            return data;
         }
 
         public static IResult Get(long id)
@@ -23,6 +71,7 @@ public static partial class Endpoint
             if (data is null)
                 return Results.NotFound();
 
+            data.OnDeserialize();
             return Results.Json(data);
         }
 

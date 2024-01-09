@@ -14,7 +14,7 @@ public static partial class Endpoint
             public string path;
             public DateTime timestamp;
             public readonly string TimestampString
-                => timestamp.ToString("dd.MM.yyyy HH:mm:ss");
+                => timestamp.ToHumanizedString();
         }
 
         public static IResult Get([FromQuery] int? limit) => GetById(0, limit);

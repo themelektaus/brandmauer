@@ -157,7 +157,7 @@ public static partial class Endpoint
 
             Database.Use(x =>
             {
-                certificate.Write(x, pfxCert);
+                certificate.Write(pfxCert);
                 x.Save(logging: true);
             });
 

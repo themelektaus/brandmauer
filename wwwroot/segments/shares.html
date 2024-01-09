@@ -15,8 +15,7 @@
         </div>
         <div class="list" data-bind="shares">
             <div class="item">
-                <div style="grid-template-columns: 1fr 4fr; ">
-                    <div data-bind="htmlName"></div>
+                <div style="grid-template-columns: 1fr; ">
                     <div data-bind="htmlInfo"></div>
                 </div>
                 <div>
@@ -30,8 +29,15 @@
                         <textarea data-bind="text" style="height: 7.75em; "></textarea>
                     </div>
                     <div class="field">
+                        <label>Lifetime</label>
+                        <div class="flex">
+                            <input data-bind="lifetime" type="number" min="0">
+                            <label>Seconds</label>
+                        </div>
+                    </div>
+                    <div class="field">
                         <label>Password</label>
-                        <input data-bind="password" type="password" disabled>
+                        <input data-bind="password" type="password">
                     </div>
                     <div data-bind="token" class="display-none"></div>
                     <div class="buttons">

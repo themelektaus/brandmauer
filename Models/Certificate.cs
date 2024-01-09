@@ -62,8 +62,8 @@ public class Certificate : Model, IOnDeserialize
                 else
                     builder.AppendBadge("certificate", "invalid", "Invalid", "<i class=\"fa-solid fa-xmark\"></i>");
 
-                if (!string.IsNullOrEmpty(expiresIn))
-                    builder.AppendBadge("certificate", "expires-in", "Expires in", expiresIn);
+                if (!expiresIn.HasExpired())
+                    builder.AppendBadge("certificate", "expires-in", "Expires in", expiresIn.ToHumanizedString());
 
                 if (!string.IsNullOrEmpty(issuerCommonName))
                     builder.AppendBadge("certificate", "issuer", "CN", issuerCommonName);
@@ -93,22 +93,22 @@ public class Certificate : Model, IOnDeserialize
     public bool isValid;
     public DateTime startDate;
     public DateTime endDate;
+    public TimeSpan expiresIn;
     public int daysUntilExpiry;
-    public string expiresIn;
     public string issuerCommonName;
     public string issuerOrganisation;
 
     [JsonIgnore] public bool ExpiresSoon => daysUntilExpiry <= 20;
 
-    public void Write(Database database, X509Certificate2 pfxCert)
+    public void Write(X509Certificate2 pfxCert)
     {
         CertPem = pfxCert.ExportCertificatePem();
         KeyPem = pfxCert.GetRSAPrivateKey().ExportRSAPrivateKeyPem();
-        OnDeserialize(database);
+        OnDeserialize();
         cache.Clear();
     }
 
-    public void OnDeserialize(Database database)
+    public void OnDeserialize(Database _ = null)
     {
         if (CertPem is null)
             return;
@@ -131,9 +131,8 @@ public class Certificate : Model, IOnDeserialize
         startDate = start;
         endDate = end;
 
-        var expiresIn = endDate - now.AddDays(1);
+        expiresIn = endDate - now.AddDays(1);
         daysUntilExpiry = (int) expiresIn.TotalDays;
-        this.expiresIn = expiresIn.ToHumanReadableDaysString();
 
         if (!Pem.IssuerName.ToDictonary().TryGetValue("CN", out issuerCommonName))
             issuerCommonName = string.Empty;
