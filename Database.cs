@@ -84,7 +84,7 @@ public class Database
                 Name = _caName,
                 HasAuthority = true
             };
-            ca.Write(database, _ca);
+            ca.Write(_ca);
             database.Certificates.Add(ca);
 
             Audit.Info<Database>("CA created.");

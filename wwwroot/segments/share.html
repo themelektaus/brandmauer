@@ -2,9 +2,29 @@
 
 <div class="form" style="display: <!--upload-display-->; ">
     <label id="dropzone" for="file">Drop files here or click to open dialog</label>
-    <div class="file-list"></div>
+    <div class="file-list-container">
+        <div class="file-list"></div>
+        <div class="file-list-fade-top"></div>
+        <div class="file-list-fade-bottom"></div>
+    </div>
     <button id="clear">Clear</button>
     <textarea id="text" type="text" placeholder="Title / Description / Notes"></textarea>
+    <div style="display: flex; align-items: center; gap: .5rem; ">
+        <label>Expiration</label>
+        <select id="lifetime" style="flex: 1; ">
+            <option value="0">Never</option>
+            <option value="3600">1 hour</option>
+            <option value="10800">3 hours</option>
+            <option value="21600">6 hours</option>
+            <option value="86400">1 day</option>
+            <option value="172800">2 days</option>
+            <option value="259200">3 days</option>
+            <option value="432000">5 days</option>
+            <option value="604800">1 week</option>
+            <option value="1209600">2 weeks</option>
+            <option value="2419200">1 month</option>
+        </select>
+    </div>
     <input id="password" type="password" placeholder="Password">
     <button id="upload"><i class="fas fa-paper-plane"></i>Submit</button>
 </div>
@@ -17,9 +37,13 @@
 </div>
 
 <div class="form" style="display: <!--download-display-->; ">
-    <div class="file-list"><!--file-list--></div>
+    <div class="file-list-container" style="margin-right: -.5rem; ">
+        <div class="file-list"><!--file-list--></div>
+        <div class="file-list-fade-top"></div>
+        <div class="file-list-fade-bottom"></div>
+    </div>
     <pre id="download-text" type="text"><!--text--></pre>
-    <div style="display: flex; flex-direction: column; align-items: center; gap: .75rem; margin-bottom: 1rem; ">
+    <div style="display: flex; flex-direction: column; align-items: center; gap: .75rem; margin: .75rem 0 1rem; ">
         <a id="clipboard1"><i class="fas fa-paperclip"></i>Copy Link</a>
         <a id="clipboard2" class="display-none"
            style="font-size: .8em; filter: brightness(.75); ">Copy Unprotected Link (not recommended)</a>
@@ -46,9 +70,13 @@
         display: flex;
         flex-direction: column;
         gap: 1rem;
+        max-height: 31.75rem;
+    }
+    .form > * {
+        flex: 1 0 0%;
     }
     #text {
-        height: 7.75em;
+        height: 3.25em;
     }
     #download-text {
         padding: .5rem;
@@ -94,9 +122,6 @@
     #dropzone > div {
         width: 100%;
     }
-    #dropzone + .file-list {
-        max-height: calc(100vh - 50.75rem);
-    }
     #clear, #upload {
         align-self: center;
     }
@@ -105,6 +130,9 @@
     }
     input[type="file"] {
         display: none;
+    }
+    .file-list-container {
+        flex: 1;
     }
 </style>
 <script>
@@ -148,9 +176,10 @@
             {
                 q(`#text`).disabled = !enabled
                 q(`#dropzone`).setClass(`disabled`, !enabled)
-                q(`#dropzone + .file-list`).setClass(`disabled`, !enabled)
+                q(`#dropzone + .file-list-container`).setClass(`disabled`, !enabled)
                 q(`#file`).disabled = !enabled
                 q(`#password`).disabled = !enabled
+                q(`#lifetime`).disabled = !enabled
                 q(`#upload`).disabled = !enabled
                 q(`#clear`).disabled = !enabled
             }
@@ -211,11 +240,11 @@
                         `
                     }
                 })
-                q(`#dropzone + .file-list`).innerHTML = html
                 
-                const display = html ? `` : `none`
-                q(`#dropzone + .file-list`).style.display = display
-                q(`#clear`).style.display = display
+                q(`#dropzone + .file-list-container > .file-list`).innerHTML = html
+                
+                q(`#dropzone + .file-list-container`).style.display = html ? `` : `none`
+                q(`#clear`).style.display = html ? `` : `none`
             }
             
             function register(a, b)
@@ -231,6 +260,7 @@
                 const formData = new FormData()
                 formData.append('text', q(`#text`).value)
                 formData.append('password', password)
+                formData.append('lifetime', q(`#lifetime`).value)
                 
                 qAll(`input[type="file"]`).forEach($ =>
                 {
@@ -286,6 +316,12 @@
         {
             if (!q(`#download-text`).innerHTML)
                 q(`#download-text`).remove()
+            
+            qAll(`.file-list`).forEach($ =>
+            {
+                if (!$.innerHTML)
+                    $.parentNode.remove()
+            })
             
             const url = location.href.split('$')
             if (url.length > 1 && url[1])

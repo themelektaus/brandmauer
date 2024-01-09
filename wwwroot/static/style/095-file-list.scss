@@ -1,20 +1,62 @@
-.file-list {
-    width: 100%;
+.file-list-container {
+    position: relative;
+    overflow: hidden;
     display: flex;
-    flex-direction: column;
-    gap: .5rem;
-    max-height: calc(100vh - 32rem);
-    overflow: hidden scroll;
-    padding: 0 .45rem;
+    flex: 0;
     
     &.disabled {
         pointer-events: none;
         opacity: .5;
     }
+}
+
+.file-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    overflow: hidden scroll;
+    padding: 1.25rem .45rem 1.25rem 0;
     
     &::-webkit-scrollbar {
-        width: 5px;
-        height: 5px;
+        width: 4px;
+        height: 4px;
+        
+        &-track {
+            background: none;
+        }
+        
+        &-thumb {
+            background: #555;
+            
+            &:hover {
+                background: #666;
+            }
+        }
+        
+        &-corner {
+            background: none;
+        }
+    }
+    
+    &-fade {
+        &-top, &-bottom {
+            position: absolute;
+            width: calc(100% - .45rem);
+            height: 1.75rem;
+            max-height: 50%;
+            pointer-events: none;
+        }
+        
+        &-top {
+            background: linear-gradient(#292929, #0000);
+            top: 0;
+        }
+        
+        &-bottom {
+            background: linear-gradient(#0000, #292929);
+            bottom: 0;
+        }
     }
     
     & > div {

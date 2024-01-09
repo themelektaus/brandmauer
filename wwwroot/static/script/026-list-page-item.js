@@ -49,7 +49,15 @@ class ListPageItem
         
         this.hashCode = hashCode
         
-        await fetchPut(`api/${this.page.name}`, this.model)
+        let model = this.model
+        
+        if (this.onSave)
+        {
+            model = model.clone()
+            this.onSave(model)
+        }
+        
+        await fetchPut(`api/${this.page.name}`, model)
         
         log(`[OK] ${this.model.identifier.id}`)
     }
