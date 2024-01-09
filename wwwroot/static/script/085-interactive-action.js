@@ -173,6 +173,6 @@ class InteractiveAction
     {
         const $token = $sender.parentNode.parentNode.q(`[data-bind="token"]`)
         const $password = $sender.parentNode.parentNode.q(`[data-bind="password"]`)
-        window.open(`share/${$token.innerText}$${$password.value}`)
+        window.open(`share/${$token.innerText}$${btoa($password.value)}`)
     }
 }
