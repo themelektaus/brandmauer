@@ -111,7 +111,7 @@ public static partial class Endpoint
         }
 
         public static async Task<IResult> Update(
-            [FromQuery] long id,
+            [FromRoute] long id,
             [FromQuery] bool? letsEncrypt = false,
             [FromQuery] bool? staging = true
         )
