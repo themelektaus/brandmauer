@@ -300,13 +300,17 @@
             q(`#unlock-password`).focus()
             q(`#unlock`).addEventListener(`click`, () =>
             {
+                let password = q(`#unlock-password`).value
+                if (!password)
+                    return
+                
                 q(`#unlock-password`).disabled = true
                 q(`#unlock`).disabled = true
-                
-                let password = q(`#unlock-password`).value
-                if (password)
-                    location.href = location.href.split('$')[0]
-                        + '$' + btoa(password)
+                setTimeout(() =>
+                {
+                    const href = location.href.split('$')[0]
+                    location.href = `${href}$${btoa(password)}`
+                }, 50)
             })
             
             return
