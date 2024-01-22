@@ -11,12 +11,9 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
     {
         protected override bool Logging => true;
 
-        protected override TimeSpan? MaxAge => null;
+        protected override TimeSpan? MaxAge => default;
 
-        protected override string GetNew(
-            Dictionary<string, TempValue> _,
-            string key
-        )
+        protected override string GetNew(string key)
         {
             var x = key.Split("://", 2);
             var targetHost = x[1].Split(['/', ':'], 2)[0];

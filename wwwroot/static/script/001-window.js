@@ -9,16 +9,42 @@ Object.defineProperties(Window.prototype,
     },
     enable:
     {
-        value: function()
+        value: function(options)
         {
+            window.screenMessages ??= []
+            if (options?.screenMessage)
+            {
+                window.screenMessages.splice(
+                    window.screenMessages.indexOf(options.screenMessage),
+                    1
+                )
+            }
+            
+            q(`#fullscreen-loading`).setHtml(window.screenMessages.join(`<br>`))
+            
+            if (window.screenMessages.length)
+                return
+            
             $body.setEnabled(true)
+            q(`#fullscreen-loading`).setClass(`display-none`, true)
         }
     },
     disable:
     {
-        value: function()
+        value: function(options)
         {
             $body.setEnabled(false)
+            if (options?.screenMessage)
+            {
+                window.screenMessages ??= []
+                if (window.screenMessages.indexOf(options.screenMessage) != -1)
+                    return
+                
+                window.screenMessages.push(options.screenMessage)
+                q(`#fullscreen-loading`)
+                    .setClass(`display-none`, false)
+                    .setHtml(window.screenMessages.join(`<br>`))
+            }
         }
     },
     delay:

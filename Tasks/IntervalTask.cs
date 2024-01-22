@@ -22,7 +22,7 @@ public abstract class IntervalTask : IAsyncDisposable
     {
         var t = GetType();
 
-        name = t.Name;
+        name = t.Name.Split('_').LastOrDefault();
         ctSource = new();
         ctToken = ctSource.Token;
 
@@ -39,14 +39,21 @@ public abstract class IntervalTask : IAsyncDisposable
     {
         Task.Run(async () =>
         {
-            Audit.Info<IntervalTask>($"{name} is starting...");
+            Audit.Info<IntervalTask>($"*{name}* is starting...");
             await (OnStartAsync() ?? Task.CompletedTask);
+            Audit.Info<IntervalTask>($"*{name}* has started.");
 
-            try { await Task.Delay(delay, ctToken); } catch { }
+            if (delay.Ticks > 0)
+            {
+                var delayString = delay.ToHumanizedString();
+                Audit.Info<IntervalTask>(
+                    $"*{name}* will now be delayed for {delayString}."
+                );
+                try { await Task.Delay(delay, ctToken); } catch { }
+            }
 
+            Audit.Info<IntervalTask>($"*{name}* is now ticking.");
             await (OnBeforeFirstTickAsync() ?? Task.CompletedTask);
-
-            Audit.Info<IntervalTask>($"{name} has started.");
 
             while (!IsDisposed())
             {
@@ -54,7 +61,7 @@ public abstract class IntervalTask : IAsyncDisposable
                 try { await Task.Delay(interval, ctToken); } catch { }
             }
 
-            Audit.Info<IntervalTask>($"{name} has finished.");
+            Audit.Info<IntervalTask>($"*{name}* has finished.");
         });
     }
 
@@ -63,12 +70,12 @@ public abstract class IntervalTask : IAsyncDisposable
         if (IsDisposed())
         {
             Audit.Info<IntervalTask>(
-                $"{name} has already been disposed. Skipping..."
+                $"*{name}* has already been disposed. Skipping..."
             );
             return;
         }
 
-        Audit.Info<IntervalTask>($"Disposing {name}...");
+        Audit.Info<IntervalTask>($"Disposing *{name}*...");
 
         try
         {
@@ -81,6 +88,6 @@ public abstract class IntervalTask : IAsyncDisposable
 
         ctSource.Cancel();
 
-        Audit.Info<IntervalTask>($"{name} has been disposed.");
+        Audit.Info<IntervalTask>($"*{name}* has been disposed.");
     }
 }

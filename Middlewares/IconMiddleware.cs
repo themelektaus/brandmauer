@@ -50,10 +50,7 @@ public class IconMiddleware(RequestDelegate next)
 
         protected override TimeSpan? MaxAge => default;
 
-        protected override string GetNew(
-            Dictionary<(string path, string color), TempValue> _,
-            (string path, string color) key
-        )
+        protected override string GetNew((string path, string color) key)
         {
             return "data:image/svg+xml;base64," +
                 $"{GetSvg(key.path, key.color).ToBase64()}";

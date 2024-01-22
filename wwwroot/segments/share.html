@@ -11,19 +11,7 @@
     <textarea id="text" type="text" placeholder="Title / Description / Notes"></textarea>
     <div style="display: flex; align-items: center; gap: .5rem; ">
         <label>Expiration</label>
-        <select id="lifetime" style="flex: 1; ">
-            <option value="0">Never</option>
-            <option value="3600">1 hour</option>
-            <option value="10800">3 hours</option>
-            <option value="21600">6 hours</option>
-            <option value="86400">1 day</option>
-            <option value="172800">2 days</option>
-            <option value="259200">3 days</option>
-            <option value="432000">5 days</option>
-            <option value="604800">1 week</option>
-            <option value="1209600">2 weeks</option>
-            <option value="2419200">1 month</option>
-        </select>
+        <!--segment: timespan {attr:id="lifetime"}-->
     </div>
     <input id="password" type="password" placeholder="Password">
     <button id="upload"><i class="fas fa-paper-plane"></i>Submit</button>

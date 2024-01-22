@@ -64,14 +64,18 @@ public static partial class Utils
     public static bool TryGetIpAddress(string address, out string ipAddress)
     {
         if (address is null)
+        {
             goto Error;
+        }
 
         ipAddress = address.ToIpAddress();
 
         if (ipAddress is not null && IsIpAddress(ipAddress))
+        {
             return true;
+        }
 
-        Error:
+    Error:
         ipAddress = null;
         return false;
     }
@@ -258,7 +262,7 @@ public static partial class Utils
     )
     {
         var token = string.Empty;
-        
+
         var characters = "abcdefghijklmnopqrstuvwxyz234567";
         if (upperCase)
             characters = characters.ToUpper();
