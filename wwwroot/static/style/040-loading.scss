@@ -1,12 +1,27 @@
+#fullscreen-loading,
 .loading {
     background: url(../res/loading.svg) no-repeat;
     background-size: 6rem;
     position: fixed;
-    left: var(--menu-width);
     top: 0;
     right: 0;
     bottom: 0;
+    background-position: center;
+}
+
+#fullscreen-loading {
+    left: 0;
+    z-index: 3;
+    backdrop-filter: blur(.125rem);
+    background-color: #2226;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 8rem;
+}
+
+.loading {
+    left: var(--menu-width);
     z-index: 2;
     pointer-events: none;
-    background-position: center;
 }

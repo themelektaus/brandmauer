@@ -127,10 +127,7 @@ public static class ExtensionMethods
 
         public bool justLocal;
 
-        protected override string[] GetNew(
-            Dictionary<string, TempValue> x,
-            string key
-        )
+        protected override string[] GetNew(string key)
         {
             if (key == string.Empty)
                 return [];
@@ -178,7 +175,7 @@ public static class ExtensionMethods
 
                     foreach (var hostAddress in hostAddresses)
                         if (!pending.ContainsKey(hostAddress))
-                            addresses.AddRange(GetUnsafe(x, hostAddress));
+                            addresses.AddRange(GetUnsafe(hostAddress));
 
                     pending.Remove(key);
                 }

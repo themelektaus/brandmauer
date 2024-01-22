@@ -23,13 +23,35 @@ public class Database
     public List<SmtpConnection> SmtpConnections { get; set; } = new();
     public List<Monitor> Monitors { get; set; } = new();
     public List<PushListener> PushListeners { get; set; } = new();
+    public List<DynamicDnsHost> DynamicDnsHosts { get; set; } = new();
     public List<Share> Shares { get; set; } = new();
     public Config Config { get; set; } = new();
 
     static readonly HashSet<Model> models = new();
+    static readonly List<IAsyncUpdateable> updateables = new();
 
-    public static void Register(Model model) => models.Add(model);
-    public static void Unregister(Model model) => models.Remove(model);
+    public static void Register(Model model)
+    {
+        models.Add(model);
+        if (model is IAsyncUpdateable updateable)
+            updateables.Add(updateable);
+    }
+
+    public static void Unregister(Model model)
+    {
+        models.Remove(model);
+        if (model is IAsyncUpdateable updateable)
+            updateables.Remove(updateable);
+    }
+
+    public static async Task UseAndUpdateAsync()
+    {
+        var updateables = Use(
+            x => Database.updateables.Where(x => x.ShouldUpdate).ToList()
+        );
+        foreach (var updateable in updateables)
+            await updateable.UpdateAsync();
+    }
 
     void PostDeserialize()
     {

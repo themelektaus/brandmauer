@@ -8,12 +8,9 @@ public class TeapotMiddleware(RequestDelegate next)
     {
         protected override bool Logging => false;
 
-        protected override TimeSpan? MaxAge => null;
+        protected override TimeSpan? MaxAge => default;
 
-        protected override string GetNew(
-            Dictionary<int, TempValue> _,
-            int key
-        )
+        protected override string GetNew(int key)
         {
             var statusCode = (HttpStatusCode) key;
             var statusCodeString = key == 418

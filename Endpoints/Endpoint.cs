@@ -136,10 +136,13 @@ public static partial class Endpoint
         app.MapPut($"{API}/smtpconnections", SmtpConnections.Put);
         app.MapDelete($"{API}/smtpconnections/{{id}}", SmtpConnections.Delete);
 
-        app.MapPost($"{API}/smtpconnections/send", async (HttpContext context) =>
-        {
-            return await SmtpConnections.SendAsync(context);
-        });
+        app.MapPost(
+            $"{API}/smtpconnections/send",
+            async (HttpContext context) =>
+            {
+                return await SmtpConnections.SendAsync(context);
+            }
+        );
 
         app.MapGet($"{API}/monitors", Monitors.GetAll);
         app.MapGet($"{API}/monitors/{{id}}", Monitors.Get);
@@ -153,6 +156,12 @@ public static partial class Endpoint
         app.MapPut($"{API}/pushlisteners", PushListeners.Put);
         app.MapDelete($"{API}/pushlisteners/{{id}}", PushListeners.Delete);
 
+        app.MapGet($"{API}/dynamicdnshosts", DynamicDnsHosts.GetAll);
+        app.MapGet($"{API}/dynamicdnshosts/{{id}}", DynamicDnsHosts.Get);
+        app.MapPost($"{API}/dynamicdnshosts", DynamicDnsHosts.Post);
+        app.MapPut($"{API}/dynamicdnshosts", DynamicDnsHosts.Put);
+        app.MapDelete($"{API}/dynamicdnshosts/{{id}}", DynamicDnsHosts.Delete);
+
         app.MapGet($"{API}/shares", Shares.GetAll);
         app.MapGet($"{API}/shares/{{id}}", Shares.Get);
         app.MapPut($"{API}/shares", Shares.Put);
@@ -163,6 +172,21 @@ public static partial class Endpoint
 
         app.MapGet($"{API}/audit"/*?limit={{limit}}*/, Audit.Get);
         app.MapGet($"{API}/audit/{{id}}"/*?limit={{limit}}*/, Audit.GetById);
+
+        app.MapGet(
+            $"{API}/namecom/domains",
+            async (HttpContext context) =>
+            {
+                return await NameCom.GetDomains(context);
+            }
+        );
+        app.MapGet(
+            $"{API}/namecom/domains/{{domain}}/records",
+            async (HttpContext context, string domain) =>
+            {
+                return await NameCom.GetDomainRecords(context, domain);
+            }
+        );
     }
 
     static IResult Api(IEnumerable<EndpointDataSource> endpointSources)

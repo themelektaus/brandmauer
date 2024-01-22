@@ -1,6 +1,6 @@
 ﻿namespace Brandmauer;
 
-public abstract class ThreadsafeCache<TKey, TValue>
+public abstract class AsyncThreadsafeCache<TKey, TValue>
 {
     public struct TempValue
     {
@@ -18,19 +18,19 @@ public abstract class ThreadsafeCache<TKey, TValue>
 
     protected Dictionary<TKey, TempValue> CurrentCache => cacheStack.Peek();
 
-    protected abstract TValue GetNew(TKey key);
+    protected abstract Task<TValue> GetNewAsync(TKey key);
 
-    public TValue Get(TKey key)
+    public async Task<TValue> GetAsync(TKey key)
     {
-        return cache.Use(x => GetUnsafe(key, x));
+        return await cache.UseAsync(x => GetUnsafeAsync(key, x));
     }
 
-    public TValue GetUnsafe(TKey key)
+    public async Task<TValue> GetUnsafeAsync(TKey key)
     {
-        return GetUnsafe(key, CurrentCache);
+        return await GetUnsafeAsync(key, CurrentCache);
     }
 
-    TValue GetUnsafe(
+    async Task<TValue> GetUnsafeAsync(
         TKey key,
         Dictionary<TKey, TempValue> currentCache
     )
@@ -56,7 +56,7 @@ public abstract class ThreadsafeCache<TKey, TValue>
             tempValue = new()
             {
                 timestamp = DateTime.Now,
-                value = GetNew(key)
+                value = await GetNewAsync(key)
             };
         }
         cacheStack.Pop();

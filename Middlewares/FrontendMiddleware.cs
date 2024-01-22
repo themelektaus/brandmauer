@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.StaticFiles;
 
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Brandmauer;
 
@@ -156,9 +157,25 @@ public class FrontendMiddleware
             foreach (var file in files)
             {
                 var name = Path.GetFileNameWithoutExtension(file.Name);
-                content = content.Replace(
-                    $"<!--segment: {name}-->",
-                    File.ReadAllText(file.FullName)
+                var segment = File.ReadAllText(file.FullName);
+                content = Regex.Replace(
+                    content,
+                    @$"\<\!\-\-\s*segment\:\s*{name}\s*(\{{(.*?)\}})?\s*\-\-\>",
+                    m =>
+                    {
+                        foreach (var value in m.Groups[2].Value.Split(','))
+                        {
+                            var keyValue = value.Split(':');
+                            if (keyValue.Length != 2)
+                                continue;
+                            
+                            segment = segment.Replace(
+                                $"{{{keyValue[0]}}}",
+                                keyValue[1]
+                            );
+                        }
+                        return segment;
+                    }
                 );
             }
         }

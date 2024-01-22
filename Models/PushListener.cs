@@ -1,11 +1,12 @@
 ﻿namespace Brandmauer;
 
-public class PushListener : Model, IOnDeserialize
+public class PushListener : Model, IOnDeserialize, IAsyncUpdateable
 {
     public bool Enabled { get; set; } = true;
 
     public string Token { get; set; } = Utils.GenerateToken();
     public long AgeThreshold { get; set; } = 120;
+    public long SleepTime { get; set; } = 21600;
 
     public Identifier SmtpConnectionReference { get; set; }
     public SmtpConnection SmtpConnection;
@@ -13,20 +14,31 @@ public class PushListener : Model, IOnDeserialize
     public List<StringValue> Receivers { get; set; } = new();
 
     public DateTime LastTouch { get; set; }
+
     public string LastTouchString;
 
     public string url;
     public string header;
 
+    DateTime? lastAlert;
+
     public void Touch()
     {
         LastTouch = DateTime.Now;
+        lastAlert = null;
     }
+
+    public bool ShouldUpdate => Enabled && AgeThreshold > 0;
 
     public async Task UpdateAsync()
     {
         var future = LastTouch.AddSeconds(AgeThreshold);
-        if (future >= DateTime.Now)
+        var now = DateTime.Now;
+
+        if (future >= now)
+            return;
+
+        if (lastAlert.HasValue && now <= lastAlert.Value.AddSeconds(SleepTime))
             return;
 
         Database.Use(x =>
@@ -34,6 +46,8 @@ public class PushListener : Model, IOnDeserialize
             Touch();
             x.Save(logging: false);
         });
+
+        lastAlert = now;
 
         if (SmtpConnection is null || Receivers.Count == 0)
             return;
@@ -49,7 +63,7 @@ public class PushListener : Model, IOnDeserialize
                 html: false
             );
 
-        Utils.Log(nameof(IntervalTask_Push), $"{statusCode}: {text}");
+        Utils.Log(nameof(IntervalTask_Continuously), $"{statusCode}: {text}");
     }
 
     public void OnDeserialize(Database database)

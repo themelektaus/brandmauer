@@ -2,7 +2,7 @@
 
 namespace Brandmauer;
 
-public partial class Monitor : Model
+public partial class Monitor : Model, IAsyncUpdateable
 {
     public bool Enabled { get; set; } = true;
 
@@ -42,6 +42,8 @@ public partial class Monitor : Model
     {
         last = null;
     }
+
+    public bool ShouldUpdate => Enabled;
 
     public async Task UpdateAsync()
     {

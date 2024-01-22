@@ -71,26 +71,28 @@ class InteractiveAction
     
     static async updateDownload()
     {
-        disable()
+        const options = { screenMessage: `Downloading` }
+        disable(options)
         const response = await fetch(`api/update/download`)
         await Page.active.refreshVersionInfo()
-        enable()
+        enable(options)
     }
     
     static async updateInstall()
     {
-        disable()
+        const options = { screenMessage: `Installing` }
+        disable(options)
         
         const response = await fetch(`api/update/install`)
         
         if (response.status != 200)
         {
             await Page.active.refreshVersionInfo()
-            enable()
+            enable(options)
             return
         }
         
-        await delay(5000)
+        await delay(9000)
         
         location.reload()
     }

@@ -75,7 +75,7 @@ public class CustomReverseProxyMiddleware(RequestDelegate next)
                 : await request.Content?.ReadAsStringAsync();
 
 #if DEBUG
-            var requestInfo = CreateRequestInfo(request, content);
+            var requestInfo = RequestInfo.Create(request, content);
 #endif
 
             using var response = await httpClient.SendAsync(
@@ -117,10 +117,10 @@ public class CustomReverseProxyMiddleware(RequestDelegate next)
             }
             else
             {
-                var bodyStream = response.Content.ReadAsStream();
-                await context.Response.Body.LoadFromAsync(bodyStream);
+                var contentStream = response.Content.ReadAsStream();
+                await context.Response.Body.LoadFromAsync(contentStream);
 #if DEBUG
-                AddRequestInfo(requestInfo, context, bodyStream);
+                RequestInfo.Add(requestInfo, context.Response, contentStream);
 #endif
             }
         }
@@ -209,50 +209,4 @@ public class CustomReverseProxyMiddleware(RequestDelegate next)
 
         return new(request.Body);
     }
-
-#if DEBUG
-    static RequestInfo CreateRequestInfo(
-        HttpRequestMessage request,
-        string content
-    )
-    {
-        var requestInfo = new RequestInfo()
-        {
-            Method = request.Method.ToString(),
-            Url = request.RequestUri.ToString(),
-            Headers = request.Headers.ToString().Trim(),
-        };
-
-        if (request.Content is not null)
-        {
-            var contentHeaders = request.Content.Headers.ToString().Trim();
-            requestInfo.ContentHeaders = contentHeaders;
-            requestInfo.Content = content;
-        }
-
-        return requestInfo;
-    }
-
-    static void AddRequestInfo(
-        RequestInfo requestInfo,
-        HttpContext context,
-        Stream bodyStream
-    )
-    {
-        if (requestInfo is null)
-            return;
-
-        requestInfo.ResponseStatusCode = context.Response.StatusCode;
-
-        requestInfo.ResponseHeaders = context.Response.Headers
-            .Select(x => $"{x.Key}: {x.Value}")
-            .Join(Environment.NewLine)
-            .Trim();
-
-        requestInfo.ResponseContentType = context.Response.ContentType;
-        requestInfo.ResponseContent = bodyStream.ReadString();
-
-        RequestInfo.Add(requestInfo);
-    }
-#endif
 }

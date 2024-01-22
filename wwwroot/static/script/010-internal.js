@@ -88,6 +88,8 @@ class Internal
         if ([ `INPUT`, `SELECT`, `TEXTAREA` ].includes($input.tagName))
         {
             $input.value = value
+            if ($input.tagName == `SELECT`)
+                $input.dataset.originValue = value
             $input.dispatchEvent(new Event(`change`))
             return
         }

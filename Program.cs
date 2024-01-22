@@ -91,9 +91,9 @@ app.UseMiddleware<CustomReverseProxyMiddleware>();
 app.UseMiddleware<FrontendMiddleware>();
 app.UseMiddleware<TeapotMiddleware>();
 
+app.RunInBackground<IntervalTask_Continuously>();
 app.RunInBackground<IntervalTask_Daily>();
 app.RunInBackground<IntervalTask_DnsServer>();
-app.RunInBackground<IntervalTask_Push>();
 app.RunInBackground<IntervalTask_ReloadDatabase>();
 
 #if LINUX
