@@ -9,30 +9,27 @@ class InteractivePasswordInput
         const $parent = $.parentNode
         $parent.style.position = `relative`
         
-        const $hidden = $parent.create(`div`)
-        const $visible = create(`div`)
+        const $buttons = $parent.create(`div`)
         
-        const $hiddenGenerate = $hidden.create(`div`)
-            .setHtml(`<i class="fa-solid fa-dice"></i>`)
-        $hiddenGenerate.onclick = generate
-        
-        const $hiddenClear = $hidden.create(`div`)
-            .setHtml(`<i class="fa-solid fa-eraser"></i>`)
-        $hiddenClear.onclick = clear
-        
-        const $hiddenShow = $hidden
+        const $show = $buttons
             .create(`div`)
             .setHtml(`<i class="fa-solid fa-eye"></i>`)
-        $hiddenShow.onclick = show
+            .onClick(show)
         
-        const $visibleGenerate = $visible.create(`div`)
-            .setHtml(`<i class="fa-solid fa-dice"></i>`)
-        $visibleGenerate.onclick = generate
-        
-        const $visibleHide = $visible
+        const $hide = $buttons
             .create(`div`)
             .setHtml(`<i class="fa-solid fa-eye-slash"></i>`)
-        $visibleHide.onclick = hide
+            .onClick(hide)
+        
+        const $clear = $buttons
+            .create(`div`)
+            .setHtml(`<i class="fa-solid fa-eraser"></i>`)
+            .onClick(clear)
+        
+        const $generate = $buttons
+            .create(`div`)
+            .setHtml(`<i class="fa-solid fa-dice"></i>`)
+            .onClick(generate)
         
         $.addEventListener(`change`, refreshView)
         $.addEventListener(`input`, refreshView)
@@ -42,24 +39,15 @@ class InteractivePasswordInput
         function show()
         {
             $.type = `text`
-            $hidden.remove()
-            $parent.appendChild($visible)
             getSelection().removeAllRanges()
+            refreshView()
         }
         
         function hide()
         {
             $.type = `password`
-            $visible.remove()
-            $parent.appendChild($hidden)
             getSelection().removeAllRanges()
-        }
-        
-        function generate()
-        {
-            $.value = generatePassword()
             refreshView()
-            show()
         }
         
         function clear()
@@ -68,30 +56,44 @@ class InteractivePasswordInput
             refreshView()
         }
         
+        function generate()
+        {
+            $.value = generatePassword()
+            show()
+        }
+        
         function refreshView()
         {
-            if (!$.value && !$visibleHide.classList.contains(`display-none`))
+            const hasValue = $.value ? true : false
+            const passwordVisible = $.type == `text`
+            
+            if (!hasValue && passwordVisible)
             {
-                $visibleHide.setClass(`display-none`)
-                $hiddenShow.setClass(`display-none`, false)
                 hide()
+                return
             }
             
             if ($.dataset.generator == `disabled`)
             {
-                $hiddenGenerate.setClass(`display-none`)
-                $hiddenClear.setClass(`display-none`)
-                $hiddenShow.setClass(`display-none`)
-                $visibleGenerate.setClass(`display-none`)
-                $visibleHide.setClass(`display-none`)
-                return
+                $generate.setClass(`display-none`, true)
+                $clear.setClass(`display-none`, true)
+            }
+            else
+            {
+                if ($.type == `text`)
+                {
+                    $generate.setClass(`display-none`, false)
+                    $clear.setClass(`display-none`, true)
+                }
+                else
+                {
+                    $generate.setClass(`display-none`, hasValue)
+                    $clear.setClass(`display-none`, !hasValue)
+                }
             }
             
-            $hiddenGenerate.setClass(`display-none`, $.value)
-            $hiddenClear.setClass(`display-none`, !$.value)
-            $hiddenShow.setClass(`display-none`, !$.value)
-            $visibleGenerate.setClass(`display-none`, false)
-            $visibleHide.setClass(`display-none`, !$.value)
+            $show.setClass(`display-none`, !hasValue || passwordVisible)
+            $hide.setClass(`display-none`, !hasValue || !passwordVisible)
         }
     }
 }
