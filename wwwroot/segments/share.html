@@ -13,12 +13,16 @@
         <label>Expiration</label>
         <!--segment: timespan {attr:id="lifetime"}-->
     </div>
-    <input id="password" type="password" placeholder="Password">
+    <div style="position: relative; ">
+        <input id="password" type="password" placeholder="Password">
+    </div>
     <button id="upload"><i class="fas fa-paper-plane"></i>Submit</button>
 </div>
 
 <div class="form" style="display: <!--password-display-->; ">
-    <input id="unlock-password" type="password" placeholder="Password">
+    <div style="position: relative; ">
+        <input id="unlock-password" type="password" placeholder="Password" data-generator="disabled">
+    </div>
     <button id="unlock" style="align-self: center; ">
         <i class="fas fa-unlock"></i>Unlock
     </button>

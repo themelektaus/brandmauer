@@ -4,10 +4,10 @@ class InteractiveFoldout
     
     static makeInteractive($)
     {
-        const $title = $.q(`.foldout-title`)
         const $content = $.q(`.foldout-content`)
-        
         $content.setClass(`display-none`)
-        $title.onClick(async () => $content.toggleClass(`display-none`))
+        
+        const $title = $.q(`.foldout-title`)
+        $title.onClick(() => $content.toggleClass(`display-none`))
     }
 }
