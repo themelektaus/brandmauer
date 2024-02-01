@@ -173,8 +173,9 @@ class InteractiveAction
     
     static openShare2($sender)
     {
-        const $token = $sender.parentNode.parentNode.q(`[data-bind="token"]`)
-        const $password = $sender.parentNode.parentNode.q(`[data-bind="password"]`)
+        const $parent = $sender.parentNode.parentNode
+        const $token = $parent.q(`[data-bind="token"]`)
+        const $password = $parent.q(`[data-bind="password"]`)
         window.open(`share/${$token.innerText}$${btoa($password.value)}`)
     }
 }
