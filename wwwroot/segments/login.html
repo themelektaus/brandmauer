@@ -2,8 +2,10 @@
 <h2><!--host--></h2>
 <div style="width: 15em; display: flex; flex-direction: column; flex: 0; gap: .5rem; ">
     <input type="text" id="username" placeholder="Username" style="text-align: center; ">
-    <input type="password" id="password" placeholder="Password" data-generator="disabled" style="text-align: center; ">
-    <button style="align-self: center; " id="submit"><i class="fas fa-unlock"></i>Unlock</button>
+    <div style="position: relative; ">
+        <input type="password" id="password" placeholder="Password" data-generator="disabled" style="text-align: center; ">
+    </div>
+    <button style="align-self: center; margin-top: .375rem; " id="submit"><i class="fas fa-unlock"></i>Unlock</button>
 </div>
 <script>
     addEventListener(`load`, () =>
