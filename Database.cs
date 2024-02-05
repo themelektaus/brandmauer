@@ -44,12 +44,10 @@ public class Database
             updateables.Remove(updateable);
     }
 
-    public static async Task UseAndUpdateAsync()
+    public static async Task UpdateAsync()
     {
-        var updateables = Use(
-            x => Database.updateables.Where(x => x.ShouldUpdate).ToList()
-        );
-        foreach (var updateable in updateables)
+        var _updateables = updateables.Where(x => x.ShouldUpdate).ToList();
+        foreach (var updateable in _updateables)
             await updateable.UpdateAsync();
     }
 

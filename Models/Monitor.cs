@@ -55,27 +55,19 @@ public partial class Monitor : Model, IAsyncUpdateable
 
         var now = DateTime.Now;
 
-        if (last is not null)
-            if ((now - last.Value).TotalSeconds < Interval)
-                return;
+        if (last.HasValue && (now - last.Value).TotalSeconds < Interval)
+            return;
 
         last = now;
 
         if (!((bool) checkMethods[CheckType].Invoke(this, null)))
             return;
 
-        using var httpClient = new HttpClient();
-
         using var request = new HttpRequestMessage(HttpMethod.Get, SuccessUrl);
         foreach (var header in SuccessHeaders)
             request.Headers.Add(header.Value, header.Description);
 
-        try
-        {
-            await httpClient.SendAsync(request);
-        }
-        catch
-        {
-        }
+        using var httpClient = new HttpClient();
+        await httpClient.TrySendAsync(request);
     }
 }

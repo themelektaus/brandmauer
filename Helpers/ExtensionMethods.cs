@@ -376,4 +376,26 @@ public static class ExtensionMethods
         while (x >= 1024 && i++ < u.Length - 1) x /= 1024;
         return $"{x:0.00} {u[i]}";
     }
+
+    public static async Task<HttpResponseMessage> TrySendAsync(
+        this HttpClient @this,
+        HttpRequestMessage message
+    )
+    {
+        HttpResponseMessage response;
+
+        try
+        {
+            @this.Timeout = TimeSpan.FromSeconds(30);
+            response = await @this.SendAsync(message);
+
+        }
+        catch (Exception ex)
+        {
+            Audit.Error<HttpClient>(ex);
+            response = new(HttpStatusCode.InternalServerError);
+        }
+
+        return response;
+    }
 }

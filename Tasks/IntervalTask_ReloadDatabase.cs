@@ -8,15 +8,14 @@ public class IntervalTask_ReloadDatabase : IntervalTask
 
     protected override Task OnBeforeFirstTickAsync() => default;
 
-    protected override async Task OnTickAsync()
+    protected override Task OnTickAsync()
     {
         var lastWriteTime = File.GetLastWriteTime(Database.databaseFile);
-        if (Database.LastKnownWriteTime >= lastWriteTime)
-            return;
 
-        Database.Load();
+        if (Database.LastKnownWriteTime < lastWriteTime)
+            Database.Load();
 
-        await Task.CompletedTask;
+        return default;
     }
 
     protected override Task OnDisposeAsync() => default;
