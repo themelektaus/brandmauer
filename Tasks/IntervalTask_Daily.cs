@@ -11,6 +11,7 @@ public class IntervalTask_Daily : IntervalTask
     protected override Task OnTickAsync()
     {
         Audit.CleanUp();
+
         return default;
     }
 

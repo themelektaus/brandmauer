@@ -76,12 +76,7 @@ public static partial class Endpoint
             request.Headers.Add("Authorization", authorization);
 
             using var httpClient = new HttpClient();
-            using var response = await httpClient.SendAsync(request);
-
-#if DEBUG
-            await Task.Delay(TimeSpan.FromSeconds(3));
-#endif
-
+            using var response = await httpClient.TrySendAsync(request);
             return await response.Content.ReadFromJsonAsync<_NameCom>();
         }
     }

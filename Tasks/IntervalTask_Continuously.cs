@@ -12,18 +12,15 @@ public class IntervalTask_Continuously : IntervalTask
             x.Save(logging: false);
         });
 
-        return Task.CompletedTask;
+        return default;
     }
 
     protected override Task OnBeforeFirstTickAsync() => default;
 
     protected override async Task OnTickAsync()
     {
-        await Database.UseAndUpdateAsync();
+        await Database.UpdateAsync();
     }
 
-    protected override Task OnDisposeAsync()
-    {
-        return Task.CompletedTask;
-    }
+    protected override Task OnDisposeAsync() => default;
 }

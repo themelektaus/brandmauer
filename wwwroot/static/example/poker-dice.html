@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body {
+                background: linear-gradient(#224, #112);
+                height: 100vh;
+                margin: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 1.5em;
+            }
+            body, button {
+                color: white;
+                font-family: monospace;
+            }
+            main {
+                background-color: #0009;
+                padding: 2rem 2.5rem;
+                margin: 6rem 2rem 0;
+                display: flex;
+                flex-direction: column;
+                gap: 1.5rem;
+                border-radius: .5rem;
+                opacity: 1;
+                transform: translateY(-5rem);
+                transition: all 200ms;
+            }
+            main.hidden {
+                opacity: 0;
+                transform: translateY(5rem);
+            }
+            h1 {
+                margin: .25rem 0 .75rem;
+                text-align: center;
+            }
+            .content {
+                display: flex;
+                flex-direction: column;
+                gap: 2rem;
+                align-items: center;
+            }
+            .dices {
+                display: flex;
+                gap: 1rem;
+            }
+            .dice {
+                background-color: #334;
+                width: 4rem;
+                aspect-ratio: 1;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 2em;
+                border-radius: .5rem;
+            }
+            .dice.big {
+                background-color: #446;
+                scale: 1.25;
+            }
+            .result {
+                font-size: 1.5em;
+                height: 1.5em;
+                color: yellow;
+            }
+            button {
+                padding: .5em 1em;
+                background-color: #446;
+                border: none;
+                cursor: pointer;
+                border-radius: .25rem;
+                font-size: 1.25em;
+            }
+            button:not(:disabled):hover {
+                filter: brightness(1.4);
+            }
+            button:not(:disabled):active {
+                filter: brightness(1.7);
+            }
+            button:disabled {
+                cursor: default;
+                opacity: .5;
+            }
+        </style>
+        <script>
+            const DICE_COUNT = 5
+            const VALUES_RANGE = 6
+            const T = 70
+            
+            addEventListener(`load`, () =>
+            {
+                for (let i = 0; i < DICE_COUNT; i++)
+                    q(`.dices`).innerHTML += `<div class="dice"></div>`
+                qAll(`.dice`).forEach($ => $.style = `transition: all ${T}ms; `)
+                setTimeout(() => q(`main`).classList.remove(`hidden`))
+                q(`button`).addEventListener(`click`, roll)
+                roll()
+            })
+            
+            function roll()
+            {
+                q(`button`).disabled = true
+                
+                let values = []
+                while (values.length < DICE_COUNT)
+                    values.push(Math.floor(Math.random() * VALUES_RANGE))
+                
+                const $dices = qAll(`.dice`)
+                
+                for (let i = 0; i < DICE_COUNT; i++)
+                {
+                    $dices[i].innerHTML = ``
+                    const classList = $dices[i].classList
+                    setTimeout(() => classList.add(`big`), i * T)
+                    setTimeout(() => $dices[i].innerHTML = values[i] + 1, i * T + T / 2)
+                    setTimeout(() => classList.remove(`big`), i * T + T)
+                }
+                
+                q(`.result`).innerHTML = ``
+                setTimeout(() =>
+                {
+                    q(`.result`).innerHTML = getResult(values)
+                    q(`button`).disabled = false
+                }, DICE_COUNT * T + T)
+            }
+            
+            function getResult(values)
+            {
+                const cc = []
+                for (let i = 0; i < VALUES_RANGE; i++) cc.push(0)
+                for (const i of values) cc[i]++
+                
+                const getCountOf = c => cc.filter(x => x == c).length
+                
+                if (getCountOf(5) == 1) return `Five of a kind`
+                if (getCountOf(4) == 1) return `Four of a kind`
+                
+                const pairCount = getCountOf(2)
+                
+                if (getCountOf(3) == 1)
+                {
+                    if (pairCount == 1) return `Full house`
+                    return `Three of a kind`
+                }
+                
+                for (let i = 0; i <= 1; i++)
+                {
+                    for (let j = 0; j <= 1 + i; j++)
+                    {
+                        let counter = 0
+                        for (let k = 0; k <= DICE_COUNT - i; k++)
+                        {
+                            if (!values.includes(j + k)) break
+                            counter++
+                        }
+                        if (counter == DICE_COUNT - i)
+                            return `${i == 0 ? `Full` : `Small`} straight`
+                    }
+                }
+                
+                if (pairCount == 2) return `Two pair`
+                if (pairCount == 1) return `One pair`
+                
+                return `Unfortunately nothing`
+            }
+            
+            function q()
+            {
+                return document.querySelector(...arguments)
+            }
+            
+            function qAll()
+            {
+                return document.querySelectorAll(...arguments)
+            }
+        </script>
+    </head>
+    <body>
+        <main class="hidden">
+            <h1>Poker dice</h1>
+            <div class="content">
+                <div class="dices"></div>
+                <div class="result"></div>
+                <button>Roll again</button>
+            </div>
+        </div>
+    </body>
+</html>
