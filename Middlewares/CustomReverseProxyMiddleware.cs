@@ -5,7 +5,8 @@ namespace Brandmauer;
 public class CustomReverseProxyMiddleware(RequestDelegate next)
     : ReverseProxyMiddleware
 {
-    protected readonly HttpClient httpClient = new(handler);
+    SocketsHttpHandler handler;
+    HttpClient httpClient;
 
     protected override RequestDelegate Next => next;
 
@@ -77,6 +78,20 @@ public class CustomReverseProxyMiddleware(RequestDelegate next)
 #if DEBUG
             var requestInfo = RequestInfo.Create(request, content);
 #endif
+
+            if (TryGetTimeout(feature.Route, out var timeout))
+            {
+                handler ??= CreateHandler(timeout);
+                httpClient ??= new(handler)
+                {
+                    Timeout = handler.ConnectTimeout
+                };
+            }
+            else
+            {
+                handler ??= CreateHandler(TimeSpan.FromSeconds(15));
+                httpClient ??= new(handler);
+            }
 
             using var response = await httpClient.SendAsync(
                 request,
@@ -152,7 +167,7 @@ public class CustomReverseProxyMiddleware(RequestDelegate next)
         var location = context.Request.GetDisplayUrl();
         if (location.EndsWith('/'))
             return false;
-        
+
         location += '/';
         Utils.Log("Redirect", location);
         context.Response.Redirect(

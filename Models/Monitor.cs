@@ -10,7 +10,8 @@ public partial class Monitor : Model, IAsyncUpdateable
     {
         None,
         Process,
-        Service
+        Service,
+        Sqlconnection
     }
 
     public _CheckType CheckType { get; set; }

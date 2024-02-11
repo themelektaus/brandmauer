@@ -175,7 +175,8 @@ public class FrontendMiddleware
                             );
                         }
                         return segment;
-                    }
+                    },
+                    RegexOptions.CultureInvariant
                 );
             }
         }

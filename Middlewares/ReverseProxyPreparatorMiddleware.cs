@@ -164,9 +164,7 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
         if (maxBodySize is not null)
         {
             context.Features.Get<IHttpMaxRequestBodySizeFeature>()
-                .MaxRequestBodySize = Database.Use(
-                    x => maxBodySize
-                );
+                .MaxRequestBodySize = maxBodySize;
         }
 
     Authorized:

@@ -38,6 +38,7 @@
                             <option value="0">None</option>
                             <option value="1">Process</option>
                             <option value="2">Service</option>
+                            <option value="3">SQL Connection</option>
                         </select>
                     </div>
                     
@@ -53,6 +54,23 @@
                     <div class="field checktype-service">
                         <label>TCP Port</label>
                         <input type="number" value="1" min="1" max="65535" data-bind="service_TcpPort">
+                    </div>
+                    
+                    <div class="field checktype-sqlconnection">
+                        <label>Host</label>
+                        <input type="text" data-bind="sqlconnection_Host">
+                    </div>
+                    <div class="field checktype-sqlconnection">
+                        <label>Database</label>
+                        <input type="text" data-bind="sqlconnection_Database">
+                    </div>
+                    <div class="field checktype-sqlconnection">
+                        <label>Username</label>
+                        <input type="text" data-bind="sqlconnection_Username">
+                    </div>
+                    <div class="field checktype-sqlconnection">
+                        <label>Password</label>
+                        <input type="password" data-bind="sqlconnection_Password">
                     </div>
                     
                     <div class="field">
