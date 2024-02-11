@@ -7,16 +7,28 @@ namespace Brandmauer;
 
 public abstract class ReverseProxyMiddleware
 {
-    protected static readonly SocketsHttpHandler handler = new()
+    protected static bool TryGetTimeout(ReverseProxyRoute route, out TimeSpan timeout)
+    {
+        if (route.Timeout > 0)
+        {
+            timeout = TimeSpan.FromSeconds(route.Timeout);
+            return true;
+        }
+
+        timeout = TimeSpan.Zero;
+        return false;
+    }
+
+    protected static SocketsHttpHandler CreateHandler(TimeSpan timeout) => new()
     {
         UseProxy = false,
         AllowAutoRedirect = false,
         AutomaticDecompression = DecompressionMethods.None,
         UseCookies = false,
+        ConnectTimeout = timeout,
         ActivityHeadersPropagator = new ReverseProxyPropagator(
             DistributedContextPropagator.Current
         ),
-        ConnectTimeout = TimeSpan.FromSeconds(15),
         SslOptions = {
             RemoteCertificateValidationCallback = (_, _, _, _) => true
         }

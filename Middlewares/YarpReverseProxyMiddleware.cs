@@ -9,7 +9,8 @@ public class YarpReverseProxyMiddleware(
     IHttpForwarder forwarder
 ) : ReverseProxyMiddleware
 {
-    protected readonly HttpMessageInvoker httpClient = new(handler);
+    SocketsHttpHandler handler;
+    HttpMessageInvoker httpClient;
 
     protected override RequestDelegate Next => next;
 
@@ -27,11 +28,26 @@ public class YarpReverseProxyMiddleware(
 
         context.Request.Path = path;
 
+        ForwarderRequestConfig config;
+
+        if (TryGetTimeout(feature.Route, out var timeout))
+        {
+            handler ??= CreateHandler(timeout);
+            httpClient ??= new(handler);
+            config = new() { ActivityTimeout = timeout };
+        }
+        else
+        {
+            handler ??= CreateHandler(TimeSpan.FromSeconds(15));
+            httpClient ??= new(handler);
+            config = new();
+        }
+
         var error = await forwarder.SendAsync(
             context,
             feature.Target,
             httpClient,
-            ForwarderRequestConfig.Empty,
+            config,
             CustomHttpTransformer.Default
         );
 

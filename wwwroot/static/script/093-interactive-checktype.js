@@ -17,6 +17,11 @@ class InteractiveCheckType
             {
                 $x.setClass(`display-none`, $.value != 2)
             })
+            
+            $page.qAll(`.checktype-sqlconnection`).forEach($x =>
+            {
+                $x.setClass(`display-none`, $.value != 3)
+            })
         }
         
         $.onChange(() => refreshView())
