@@ -169,6 +169,7 @@ public static partial class Endpoint
 
         app.MapGet($"{API}/resolve"/*?host={{host}}*/, Resolve);
         app.MapGet($"{API}/whatsmyip", WhatsMyIp);
+        app.MapGet($"{API}/time", Time);
 
         app.MapGet($"{API}/audit"/*?limit={{limit}}*/, Audit.Get);
         app.MapGet($"{API}/audit/{{id}}"/*?limit={{limit}}*/, Audit.GetById);
@@ -235,5 +236,10 @@ public static partial class Endpoint
                 ip = context.Connection.RemoteIpAddress.ToIp();
 
         return Results.Text(ip);
+    }
+
+    static IResult Time(HttpContext context)
+    {
+        return Results.Text(DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString());
     }
 }
