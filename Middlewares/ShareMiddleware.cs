@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.StaticFiles;
+﻿using FileExtensionContentTypeProvider
+    = Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider;
 
+using System.Net;
 using System.Text;
 
 namespace Brandmauer;
@@ -34,7 +36,7 @@ public class ShareMiddleware(RequestDelegate next)
                 response.StatusCode = 400;
                 goto Exit;
             }
-            
+
             goto Next;
         }
 
@@ -65,7 +67,7 @@ public class ShareMiddleware(RequestDelegate next)
             }
 
             var fileIndex = _fileIndex.Value;
-            var fileName = share.Files[fileIndex].Value;
+            var fileName = WebUtility.UrlEncode(share.Files[fileIndex].Value);
             var filePath = share.GetLocalFilePath(fileIndex);
             var fileInfo = new FileInfo(filePath);
 
@@ -162,14 +164,18 @@ public class ShareMiddleware(RequestDelegate next)
 
             for (int i = 0; i < share.Files.Count; i++)
             {
-                var name = share.Files[i].Value;
                 var info = new FileInfo(share.GetLocalFilePath(i));
+
+                var ext = info.Extension.TrimStart('.');
+                var iconUrl = $"icon?file-extension={ext}";
+
+                var name = share.Files[i].Value;
                 var tooltip = $"<div>{name}</div>" +
                     $"<div><b>{info.Length.ToHumanizedSize()}</b></div>";
                 name = Path.GetFileNameWithoutExtension(name).Replace('_', ' ');
-                var url = $"{baseUrl}{PATH}/{share.Token}/{i}${share.Password}";
-                var ext = info.Extension.TrimStart('.');
-                var iconUrl = $"icon?file-extension={ext}";
+
+                var url = GetFileDownloadLink(baseUrl, share, i);
+
                 fileListHtml.AppendLine(
                     $" <div>                                               " +
                     $"   <div>                                             " +
@@ -200,6 +206,22 @@ public class ShareMiddleware(RequestDelegate next)
         }
 
         return default;
+    }
+
+    static string GetFileDownloadLink(string baseUrl, Share share, int? i)
+    {
+        var url = $"{baseUrl}{PATH}/{share.Token}";
+
+        if (i.HasValue)
+        {
+            var fileName = WebUtility.UrlEncode(share.Files[i.Value].Value);
+            url += $"/{i.Value}/{fileName}";
+        }
+
+        if (share.Password != string.Empty)
+            url += $"${share.Password}";
+
+        return url;
     }
 
     static (int statusCode, string token) Upload(HttpRequest request)
@@ -252,7 +274,7 @@ public class ShareMiddleware(RequestDelegate next)
             return x.GetBaseUrl(request);
         });
 
-        return (200, share.Token);
+        return (200, GetFileDownloadLink(baseUrl, share, null));
     }
 
     public class ContextParameters
@@ -284,7 +306,8 @@ public class ShareMiddleware(RequestDelegate next)
             if (path.Length < length + 2)
                 return;
 
-            if (!int.TryParse(path[(length + 1)..], out var fileIndex))
+            var fileIndexString = path[(length + 1)..].Split('/', 2)[0];
+            if (!int.TryParse(fileIndexString, out var fileIndex))
                 return;
 
             this.fileIndex = fileIndex;

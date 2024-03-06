@@ -201,17 +201,6 @@
                 updateFileList()
             }
             
-            function iterateFiles()
-            {
-                const files = []
-                qAll(`input[type="file"]`).forEach($ =>
-                {
-                    for (const file of $.files)
-                        files.push(file)
-                })
-                return files
-            }
-            
             function updateFileList()
             {
                 let html = ``
@@ -268,8 +257,7 @@
                 
                 if (response.ok)
                 {
-                    const token = await response.text()
-                    location.href = `share/${token}$${password}`
+                    location.href = await response.text()
                     return true
                 }
                 
