@@ -1,4 +1,8 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Net;
+using System.Text;
+
+using Propagator = Yarp.ReverseProxy.Forwarder.ReverseProxyPropagator;
 
 namespace Brandmauer;
 
@@ -125,5 +129,29 @@ public class ReverseProxyRoute : Model, IOnDeserialize
         SmtpConnection = database.SmtpConnections.FirstOrDefault(
             x => x.Identifier.Id == SmtpConnectionReference.Id
         );
+    }
+
+    public bool TryGetTimeout(out int timeout)
+    {
+        timeout = Timeout;
+        return timeout > 0;
+    }
+
+    public SocketsHttpHandler CreateHandler(TimeSpan timeout)
+    {
+        return new()
+        {
+            UseProxy = false,
+            AllowAutoRedirect = false,
+            AutomaticDecompression = DecompressionMethods.None,
+            UseCookies = false,
+            ConnectTimeout = timeout,
+            ActivityHeadersPropagator = new Propagator(
+                DistributedContextPropagator.Current
+            ),
+            SslOptions = {
+                RemoteCertificateValidationCallback = (_, _, _, _) => true
+            }
+        };
     }
 }

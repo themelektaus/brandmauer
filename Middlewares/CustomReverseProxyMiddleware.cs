@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http.Extensions;
 
+using System.Net;
+
 namespace Brandmauer;
 
 public class CustomReverseProxyMiddleware(RequestDelegate next)
     : ReverseProxyMiddleware
 {
-    SocketsHttpHandler handler;
-    HttpClient httpClient;
+    static readonly Dictionary<int, HttpClient> httpClientCache = new();
 
     protected override RequestDelegate Next => next;
 
@@ -79,18 +80,15 @@ public class CustomReverseProxyMiddleware(RequestDelegate next)
             var requestInfo = RequestInfo.Create(request, content);
 #endif
 
-            if (TryGetTimeout(feature.Route, out var timeout))
+            if (!feature.Route.TryGetTimeout(out var timeout))
+                timeout = 100;
+
+            if (!httpClientCache.TryGetValue(timeout, out var httpClient))
             {
-                handler ??= CreateHandler(timeout);
-                httpClient ??= new(handler)
-                {
-                    Timeout = handler.ConnectTimeout
-                };
-            }
-            else
-            {
-                handler ??= CreateHandler(TimeSpan.FromSeconds(15));
-                httpClient ??= new(handler);
+                var _timeout = TimeSpan.FromSeconds(timeout);
+                var handler = feature.Route.CreateHandler(_timeout);
+                httpClient = new(handler) { Timeout = _timeout };
+                httpClientCache.Add(timeout, httpClient);
             }
 
             using var response = await httpClient.SendAsync(
@@ -157,7 +155,22 @@ public class CustomReverseProxyMiddleware(RequestDelegate next)
                     if (TryRedirect(context))
                         return;
 
+            if (ex is TimeoutException)
+            {
+                context.Response.StatusCode = 504;
+                goto Next;
+            }
+
+            ex = ex.InnerException;
+            if (ex is not null && ex is TimeoutException)
+            {
+                context.Response.StatusCode = 504;
+                goto Next;
+            }
+
             context.Response.StatusCode = 500;
+
+        Next:
             await NextAsync(context);
         }
     }
