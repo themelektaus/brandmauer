@@ -65,8 +65,21 @@ class ListPage extends Page
             $search.on(`input`, () =>
             {
                 this.items.forEach(x => x.$.setClass(`display-none`, true))
-                this.items.filter(x => x.$.innerText.toLowerCase().includes($search.value.toLowerCase()))
-                    .forEach(x => x.$.setClass(`display-none`, false))
+                
+                const items = this.items.filter(x =>
+                {
+                    const $htmlInfo = x.$.q(`[data-bind="htmlInfo"]`)
+                    if (!$htmlInfo)
+                        return false
+                    
+                    const text = $htmlInfo.innerText.toLowerCase()
+                    if (!text.includes($search.value.toLowerCase()))
+                        return false
+                    
+                    return true
+                })
+                
+                items.forEach(x => x.$.setClass(`display-none`, false))
             })
         }
     }
