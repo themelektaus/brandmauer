@@ -58,6 +58,17 @@ class ListPage extends Page
             
             enable()
         })
+        
+        const $search = this.$.q(`.search`)
+        if ($search)
+        {
+            $search.on(`input`, () =>
+            {
+                this.items.forEach(x => x.$.setClass(`display-none`, true))
+                this.items.filter(x => x.$.innerText.toLowerCase().includes($search.value.toLowerCase()))
+                    .forEach(x => x.$.setClass(`display-none`, false))
+            })
+        }
     }
     
     async setup()
@@ -124,7 +135,10 @@ class ListPage extends Page
     async refreshAllOptions()
     {
         for (const $ of this.$.qAll(`[data-options]`))
+        {
             await this.refreshOptions($)
+            await delay(2)
+        }
     }
     
     async refreshOptions($)

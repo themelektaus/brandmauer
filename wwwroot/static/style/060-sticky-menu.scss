@@ -32,12 +32,27 @@ h1 {
         pointer-events: none;
         height: 7rem;
         
+        &:has(.search) {
+            height: 10rem;
+        }
+        
         & > button {
+            pointer-events: all;
+        }
+        
+        & > .search {
+            position: absolute;
+            top: 5rem;
+            width: calc(100% - 1rem);
             pointer-events: all;
         }
     }
     
     & > .content {
         margin-top: 5rem;
+    }
+    
+    &:has(.search) > .content {
+        margin-top: 8rem;
     }
 }

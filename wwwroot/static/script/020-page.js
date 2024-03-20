@@ -30,6 +30,7 @@ class Page
         {
             if (Page.active == this)
                 Page.active = null
+            
             return
         }
         
