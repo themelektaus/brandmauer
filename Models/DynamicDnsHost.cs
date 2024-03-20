@@ -4,7 +4,12 @@ namespace Brandmauer;
 
 public partial class DynamicDnsHost : Model, IAsyncUpdateable
 {
-    static readonly Dictionary<_IpResolver, string> ipCache = new();
+    public class CachedIp(string ip)
+    {
+        public readonly string ip = ip;
+        public DateTime timestamp = DateTime.MinValue;
+    }
+    static readonly Dictionary<_IpResolver, CachedIp> ipCache = new();
 
     public bool Enabled { get; set; } = true;
 
@@ -120,11 +125,22 @@ public partial class DynamicDnsHost : Model, IAsyncUpdateable
         if (ip is null)
             return;
 
-        if (ipCache.TryGetValue(IpResolver, out var cachedIp))
-            if (ip == cachedIp)
+        if (!ipCache.TryGetValue(IpResolver, out var cachedIp))
+        {
+            cachedIp = new(ip);
+            ipCache.TryAdd(IpResolver, cachedIp);
+        }
+
+        if (ip == cachedIp.ip)
+        {
+            if (Provider != _Provider.NoIp)
                 return;
 
-        ipCache.TryAdd(IpResolver, ip);
+            if ((now - cachedIp.timestamp).TotalDays < 1)
+                return;
+        }
+
+        cachedIp.timestamp = now;
 
         switch (Provider)
         {
@@ -157,7 +173,7 @@ public partial class DynamicDnsHost : Model, IAsyncUpdateable
 
         using var httpClient = new HttpClient();
         using var response = await httpClient.TrySendAsync(request);
-        
+
 #if DEBUG
         RequestInfo.Add(requestInfo, response, response.Content.ReadAsStream());
 #endif

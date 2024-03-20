@@ -1,89 +1,173 @@
 <!DOCTYPE html>
 <html>
     <head>
+        
         <style>
+            
+            @font-face {
+                font-family: Rubik;
+                src: url(../res/rubik.ttf);
+            }
+            
+            * {
+                user-select: none;
+            }
+            
             body {
-                background: linear-gradient(#224, #112);
+                background: linear-gradient(#335, #112);
                 height: 100vh;
                 margin: 0;
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                font-size: 1.5em;
+                font-size: 1.125em;
             }
+            
             body, button {
                 color: white;
-                font-family: monospace;
+                font-family: Rubik;
             }
+            
             main {
-                background-color: #0009;
-                padding: 2rem 2.5rem;
+                background-color: #0006;
+                padding: 2.25rem 2.5rem 2.75rem;
                 margin: 6rem 2rem 0;
                 display: flex;
                 flex-direction: column;
                 gap: 1.5rem;
-                border-radius: .5rem;
+                border-radius: .75rem;
                 opacity: 1;
                 transform: translateY(-5rem);
                 transition: all 200ms;
             }
+            
             main.hidden {
                 opacity: 0;
                 transform: translateY(5rem);
             }
+            
             h1 {
                 margin: .25rem 0 .75rem;
                 text-align: center;
+                font-size: 2.125em;
             }
+            
             .content {
                 display: flex;
                 flex-direction: column;
                 gap: 2rem;
                 align-items: center;
             }
+            
             .dices {
                 display: flex;
                 gap: 1rem;
             }
+            
             .dice {
                 background-color: #334;
-                width: 4rem;
+                width: 5.25rem;
                 aspect-ratio: 1;
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                font-size: 2em;
+                font-size: 2.5em;
                 border-radius: .5rem;
             }
+            
+            .dice::before,
+            .dice::after,
+            .dice > div {
+                background-color: #fffc;
+                border-radius: 50%;
+                width: .275em;
+                aspect-ratio: 1;
+                position: absolute;
+            }
+            
+            .dice[value]::before,
+            .dice[value]::after {
+                content: '';
+            }
+            
+            .dice[value="2"]::before {
+                translate: -.475em -.475em;
+            }
+            
+            .dice[value="2"]::after {
+                translate: .475em .475em;
+            }
+            
+            .dice[value="3"]::after {
+                translate: .475em .475em;
+                -webkit-box-reflect: left 1.125em;
+                rotate: 45deg;
+            }
+            
+            .dice[value="4"]::after,
+            .dice[value="5"]::after {
+                translate: .475em .475em;
+                -webkit-box-reflect: left .675em;
+            }
+            
+            .dice[value="4"]::before,
+            .dice[value="5"]::before {
+                translate: .475em -.475em;
+                -webkit-box-reflect: left .675em;
+            }
+            
+            .dice[value="6"]::after {
+                translate: .475em .5em;
+                -webkit-box-reflect: left .675em;
+            }
+            
+            .dice[value="6"]::before {
+                translate: .475em -.5em;
+                -webkit-box-reflect: left .675em;
+            }
+            
+            .dice[value="6"] > div {
+                translate: .475em 0;
+                -webkit-box-reflect: left .675em;
+            }
+            
             .dice.big {
                 background-color: #446;
                 scale: 1.25;
             }
+            
             .result {
-                font-size: 1.5em;
-                height: 1.5em;
-                color: yellow;
+                font-size: 1.75em;
+                height: 1.25em;
+                color: orange;
             }
+            
             button {
-                padding: .5em 1em;
+                padding: .5em 1.125em;
                 background-color: #446;
                 border: none;
                 cursor: pointer;
-                border-radius: .25rem;
-                font-size: 1.25em;
+                border-radius: .375rem;
+                font-size: 1.5em;
             }
+            
             button:not(:disabled):hover {
+                filter: brightness(1.2);
+            }
+            
+            button:not(:disabled):active {
                 filter: brightness(1.4);
             }
-            button:not(:disabled):active {
-                filter: brightness(1.7);
-            }
+            
             button:disabled {
                 cursor: default;
-                opacity: .5;
+                filter: brightness(.8);
             }
+            
         </style>
+        
         <script>
+            
             const DICE_COUNT = 5
             const VALUES_RANGE = 6
             const T = 70
@@ -110,10 +194,18 @@
                 
                 for (let i = 0; i < DICE_COUNT; i++)
                 {
+                    $dices[i].removeAttribute(`value`)
                     $dices[i].innerHTML = ``
+                    
                     const classList = $dices[i].classList
                     setTimeout(() => classList.add(`big`), i * T)
-                    setTimeout(() => $dices[i].innerHTML = values[i] + 1, i * T + T / 2)
+                    setTimeout(() =>
+                    {
+                        const value = values[i] + 1
+                        $dices[i].setAttribute(`value`, value)
+                        if (value >= 5)
+                            $dices[i].innerHTML = `<div></div>`
+                    }, i * T + T / 2)
                     setTimeout(() => classList.remove(`big`), i * T + T)
                 }
                 
@@ -127,20 +219,42 @@
             
             function getResult(values)
             {
-                const cc = []
-                for (let i = 0; i < VALUES_RANGE; i++) cc.push(0)
-                for (const i of values) cc[i]++
+                const similarityCounts = []
                 
-                const getCountOf = c => cc.filter(x => x == c).length
-                
-                if (getCountOf(5) == 1) return `Five of a kind`
-                if (getCountOf(4) == 1) return `Four of a kind`
-                
-                const pairCount = getCountOf(2)
-                
-                if (getCountOf(3) == 1)
+                for (let i = 0; i < VALUES_RANGE; i++)
                 {
-                    if (pairCount == 1) return `Full house`
+                    similarityCounts.push(0)
+                }
+                
+                for (const i of values)
+                {
+                    similarityCounts[i]++
+                }
+                
+                const getSimilarityCount = y =>
+                {
+                    return similarityCounts.filter(x => x == y).length
+                }
+                
+                if (getSimilarityCount(5) == 1)
+                {
+                    return `Five of a kind`
+                }
+                
+                if (getSimilarityCount(4) == 1)
+                {
+                    return `Four of a kind`
+                }
+                
+                const pairCount = getSimilarityCount(2)
+                
+                if (getSimilarityCount(3) == 1)
+                {
+                    if (pairCount == 1)
+                    {
+                        return `Full house`
+                    }
+                    
                     return `Three of a kind`
                 }
                 
@@ -149,18 +263,38 @@
                     for (let j = 0; j <= 1 + i; j++)
                     {
                         let counter = 0
+                        
                         for (let k = 0; k <= DICE_COUNT - i; k++)
                         {
-                            if (!values.includes(j + k)) break
-                            counter++
+                            if (!values.includes(j + k))
+                            {
+                                break
+                            }
+                            
+                            counter = counter + 1
                         }
+                        
                         if (counter == DICE_COUNT - i)
-                            return `${i == 0 ? `Full` : `Small`} straight`
+                        {
+                            if (i == 0)
+                            {
+                                return `Full straight`
+                            }
+                            
+                            return `Small straight`
+                        }
                     }
                 }
                 
-                if (pairCount == 2) return `Two pair`
-                if (pairCount == 1) return `One pair`
+                if (pairCount == 2)
+                {
+                    return `Two pair`
+                }
+                
+                if (pairCount == 1)
+                {
+                    return `One pair`
+                }
                 
                 return `Unfortunately nothing`
             }
@@ -174,8 +308,10 @@
             {
                 return document.querySelectorAll(...arguments)
             }
+            
         </script>
     </head>
+    
     <body>
         <main class="hidden">
             <h1>Poker dice</h1>
@@ -186,4 +322,5 @@
             </div>
         </div>
     </body>
+    
 </html>

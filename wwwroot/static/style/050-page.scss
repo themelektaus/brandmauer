@@ -8,10 +8,12 @@
     opacity: 0;
     transition: opacity 120ms, margin 120ms;
     margin: 0 .5rem 0 -.5rem;
+    pointer-events: none;
     
     &.fade-in {
         opacity: 1;
         margin: 0;
+        pointer-events: unset;
     }
 
     & > .title {
@@ -27,6 +29,11 @@
             display: flex;
             gap: .75rem;
         }
+    }
+    
+    & > .title:has(.search) {
+        height: 5.5rem;
+        padding-bottom: 5rem;
     }
 }
 
