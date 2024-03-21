@@ -59,29 +59,32 @@ class ListPage extends Page
             enable()
         })
         
-        const $search = this.$.q(`.search`)
-        if ($search)
+        this.$search = this.$.q(`.search`)
+        if (this.$search)
+            this.$search.on(`input`, () => this.#onSearch())
+    }
+    
+    #onSearch()
+    {
+        if (!this.$search)
+            return
+        
+        this.items.forEach(x => x.$.setClass(`display-none`, true))
+        
+        const items = this.items.filter(x =>
         {
-            $search.on(`input`, () =>
-            {
-                this.items.forEach(x => x.$.setClass(`display-none`, true))
-                
-                const items = this.items.filter(x =>
-                {
-                    const $htmlInfo = x.$.q(`[data-bind="htmlInfo"]`)
-                    if (!$htmlInfo)
-                        return false
-                    
-                    const text = $htmlInfo.innerText.toLowerCase()
-                    if (!text.includes($search.value.toLowerCase()))
-                        return false
-                    
-                    return true
-                })
-                
-                items.forEach(x => x.$.setClass(`display-none`, false))
-            })
-        }
+            const $htmlInfo = x.$.q(`[data-bind="htmlInfo"]`)
+            if (!$htmlInfo)
+                return false
+            
+            const text = $htmlInfo.innerText.toLowerCase()
+            if (!text.includes(this.$search.value.toLowerCase()))
+                return false
+            
+            return true
+        })
+        
+        items.forEach(x => x.$.setClass(`display-none`, false))
     }
     
     async setup()
@@ -126,6 +129,7 @@ class ListPage extends Page
         await this.fetchData()
         await this.rebuildView()
         this.loadModelIntoView()
+        this.#onSearch()
     }
     
     async fetchData()

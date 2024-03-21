@@ -86,6 +86,13 @@ public class WhitelistMiddleware(RequestDelegate next)
 
         var request = context.Request;
         var hasCorrectPath = request.Path == "/whitelist";
+
+        if (hasCorrectPath && request.Query.TryGetValue("token", out _))
+        {
+			context.Features.Set(new PermissionFeature { Authorized = true });
+			goto Next;
+        }
+
         var headers = request.Headers;
 
         long reverseProxyRouteId;
@@ -221,6 +228,7 @@ public class WhitelistMiddleware(RequestDelegate next)
             goto Exit;
         }
 
+    Next:
         await next.Invoke(context);
 
     Exit:

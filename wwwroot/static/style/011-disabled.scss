@@ -11,6 +11,10 @@ body[disabled] {
     input, textarea, button, select {
         opacity: .5;
     }
+    
+    [data-page] > .content {
+        display: none;
+    }
 }
 
 main:has([data-action="gotoPage"][data-target="certificates"].dirty) {
