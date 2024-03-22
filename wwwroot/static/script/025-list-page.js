@@ -128,7 +128,6 @@ class ListPage extends Page
         
         await this.fetchData()
         await this.rebuildView()
-        this.loadModelIntoView()
         await this.refreshAllOptions()
         this.#onSearch()
     }
@@ -146,6 +145,8 @@ class ListPage extends Page
         
         for (const item of this.items)
             item.createNode()
+        
+        this.loadModelIntoView()
     }
     
     async refreshAllOptions()
@@ -155,6 +156,8 @@ class ListPage extends Page
             await this.refreshOptions($)
             await delay(2)
         }
+        
+        this.loadModelIntoView()
     }
     
     async refreshOptions($)
