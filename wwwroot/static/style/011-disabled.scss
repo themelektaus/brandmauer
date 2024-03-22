@@ -12,8 +12,8 @@ body[disabled] {
         opacity: .5;
     }
     
-    [data-page] > .content {
-        display: none;
+    [data-bind="htmlInfo"] {
+        opacity: .5;
     }
 }
 
