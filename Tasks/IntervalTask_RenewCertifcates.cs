@@ -27,8 +27,10 @@ public class IntervalTask_RenewCertifcates : IntervalTask
             );
         }
 
-        foreach (var certificate in certificates
-            .Where(x => !x.issuerCommonName.EndsWith("R3"))
+        foreach (
+            var certificate in certificates.Where(
+                x => x.issuerOrganisation == string.Empty
+            )
         )
         {
             await Endpoint.Certificates.Update(
