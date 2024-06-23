@@ -14,6 +14,8 @@ class InteractiveAction
     
     static async gotoPage($sender)
     {
+        disable()
+        
         Internal.getPageActions().forEach($ => $.setClass(`active`, false))
         
         const pages = Page.instances
@@ -27,6 +29,8 @@ class InteractiveAction
         Internal.getPageTarget(target).setClass(`active`, true)
         
         await pages[target].setActive(true)
+        
+        enable()
     }
     
     static async apply()
