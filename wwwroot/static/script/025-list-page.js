@@ -122,7 +122,7 @@ class ListPage extends Page
         
         if (this.items != null)
         {
-            await this.refreshAllOptions()
+            //await this.refreshAllOptions()
             return
         }
         
@@ -151,10 +151,12 @@ class ListPage extends Page
     
     async refreshAllOptions()
     {
-        for (const $ of this.$.qAll(`[data-options]`))
+        for (const item of this.items)
         {
-            await this.refreshOptions($)
-            await delay(2)
+            for (const $ of item.$.qAll(`[data-options]`))
+                await this.refreshOptions($)
+            
+            await delay(1)
         }
         
         this.loadModelIntoView()
