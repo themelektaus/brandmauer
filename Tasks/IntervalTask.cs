@@ -13,6 +13,7 @@ public abstract class IntervalTask : IAsyncDisposable
     readonly CancellationTokenSource ctSource;
     readonly CancellationToken ctToken;
 
+    readonly bool oneShot;
     readonly TimeSpan delay;
     readonly TimeSpan interval;
 
@@ -25,6 +26,8 @@ public abstract class IntervalTask : IAsyncDisposable
         name = t.Name.Split('_').LastOrDefault();
         ctSource = new();
         ctToken = ctSource.Token;
+
+        oneShot = t.GetCustomAttribute<OneShotAttribute>() is not null;
 
         delay = TimeSpan.FromSeconds(
             t.GetCustomAttribute<DelayAttribute>()?.seconds ?? 0
@@ -58,6 +61,12 @@ public abstract class IntervalTask : IAsyncDisposable
             while (!IsDisposed())
             {
                 await (OnTickAsync() ?? Task.CompletedTask);
+
+                if (oneShot)
+                {
+                    break;
+                }
+
                 try { await Task.Delay(interval, ctToken); } catch { }
             }
 

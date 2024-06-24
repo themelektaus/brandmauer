@@ -97,9 +97,11 @@ app.RunInBackground<IntervalTask_DnsServer>();
 app.RunInBackground<IntervalTask_ReloadDatabase>();
 
 #if LINUX
-app.RunInBackground<IntervalTask_RenewCertifcates>();
 app.RunInBackground<IntervalTask_UpdateBrandmauer>();
+app.RunInBackground<IntervalTask_RenewCertifcates>();
+app.RunInBackground<IntervalTask_Startup>();
 #endif
+
 
 await app.RunAsync();
 await app.DisposeAllIntervalTasksAsync();

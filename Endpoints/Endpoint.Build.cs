@@ -15,16 +15,22 @@ public static partial class Endpoint
         public static IResult Dirty()
         {
             LastBuild ??= Database.Use(x => x.Config.LastBuild);
-
             return Results.Json(GenerateBuilder().ToString() != LastBuild);
         }
 
         public static IResult Apply(HttpRequest request)
         {
-            return ApplyInternal(request, clear: false);
+            var result = ApplyInternal(clear: false);
+            return result.ToResult(request);
         }
 
-        static IResult ApplyInternal(HttpRequest request, bool clear)
+        public static IResult Clear(HttpRequest request)
+        {
+            var result = ApplyInternal(clear: true);
+            return result.ToResult(request);
+        }
+
+        public static ShellCommand.Result ApplyInternal(bool clear)
         {
             var builder = GenerateBuilder();
             builder.clear = clear;
@@ -39,12 +45,7 @@ public static partial class Endpoint
                     return build;
                 });
             }
-            return result.ToResult(request);
-        }
-
-        public static IResult Clear(HttpRequest request)
-        {
-            return ApplyInternal(request, clear: true);
+            return result;
         }
 
         static IpTablesBuilder GenerateBuilder()
