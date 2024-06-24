@@ -67,7 +67,7 @@ public class ShareMiddleware(RequestDelegate next)
             }
 
             var fileIndex = _fileIndex.Value;
-            var fileName = WebUtility.UrlEncode(share.Files[fileIndex].Value);
+            var fileName = Uri.EscapeDataString(share.Files[fileIndex].Value);
             var filePath = share.GetLocalFilePath(fileIndex);
             var fileInfo = new FileInfo(filePath);
 
@@ -80,7 +80,7 @@ public class ShareMiddleware(RequestDelegate next)
             response.Clear();
 
             var h = response.Headers;
-            h.Append("Content-Disposition", $"inline; filename={fileName}");
+            h.Append("Content-Disposition", $"inline; filename=\"{fileName}\"");
             h.Append("Content-Length", fileInfo.Length.ToString());
             h.Append("Content-Transfer-Encoding", "binary");
 

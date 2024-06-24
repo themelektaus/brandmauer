@@ -98,6 +98,24 @@ class InteractiveAction
         
         await delay(9000)
         
+        enable(options)
+        
+        options.screenMessage = `Restarting`
+        
+        disable(options)
+        
+        for (let i = 0; i < 10; i++)
+        {
+            await delay(5000)
+            
+            const response = await fetch(``).catch(() => { })
+            
+            if (response && response.status == 200)
+            {
+                break
+            }
+        }
+        
         location.reload()
     }
     
