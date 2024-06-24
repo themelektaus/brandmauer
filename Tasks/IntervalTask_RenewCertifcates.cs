@@ -1,4 +1,5 @@
-﻿namespace Brandmauer;
+﻿#if LINUX
+namespace Brandmauer;
 
 [Delay(60)]
 [Interval(86400)]
@@ -14,7 +15,7 @@ public class IntervalTask_RenewCertifcates : IntervalTask
             .Where(x => x.ExpiresSoon).ToList();
 
         var letsEncryptCertificate = certificates.FirstOrDefault(
-            x => x.issuerCommonName == "R3" &&
+            x => x.issuerCommonName.StartsWith('R') &&
                 x.issuerOrganisation == "Let's Encrypt"
         );
 
@@ -43,3 +44,4 @@ public class IntervalTask_RenewCertifcates : IntervalTask
 
     protected override Task OnDisposeAsync() => default;
 }
+#endif
