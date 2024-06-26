@@ -69,19 +69,24 @@ class ListPage extends Page
         if (!this.$search)
             return
         
+        const search = this.$search.value.toLowerCase()
+        
         this.items.forEach(x => x.$.setClass(`display-none`, true))
         
         const items = this.items.filter(x =>
         {
-            const $htmlInfo = x.$.q(`[data-bind="htmlInfo"]`)
-            if (!$htmlInfo)
-                return false
+            const $$ = [
+                x.$.q(`[data-bind="htmlName"]`),
+                x.$.q(`[data-bind="htmlInfo"]`)
+            ]
             
-            const text = $htmlInfo.innerText.toLowerCase()
-            if (!text.includes(this.$search.value.toLowerCase()))
-                return false
+            for (const $ of $$)
+            {
+                if ($ && $.innerText.toLowerCase().includes(search))
+                    return true
+            }
             
-            return true
+            return false
         })
         
         items.forEach(x => x.$.setClass(`display-none`, false))
@@ -129,7 +134,6 @@ class ListPage extends Page
         await this.fetchData()
         await this.rebuildView()
         await this.refreshAllOptions()
-        this.#onSearch()
     }
     
     async fetchData()
@@ -191,5 +195,6 @@ class ListPage extends Page
             item.model.transferTo(item.$)
             item.hashCode = item.model.getHashCode()
         }
+        this.#onSearch()
     }
 }
