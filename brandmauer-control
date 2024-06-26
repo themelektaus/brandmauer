@@ -32,7 +32,7 @@ case $1 in
     rm -rf /app/brandmauer/Download
 
     mkdir /app/brandmauer/Download
-    wget http://steinalt.online/download/brandmauer/data.zip \
+    wget https://steinalt.online/download/brandmauer/data.zip \
          -O /app/brandmauer/Download/data.zip
     unzip /app/brandmauer/Download/data.zip -d /app/brandmauer/Download
 
