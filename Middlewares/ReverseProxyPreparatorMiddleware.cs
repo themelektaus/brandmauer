@@ -89,8 +89,17 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
             unauthorized = !authorized;
         }
 
-        if (authorized || Utils.IsPublicPath(path))
+        if (path == "/api/time")
+        {
+            authorized = true;
+            unauthorized = false;
             goto Accept;
+        }
+
+        if (authorized || Utils.IsPublicPath(path))
+        {
+            goto Accept;
+        }
 
         if (source.route.SourceHosts.Count > 0)
         {

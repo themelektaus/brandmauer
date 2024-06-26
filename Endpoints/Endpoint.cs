@@ -240,6 +240,6 @@ public static partial class Endpoint
 
     static IResult Time(HttpContext context)
     {
-        return Results.Text(DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString());
+        return Results.Text(DateTimeOffset.Now.ToUnixTimeSeconds().ToString());
     }
 }
