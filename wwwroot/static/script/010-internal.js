@@ -145,7 +145,11 @@ class Internal
         
         if ($input.type == `number` || $input.dataset.type == `number`)
         {
-            this.setProperty(model, bind, +$input.value)
+            let value = $input.value
+            if ($input.tagName == `SELECT` && $input.options.length == 0)
+                value = $input.dataset.originValue
+            
+            this.setProperty(model, bind, +value)
             return
         }
         

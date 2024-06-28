@@ -24,19 +24,61 @@ class ListPageItem
         this.$.q(`[data-action="delete"]`).onClick(() => this.delete())
         
         this.$simple = this.$.children[0]
-        this.$simple.onClick(() =>
+        this.$simple.onClick(async () =>
         {
             for (const item of this.page.items)
+            {
                 if (this.$details != item.$details)
                     item.$details.setClass(`display-none`, true)
+            }
             
             this.$details.classList.toggle(`display-none`)
+            
+            if (!this.$details.classList.contains(`display-none`))
+                await this.refreshOptions()
         })
         
         this.$details = this.$.children[1]
         this.$details.setClass(`display-none`, true)
         
         this.page.$list.appendChild(this.$)
+    }
+    
+    async refreshOptions()
+    {
+        disable()
+        
+        for (const $ of this.$.qAll(`[data-options]`))
+        {
+            const value = $.value
+            
+            $.innerHTML = ``
+            
+            const page = Page.instances[$.dataset.options]
+            
+            $.create(`option`)
+            
+            await page.load()
+            
+            for (const item of page.items)
+            {
+                const $option = $.create(`option`)
+                $option.value = item.model.identifier.id
+                $option.text = item.model.shortName
+            }
+            
+            $.value = value
+        }
+        
+        this.loadModelIntoView()
+        
+        enable()
+    }
+    
+    loadModelIntoView()
+    {
+        this.model.transferTo(this.$)
+        this.hashCode = this.model.getHashCode()
     }
     
     async save()

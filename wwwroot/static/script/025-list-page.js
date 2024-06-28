@@ -20,10 +20,9 @@ class ListPage extends Page
             const item = ListPageItem.create(this, model)
             item.createNode()
             
-            for (const $ of item.$.qAll(`[data-options]`))
-                await this.refreshOptions($)
-            
             item.model.transferTo(item.$)
+            
+            this.#onSearch()
         })
         
         this.$saveButton = this.$.q(`[data-action="saveAll"]`)
@@ -102,12 +101,13 @@ class ListPage extends Page
                 return
             
             let dirty = false
+            
             for (const item of this.items)
             {
                 const model = item.model.clone()
                 item.$.transferTo(model)
-                const hashCode = model.getHashCode()
-                if (item.hashCode == hashCode)
+                
+                if (item.hashCode == model.getHashCode())
                     continue
                 
                 dirty = true
@@ -125,15 +125,11 @@ class ListPage extends Page
     {
         await super.refresh()
         
-        if (this.items != null)
+        if (this.items == null)
         {
-            //await this.refreshAllOptions()
-            return
+            await this.fetchData()
+            await this.rebuildView()
         }
-        
-        await this.fetchData()
-        await this.rebuildView()
-        await this.refreshAllOptions()
     }
     
     async fetchData()
@@ -148,53 +144,11 @@ class ListPage extends Page
         this.$list.innerHTML = ``
         
         for (const item of this.items)
+        {
             item.createNode()
-        
-        this.loadModelIntoView()
-    }
-    
-    async refreshAllOptions()
-    {
-        for (const item of this.items)
-        {
-            for (const $ of item.$.qAll(`[data-options]`))
-                await this.refreshOptions($)
-            
-            await delay(1)
+            item.loadModelIntoView()
         }
         
-        this.loadModelIntoView()
-    }
-    
-    async refreshOptions($)
-    {
-        const value = $.value
-        
-        $.innerHTML = ``
-        
-        const page = Page.instances[$.dataset.options]
-        
-        $.create(`option`)
-        
-        await page.load()
-        
-        for (const item of page.items)
-        {
-            const $option = $.create(`option`)
-            $option.value = item.model.identifier.id
-            $option.text = item.model.shortName
-        }
-        
-        $.value = value
-    }
-    
-    loadModelIntoView()
-    {
-        for (const item of this.items)
-        {
-            item.model.transferTo(item.$)
-            item.hashCode = item.model.getHashCode()
-        }
         this.#onSearch()
     }
 }
