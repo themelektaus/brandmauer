@@ -143,13 +143,16 @@ class Internal
         if ($input.tagName == `IMG`)
             return
         
+        const useOrignValue = value =>
+        {
+            if ($input.tagName == `SELECT` && $input.selectedIndex == -1)
+                value = $input.dataset.originValue
+            return value
+        }
+        
         if ($input.type == `number` || $input.dataset.type == `number`)
         {
-            let value = $input.value
-            if ($input.tagName == `SELECT` && $input.options.length == 0)
-                value = $input.dataset.originValue
-            
-            this.setProperty(model, bind, +value)
+            this.setProperty(model, bind, +useOrignValue($input.value))
             return
         }
         
@@ -166,7 +169,7 @@ class Internal
             if ($input.dataset.options && bind.split(`.`).slice(-1) != `id`)
                 value = value ? { id: value } : null
             
-            this.setProperty(model, bind, value)
+            this.setProperty(model, bind, useOrignValue($input.value))
             return
         }
     }
