@@ -143,7 +143,7 @@ class Internal
         if ($input.tagName == `IMG`)
             return
         
-        const useOrignValue = value =>
+        const useOriginValue = value =>
         {
             if ($input.tagName == `SELECT` && $input.selectedIndex == -1)
                 value = $input.dataset.originValue
@@ -152,7 +152,7 @@ class Internal
         
         if ($input.type == `number` || $input.dataset.type == `number`)
         {
-            this.setProperty(model, bind, +useOrignValue($input.value))
+            this.setProperty(model, bind, +useOriginValue($input.value))
             return
         }
         
@@ -169,7 +169,7 @@ class Internal
             if ($input.dataset.options && bind.split(`.`).slice(-1) != `id`)
                 value = value ? { id: value } : null
             
-            this.setProperty(model, bind, useOrignValue($input.value))
+            this.setProperty(model, bind, useOriginValue($input.value))
             return
         }
     }
