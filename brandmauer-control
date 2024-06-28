@@ -17,6 +17,8 @@ case $1 in
   restart)
 
     systemctl stop brandmauer.service
+    rm -rf /app/brandmauer/Download
+    chmod -R 777 /app/brandmauer
     systemctl start brandmauer.service
     ;;
 
