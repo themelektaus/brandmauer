@@ -20,6 +20,8 @@ class ListPageItem
     
     createNode()
     {
+        let detailsLoaded = false
+        
         this.$ = this.page.$itemTemplate.cloneNode(true)
         this.$.q(`[data-action="delete"]`).onClick(() => this.delete())
         
@@ -35,7 +37,13 @@ class ListPageItem
             this.$details.classList.toggle(`display-none`)
             
             if (!this.$details.classList.contains(`display-none`))
-                await this.refreshOptions()
+            {
+                if (!detailsLoaded)
+                {
+                    detailsLoaded = true
+                    await this.refreshOptions()
+                }
+            }
         })
         
         this.$details = this.$.children[1]
