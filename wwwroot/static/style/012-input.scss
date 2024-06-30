@@ -41,7 +41,7 @@ button {
     padding: .5rem .75rem;
     background-color: #347;
     
-    &:not(:disabled):hover {
+    &:not(:disabled):not([ripple]):hover {
         filter: brightness(1.1);
     }
     
@@ -67,7 +67,7 @@ input:not(:disabled):focus,
 input:not(:disabled):hover,
 select:not(:disabled):focus,
 select:not(:disabled):hover,
-button:not(:disabled):active {
+button:not(:disabled):not([ripple]):active {
     filter: brightness(1.2);
 }
 

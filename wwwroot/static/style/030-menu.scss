@@ -8,7 +8,7 @@
     padding: 1rem 0 0;
     width: var(--menu-width);
     
-    & > * {
+    & > li {
         padding: .75rem 3rem;
         cursor: pointer;
         background-color: var(--menu-item__background-color);
@@ -17,14 +17,23 @@
             background-color: var(--menu-item__background-color__hover);
         }
         
-        &:active {
-            background-color: var(--menu-item__background-color__active);
+        &.active {
+            color: #fc6;
         }
         
         & > i {
             position: absolute;
             transform: translate(-50%, 0);
             left: 1.75rem;
+        }
+        
+        &[ripple] > .ripple {
+            width: 4em;
+            background-color: #f60;
+        }
+        
+        &[ripple] > .ripple.effect {
+            transform: translate(-50%, -50%) scale(8);
         }
     }
     
