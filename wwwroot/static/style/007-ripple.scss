@@ -1,0 +1,27 @@
+[ripple] {
+    overflow: hidden;
+    position: relative;
+}
+
+[ripple] > div {
+    pointer-events: none;
+    user-select: none;
+    position: relative;
+}
+
+[ripple] > .ripple {
+    position: absolute;
+    background: white;
+    width: 3em;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    transform-origin: center center;
+    transition: all 900ms ease-out;
+    opacity: .3;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+[ripple] > .ripple.effect {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(4);
+}

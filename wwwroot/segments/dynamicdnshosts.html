@@ -4,9 +4,7 @@
             <i class="fas fa-globe"></i>
             <span>Dynamic DNS</span>
         </h2>
-        <button data-action="saveAll" disabled>Save</button>
-        <button data-action="cancelAll" disabled>Cancel</button>
-        <input class="search" placeholder="Search" />
+        <!--segment: toolbar-->
     </div>
     <div class="content">
         <div class="list-header" style="grid-template-columns: 1fr 4fr; ">
@@ -15,7 +13,7 @@
         </div>
         <div class="list" data-bind="dynamicdnshosts">
             <div class="item">
-                <div style="grid-template-columns: 1fr 4fr; ">
+                <div ripple style="grid-template-columns: 1fr 4fr; ">
                     <div data-bind="htmlName"></div>
                     <div data-bind="htmlInfo"></div>
                 </div>

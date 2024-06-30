@@ -31,7 +31,9 @@ class ListPageItem
             for (const item of this.page.items)
             {
                 if (this.$details != item.$details)
+                {
                     item.$details.setClass(`display-none`, true)
+                }
             }
             
             this.$details.classList.toggle(`display-none`)

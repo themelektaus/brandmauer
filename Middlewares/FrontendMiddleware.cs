@@ -131,10 +131,11 @@ public class FrontendMiddleware
     )
     {
         var content = await GetWwwRootFileContentAsync(path);
-
-        ApplyReplacements();
-        ApplySegments();
-        ApplyReplacements();
+        for (var i = 0; i < 3; i++)
+        {
+            ApplySegments();
+            ApplyReplacements();
+        }
         ApplyStyle();
         ApplyScript();
 
