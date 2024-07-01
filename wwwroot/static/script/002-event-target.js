@@ -33,6 +33,13 @@ Object.defineProperties(EventTarget.prototype,
             return this.qAll(`[data-bind], [data-object]`)
         }
     },
+    hasClass:
+    {
+        value: function(value)
+        {
+            return this.classList.contains(value)
+        }
+    },
     setClass:
     {
         value: function(value, enabled)

@@ -36,9 +36,9 @@ class ListPageItem
                 }
             }
             
-            this.$details.classList.toggle(`display-none`)
+            this.$details.toggleClass(`display-none`)
             
-            if (!this.$details.classList.contains(`display-none`))
+            if (!this.$details.hasClass(`display-none`))
             {
                 if (!detailsLoaded)
                 {
