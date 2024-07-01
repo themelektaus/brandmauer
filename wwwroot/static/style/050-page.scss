@@ -1,5 +1,5 @@
 [data-page] {
-    width: 68rem;
+    width: 60rem;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -20,22 +20,29 @@
     
     & > .title {
         display: flex;
-        align-items: center;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: center;
         box-sizing: border-box;
-        height: 2.5rem;
         padding: 1.5rem 0 2rem;
-        gap: .475rem;
+        gap: 1rem;
+        position: relative;
         
-        & > h2 {
-            flex: 1;
+        & > *:nth-child(2) {
             display: flex;
-            gap: .75rem;
+            gap: .5rem;
+            position: absolute;
+            right: 0;
+            top: 1.5rem;
         }
-    }
-    
-    & > .title:has(.search) {
-        height: 5.5rem;
-        padding-bottom: 5rem;
+        
+        & > *:nth-child(3) {
+            display: flex;
+            
+            & > * {
+                flex: 1;
+            }
+        }
     }
 }
 
