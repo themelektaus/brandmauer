@@ -5,7 +5,7 @@ body {
     background-color: var(--body__background-color);
     min-height: 100vh;
     margin: 0;
-    overflow-y: scroll;
+    overflow: hidden;
 }
 
 body, input, textarea, button, select {

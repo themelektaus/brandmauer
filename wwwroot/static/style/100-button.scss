@@ -18,12 +18,12 @@ button {
     &[data-action="add"], &.add, &.remove {
         padding: 0;
         margin: 0 auto;
-        border-radius: var(--border-radius);
         aspect-ratio: 1;
     }
     
     &[data-action="add"] {
         width: 2.5rem;
+        margin-top: .5rem;
     }
     
     &.add, &.remove {
@@ -36,7 +36,7 @@ button {
     }
     
     &[data-action="add"]::after {
-        font-size: 1.625rem;
+        font-size: 1.5rem;
     }
     
     &.add::after {

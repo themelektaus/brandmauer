@@ -1,36 +1,20 @@
 :root {
-    --menu-width: 15rem;
+    
     --border-radius: .125rem;
-    --main-div-width: 970px;
-    
-    --main-div-min-width: calc(100vw - var(--menu-width));
-    
-    --main-div-max-width: min(
-        var(--main-div-width),
-        var(--main-div-min-width)
-    );
-    
-    --main-div-offset: max(
-        0px,
-        calc(
-            var(--main-div-min-width)
-            - var(--main-div-max-width)
-        ) / 2 - 5vw
-    );
     
     --body__background-color: #222;
     --body__text-color: #ddd;
     
-    --input__text-color: #ddd;
-    
     --h1__background-color: #444;
     
-    --menu__background-color: #333;
+    --menu-item-spacing: .5rem;
+    --menu-item-size: 3.5rem;
     
-    --menu-item__background-color: #333;
-    --menu-item__background-color__hover: #444;
+    --item__background-color: #333;
+    --item__background-color__hover: #444;
+    --item__background-color__darker: #292929;
+    --item__background-color__darkest: #191919;
     
-    --list-header__background-color: #191919;
-    --list-item__background-color: #292929;
     --group__background-color: #333;
+    
 }
