@@ -1,21 +1,23 @@
 [data-page] {
+    width: 68rem;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: .5rem;
     padding-top: .6rem;
-    padding-bottom: 40vh;
+    padding-bottom: 20vh;
     opacity: 0;
-    transition: opacity 120ms, margin 120ms;
-    margin: 0 .5rem 0 -.5rem;
+    transition: opacity 120ms, margin-block 120ms;
+    margin-block: 1em -1em;
     pointer-events: none;
     
     &.fade-in {
         opacity: 1;
-        margin: 0;
+        margin-block: 0;
         pointer-events: unset;
     }
-
+    
     & > .title {
         display: flex;
         align-items: center;

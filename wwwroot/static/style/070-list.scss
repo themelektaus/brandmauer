@@ -5,9 +5,9 @@
 
 .list-header {
     display: grid;
-    background-color: var(--list-header__background-color);
+    background-color: var(--item__background-color__darkest);
     border-radius: var(--border-radius) var(--border-radius) 0 0;
-    border-bottom: .5rem solid var(--menu-item__background-color);
+    border-bottom: .5rem solid var(--item__background-color);
     text-transform: uppercase;
     font-size: .8em;
     padding-block: .675rem .5rem;
@@ -22,7 +22,7 @@
     content: '';
     background-color: red;
     height: .5rem;
-    background-color: var(--menu-item__background-color);
+    background-color: var(--item__background-color);
     border-radius: 0 0 var(--border-radius) var(--border-radius);
 }
 
@@ -31,22 +31,21 @@
     cursor: pointer;
     line-height: 1.5;
     padding-block: .75rem;
-    background-color: var(--menu-item__background-color);
+    background-color: var(--item__background-color);
 }
 
 .list .item > div:nth-child(1):hover {
-    background-color: var(--menu-item__background-color__hover);
+    background-color: var(--item__background-color__hover);
 }
 
 .list .item > div:nth-child(1)[ripple] > .ripple {
-    width: 8em;
-    height: 8.5em;
+    width: 10em;
+    height: 10.5em;
     background-color: #fff6;
-    transition-duration: 1.5s;
 }
 
 .list .item > div:nth-child(1)[ripple] > .ripple.effect {
-    transform: translate(-50%, -50%) scale(12);
+    transform: translate(-50%, -50%) scale(15);
 }
 
 .list .item > div:nth-child(2) {
@@ -55,9 +54,9 @@
     flex-direction: column;
     gap: .5rem;
     padding: .5rem .5rem 1rem;
-    background-color: var(--list-item__background-color);
+    background-color: var(--item__background-color__darker);
     border-radius: var(--border-radius);
-    border-bottom: .5rem solid var(--menu-item__background-color);
+    border-bottom: .5rem solid var(--item__background-color);
 }
 
 .list .item:has([data-bind="enabled"]):not(:has([data-bind="enabled"]:checked)) {

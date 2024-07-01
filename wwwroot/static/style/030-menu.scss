@@ -3,55 +3,165 @@
     font-weight: 900;
 }
 
-.menu {
-    background-color: var(--menu__background-color);
-    padding: 1rem 0 0;
-    width: var(--menu-width);
-    
-    & > li {
-        padding: .75rem 3rem;
-        cursor: pointer;
-        background-color: var(--menu-item__background-color);
-        
-        &:hover, &.active {
-            background-color: var(--menu-item__background-color__hover);
-        }
-        
-        &.active {
-            color: #fc6;
-        }
-        
-        & > i {
-            position: absolute;
-            transform: translate(-50%, 0);
-            left: 1.75rem;
-        }
-        
-        &[ripple] > .ripple {
-            width: 4em;
-            background-color: #f60;
-        }
-        
-        &[ripple] > .ripple.effect {
-            transform: translate(-50%, -50%) scale(8);
-        }
-    }
-    
-    & + div {
-        flex: 1;
-        padding: 1rem;
-    }
+.menu-wrapper {
+    display: flex;
+    background-color: var(--h1__background-color);
+    box-shadow: 0 -1rem 1rem 1rem var(--body__background-color);
+    z-index: 1;
 }
 
-body:has(#fullscreen-loading.display-none):has(.loading.display-none) {
-    .menu > *.dirty::after {
-        @include fas;
-        content: '\f06d';
+.menu-wrapper:has(.menu-bar:hover) {
+    box-shadow: 0 -1rem 3rem 3rem var(--body__background-color);
+}
+
+.menu {
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    padding-bottom: 1rem;
+    
+    &-bar {
+        display: flex;
+        flex: 1;
+        gap: var(--menu-item-spacing);
+        
+        &:hover .hover-label {
+            filter: blur(0) alpha(.7) !important;
+        }
+        
+        &-item {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+            cursor: pointer;
+            border-radius: 50%;
+            width: var(--menu-item-size);
+            height: var(--menu-item-size);
+            margin-block: .25rem;
+            transition: background-color .1s;
+            background-color: #fff0;
+            
+            .icon {
+                transition: transform .3s cubic-bezier(.6, 0, .4, 1), scale .1s, opacity .1s;
+                font-size: 1.5em;
+                transform: translateY(0);
+                
+                &.active {
+                    transform: translateY(.1rem);
+                    scale: 1.2;
+                    opacity: .8;
+                }
+            }
+            
+            .label,
+            .hover-label {
+                position: absolute;
+                pointer-events: none;
+            }
+            
+            .label {
+                transform: translateY(3rem);
+                transition: .5s;
+                opacity: 0;
+                white-space: nowrap;
+            }
+            
+            .hover-label {
+                margin-top: calc(var(--menu-item-size) * -1 - 2.5rem);
+                transition: all .1s, filter .3s;
+                opacity: .7;
+                transform-origin: 0 0;
+                left: 1em;
+                white-space: nowrap;
+                rotate: -30deg;
+                filter: blur(.25rem) alpha(0);
+            }
+            
+            &:hover {
+                background-color: #fff2;
+                
+                .hover-label {
+                    opacity: 1;
+                    scale: 1.1;
+                    filter: blur(0) alpha(1) !important;
+                }
+            }
+            
+            &.active {
+                &:hover {
+                    cursor: default;
+                    background-color: unset;
+                    
+                    .hover-label {
+                        opacity: 0;
+                    }
+                }
+                
+                .icon {
+                    transform: translateY(calc(var(--menu-item-size) / -2 - .2rem));
+                }
+                
+                .label {
+                    transform: translateY(1.8rem);
+                    opacity: 1;
+                }
+            }
+            
+            &.dirty::before {
+                @include fas;
+                content: '\f06d';
+                position: absolute;
+                translate: 1rem 1rem;
+                transition: translate .8s;
+                animation-name: fire-3;
+                animation-duration: .53s;
+                animation-iteration-count: infinite;
+                animation-timing-function: ease-in-out;
+                z-index: 1;
+            }
+            
+            &.active {
+                pointer-events: none;
+                
+                .hover-label {
+                    display: none;
+                }
+            }
+            
+            &.active::before
+            {
+                translate: 1rem -1rem;
+            }
+        }
+    }
+    
+    &-indicator {
+        transition: .4s cubic-bezier(.2, .1, .2, 1);
         position: absolute;
-        right: 1rem;
-        animation-name: fire-3;
-        animation-duration: .53s;
-        animation-iteration-count: infinite;
-        animation-timing-function: ease-in-out;
+        background-color: #473;
+        width: var(--menu-item-size);
+        height: var(--menu-item-size);
+        border-radius: 50%;
+        margin-top: calc(var(--menu-item-size) * -1 - .5rem);
+        outline: .4rem solid var(--body__background-color);
+        box-shadow: 0 0 2rem .5rem var(--body__background-color);
+        
+        &::before {
+            content: '';
+            display: block;
+            position: absolute;
+            width: 1.8rem;
+            height: 2rem;
+            margin: calc(var(--menu-item-size) / 2) 0 0 -1.7rem;
+            border-radius: 0 100% 0 0;
+            box-sizing: border-box;
+            box-shadow: .2px -1rem 0 0 var(--body__background-color);
+            -webkit-box-reflect: right calc(var(--menu-item-size) - .175rem);
+        }
     }
 }
