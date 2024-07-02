@@ -121,8 +121,9 @@
                 @include fas;
                 content: '\f06d';
                 position: absolute;
-                translate: 1rem 1rem;
-                transition: translate .8s;
+                translate: .95rem .825rem;
+                font-size: 1.125rem;
+                transition: translate .6s, font-size .3s;
                 animation-name: fire-3;
                 animation-duration: .53s;
                 animation-iteration-count: infinite;
@@ -141,7 +142,8 @@
             
             &.active::before
             {
-                translate: 1rem -1rem;
+                translate: 0 -4.75rem;
+                font-size: 1.25rem;
             }
         }
     }
@@ -167,7 +169,6 @@
             box-sizing: border-box;
             box-shadow: .2px -1rem 0 0 var(--body__background-color);
             -webkit-box-reflect: right calc(var(--menu-item-size) - .175rem);
-            transform: scale(.6) translate(.5rem -.3rem);
         }
     }
 }
