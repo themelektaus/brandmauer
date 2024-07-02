@@ -6,12 +6,17 @@
 .menu-wrapper {
     display: flex;
     background-color: var(--h1__background-color);
-    box-shadow: 0 -1rem 1rem 1rem var(--body__background-color);
+    box-shadow: 0 -1rem 2rem 1rem var(--body__background-color);
     z-index: 1;
-}
-
-.menu-wrapper:has(.menu-bar:hover) {
-    box-shadow: 0 -1rem 3rem 3rem var(--body__background-color);
+    
+    &:hover {
+        box-shadow: 0 -1rem 4rem 3rem var(--body__background-color);
+        
+        .hover-label {
+            translate: 0 0;
+            filter: blur(0) alpha(.7) !important;
+        }
+    }
 }
 
 .menu {
@@ -26,10 +31,6 @@
         display: flex;
         flex: 1;
         gap: var(--menu-item-spacing);
-        
-        &:hover .hover-label {
-            filter: blur(0) alpha(.7) !important;
-        }
         
         &-item {
             position: relative;
@@ -73,9 +74,10 @@
             
             .hover-label {
                 margin-top: calc(var(--menu-item-size) * -1 - 2.5rem);
-                transition: all .1s, filter .3s;
+                transition: all .2s, filter .3s;
                 opacity: .7;
                 transform-origin: 0 0;
+                translate: 0 -.2rem;
                 left: 1em;
                 white-space: nowrap;
                 rotate: -30deg;
@@ -87,7 +89,7 @@
                 
                 .hover-label {
                     opacity: 1;
-                    scale: 1.1;
+                    scale: 1.09;
                     filter: blur(0) alpha(1) !important;
                 }
             }
@@ -129,7 +131,8 @@
                 pointer-events: none;
                 
                 .hover-label {
-                    display: none;
+                    opacity: 0;
+                    translate: 0 -.4rem;
                 }
             }
             
@@ -149,7 +152,6 @@
         border-radius: 50%;
         margin-top: calc(var(--menu-item-size) * -1 - .5rem);
         outline: .4rem solid var(--body__background-color);
-        box-shadow: 0 0 2rem .5rem var(--body__background-color);
         
         &::before {
             content: '';

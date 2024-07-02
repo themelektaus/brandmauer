@@ -26,6 +26,22 @@
     border-radius: 0 0 var(--border-radius) var(--border-radius);
 }
 
+.list .item {
+    transition: scale .1s;
+}
+
+.list .item:not(:has(> div:nth-child(2).display-none)) {
+    outline: .125rem solid #668;
+    z-index: 1;
+    box-shadow: 0 0 1.5rem -.5rem black;
+    scale: 1.05;
+}
+
+.list:has(.item > div:nth-child(2):not(.display-none))
+.item:has(> div:nth-child(2).display-none) {
+    filter: saturate(.5) contrast(.5) brightness(.6);
+}
+
 .list .item > div:nth-child(1) {
     display: grid;
     cursor: pointer;
@@ -50,17 +66,26 @@
 
 .list .item > div:nth-child(2) {
     position: relative;
-    display: flex;
+    display: flex !important;
     flex-direction: column;
     gap: .5rem;
-    padding: .5rem .5rem 1rem;
+    padding-inline: .5rem;
     background-color: var(--item__background-color__darker);
     border-radius: var(--border-radius);
     border-bottom: .5rem solid var(--item__background-color);
+    max-height: 80vh;
+    padding-block: .5rem 1rem;
+    transition: .2s;
+    overflow: hidden scroll;
+}
+
+.list .item > div:nth-child(2).display-none {
+    max-height: 0;
+    padding-block: 0;
 }
 
 .list .item:has([data-bind="enabled"]):not(:has([data-bind="enabled"]:checked)) {
-    opacity: .5;
+    filter: brightness(.6) contrast(.8) saturate(.5);
 }
 
 .list .item > div:nth-child(2):has([data-bind="enabled"]):not(:has([data-bind="enabled"]:checked)) * {
