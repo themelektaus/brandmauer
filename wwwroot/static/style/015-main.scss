@@ -1,4 +1,10 @@
 body:has(#fullscreen-loading.display-none):has(.loading.display-none) {
+    
+    h1.dirty,
+    main:has(.dirty) h1 {
+        font-size: 2em;
+    }
+    
     h1.dirty > i,
     main:has(.dirty) h1 > i {
         &::before, &::after {

@@ -8,14 +8,14 @@
     padding-top: .6rem;
     padding-bottom: 20vh;
     opacity: 0;
-    transition: opacity 120ms, margin-block 120ms;
-    margin-block: 1em -1em;
+    transition: opacity 120ms, translate 120ms;
     pointer-events: none;
+    translate: 0 -.5rem;
     
     &.fade-in {
         opacity: 1;
-        margin-block: 0;
         pointer-events: unset;
+        translate: 0 0;
     }
     
     & > .title {
