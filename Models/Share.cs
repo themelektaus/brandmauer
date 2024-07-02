@@ -23,6 +23,9 @@ public class Share : Model, IOnDeserialize
 
             builder.BeginBadges("flex: 2; ");
             {
+                if (Name != string.Empty)
+                    builder.AppendBadge("share", "name", "Name", Name);
+
                 foreach (var file in Files)
                     builder.AppendBadge("share", "file", file.Value, null);
             }

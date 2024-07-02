@@ -22,14 +22,18 @@ public static partial class Endpoint
             foreach (var item in ListAll())
             {
                 var expires = item.expiresIn.Ticks > 0;
+
                 var expiresOn = expires
                     ? item.expiresOn.ToHumanizedString()
                     : "";
+
                 var expiresIn = item.expiresIn.Ticks > 0
                     ? item.expiresIn.ToHumanizedString()
                     : "Never";
+
                 var files = item.Files.JoinWrap("<li>", "</li>");
                 var text = item.Text;
+
                 rows.AppendLine("<div class=\"row\">");
                 rows.AppendLine($"<div class=\"expires-on\">{expiresOn}</div>");
                 rows.AppendLine($"<div class=\"expires-in\">{expiresIn}</div>");
@@ -42,6 +46,7 @@ public static partial class Endpoint
                         $"</a>" +
                     "</div>"
                 );
+
                 rows.AppendLine("</div>");
             }
 
