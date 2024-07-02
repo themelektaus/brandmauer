@@ -25,6 +25,8 @@ main {
     
     h1 {
         flex: 0;
+        box-shadow: 0 0 2rem 0 var(--body__background-color);;
+        z-index: 1;
     }
     
     .pages {
