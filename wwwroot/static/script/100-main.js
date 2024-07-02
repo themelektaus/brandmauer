@@ -48,7 +48,7 @@ InteractiveAction.gotoPage(
         q(`.pages`).on(`scroll`, e =>
         {
             const style = document.documentElement.style
-            const s = 2 - Math.min(Math.max(0, e.scrollTop / 200), .75)
+            const s = e.scrollTop > 10 ? 1.25 : 2
             style.setProperty(`--h1__font-size`, `${s}em`)
         })
         

@@ -6,7 +6,7 @@ h1 {
     display: flex;
     gap: 1.275em;
     font-size: var(--h1__font-size, 2em);
-    transition: .1s;
+    transition: .2s;
     
     & > i {
         &::before, &::after {
