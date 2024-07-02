@@ -1,10 +1,12 @@
 h1 {
-    padding: 1rem 1.25rem;
+    padding: .5em;
     background-color: var(--h1__background-color);
     color: white;
     letter-spacing: .015em;
     display: flex;
-    gap: 2.625rem;
+    gap: 1.275em;
+    font-size: var(--h1__font-size, 2em);
+    transition: .1s;
     
     & > i {
         &::before, &::after {

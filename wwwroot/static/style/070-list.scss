@@ -73,15 +73,16 @@
     background-color: var(--item__background-color__darker);
     border-radius: var(--border-radius);
     border-bottom: .5rem solid var(--item__background-color);
-    max-height: 80vh;
+    transition: opacity 120ms;
     padding-block: .5rem 1rem;
-    transition: .2s;
-    overflow: hidden scroll;
 }
 
 .list .item > div:nth-child(2).display-none {
-    max-height: 0;
-    padding-block: 0;
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+    border-bottom-width: 0;
+    padding: 0;
 }
 
 .list .item:has([data-bind="enabled"]):not(:has([data-bind="enabled"]:checked)) {
