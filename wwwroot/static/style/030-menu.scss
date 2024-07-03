@@ -11,7 +11,7 @@
     pointer-events: all !important;
     
     &:not(:hover) .active .label {
-        translate: 2.75rem 0rem !important;
+        translate: 2.525rem .125rem !important;
         rotate: 0deg;
     }
     
@@ -31,7 +31,7 @@
     justify-content: center;
     align-items: center;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 1.5rem;
     border-radius: 1rem 1rem 0 0;
 }
 
@@ -60,8 +60,8 @@
         position: absolute;
         pointer-events: none;
         margin-top: calc(var(--menu-item-size) * -1 - 2.5rem);
-        transition: all .2s, filter .3s;
-        opacity: .7;
+        transition: all .2s, filter .3s, opacity 0s;
+        opacity: .5;
         transform-origin: 0 0;
         left: 1em;
         white-space: nowrap;
@@ -70,15 +70,9 @@
     }
     
     & > .icon {
-        transition: transform .3s cubic-bezier(.6, 0, .4, 1), scale .1s, opacity .1s;
-        font-size: 1.5em;
+        transition: transform .3s cubic-bezier(.6, 0, .4, 1), opacity .1s;
+        font-size: 1.25em;
         transform: translateY(0);
-    }
-    
-    & > .icon.active {
-        transform: translateY(.1rem);
-        scale: 1.2;
-        opacity: .8;
     }
     
     &:hover {
@@ -92,17 +86,11 @@
     &:hover > .label,
     &.active > .label {
         opacity: 1;
-        scale: 1.09;
         filter: blur(0) alpha(1) !important;
     }
     
     &.active {
         pointer-events: none;
-        
-        &::before {
-            translate: 0 -4.75rem;
-            font-size: 1.25rem;
-        }
         
         &:hover {
             cursor: default;
@@ -114,11 +102,16 @@
         }
         
         & > .label {
-            translate: 1.75rem -1rem;
+            translate: 1.5rem -.75rem;
         }
         
         & > .icon {
             transform: translateY(calc(var(--menu-item-size) / -2 - .2rem));
+        }
+        
+        &.dirty::before {
+            translate: 0 -4.75rem;
+            font-size: 1.25rem;
         }
     }
     

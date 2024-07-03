@@ -7,6 +7,12 @@ h1 {
     gap: 1.275em;
     font-size: var(--h1__font-size, 2em);
     transition: .2s;
+    box-shadow: 0 .5rem 2rem 0 var(--body__background-color);
+    z-index: 1;
+    width: 59rem;
+    max-width: calc(100% - 4rem);
+    align-self: center;
+    border-radius: 0 0 .75rem .75rem;
     
     & > i {
         &::before, &::after {

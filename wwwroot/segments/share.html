@@ -65,7 +65,7 @@
         max-height: 32rem;
     }
     .form > * {
-        flex: 1 0 0%;
+        flex: 0;
     }
     #text {
         height: 3.25em;
@@ -78,6 +78,8 @@
         width: 100%;
         font-family: inherit;
         font-size: inherit;
+        flex: 1;
+        white-space: break-spaces;
     }
     #buttons {
         display: flex;
@@ -94,6 +96,7 @@
         text-align: center;
         display: block;
         line-height: 1.5;
+        flex-basis: 3rem;
     }
     #dropzone:not(.disabled) {
         cursor: pointer;
