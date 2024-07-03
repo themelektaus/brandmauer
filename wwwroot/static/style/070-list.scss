@@ -1,6 +1,8 @@
 .list {
     display: flex;
     flex-direction: column;
+    max-height: calc(100vh - 25rem);
+    overflow: hidden auto;
 }
 
 .list-header {
@@ -27,16 +29,10 @@
 }
 
 .list .item {
-    transition: .1s;
+    transition: .1s, border-color 0s;
     z-index: 0;
     box-shadow: 0 0 1rem -.5rem #0000;
-    outline: .125rem solid #66c0;
-}
-
-.list .item:not(:has(> div:nth-child(2).display-none)) {
-    z-index: 1;
-    box-shadow: 0 0 1rem -.5rem #000f;
-    outline-color: #67bf;
+    border: .125rem solid var(--item__background-color);
 }
 
 .list:has(.item > div:nth-child(2):not(.display-none))
@@ -52,8 +48,18 @@
     background-color: var(--item__background-color);
 }
 
+.list .item:has(> div:nth-child(1):hover) {
+    border-color: var(--item__background-color__hover);
+}
+
 .list .item > div:nth-child(1):hover {
     background-color: var(--item__background-color__hover);
+}
+
+.list .item:not(:has(> div:nth-child(2).display-none)) {
+    z-index: 1;
+    box-shadow: 0 0 1rem -.5rem #000f;
+    border-color: #67bf;
 }
 
 .list .item > div:nth-child(1)[ripple] > .ripple {

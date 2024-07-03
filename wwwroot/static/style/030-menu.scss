@@ -11,8 +11,7 @@
     pointer-events: all !important;
     
     &:not(:hover) .active .label {
-        translate: 2.525rem .125rem !important;
-        rotate: 0deg;
+        transform: translate(2.525rem, .125rem) rotate(0deg);
     }
     
     &:hover {
@@ -60,12 +59,12 @@
         position: absolute;
         pointer-events: none;
         margin-top: calc(var(--menu-item-size) * -1 - 2.5rem);
-        transition: all .2s, filter .3s, opacity 0s;
+        transition: .2s, filter .3s, opacity 0s;
         opacity: .5;
         transform-origin: 0 0;
+        transform: translate(0, 0) rotate(-30deg);
         left: 1em;
         white-space: nowrap;
-        rotate: -30deg;
         filter: blur(.25rem) alpha(0);
     }
     
@@ -98,11 +97,11 @@
         }
         
         &:hover > .label {
-            translate: 0 2rem;
+            transform: translate(0, 2rem) rotate(-30deg);
         }
         
         & > .label {
-            translate: 1.5rem -.75rem;
+            transform: translate(1.5rem, -.75rem) rotate(-30deg);
         }
         
         & > .icon {

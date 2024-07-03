@@ -30,9 +30,9 @@ main {
     height: 100vh;
     
     .pages {
-        overflow: hidden scroll;
+        overflow: hidden auto;
         flex: 1;
-        padding: 1rem;
+        padding: 1rem 1rem 3rem;
     }
     
     .menu-wrapper {
