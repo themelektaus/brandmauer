@@ -68,7 +68,7 @@
         flex: 0;
     }
     #text {
-        flex: 1;
+        flex: 0 1 5rem;
     }
     #download-text {
         padding: .5rem;
@@ -78,8 +78,8 @@
         width: 100%;
         font-family: inherit;
         font-size: inherit;
-        flex: 1;
         white-space: break-spaces;
+        flex: 0 1 auto;
     }
     #buttons {
         display: flex;
@@ -96,7 +96,7 @@
         text-align: center;
         display: block;
         line-height: 1.5;
-        flex-basis: 4.25rem;
+        flex: 0 0 4.25rem;
     }
     #dropzone:not(.disabled) {
         cursor: pointer;
@@ -127,7 +127,7 @@
         display: none;
     }
     .file-list-container {
-        flex: 1;
+        flex: 1 1 auto;
     }
 </style>
 <script>
