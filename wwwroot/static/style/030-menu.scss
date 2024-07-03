@@ -9,14 +9,18 @@
     box-shadow: 0 -1rem 2rem 1rem var(--body__background-color);
     z-index: 1;
     pointer-events: all !important;
-}
-
-.menu-wrapper:hover {
-    box-shadow: 0 -1rem 4rem 3rem var(--body__background-color);
     
-    .hover-label {
-        translate: 0 0;
-        filter: blur(0) alpha(.7) !important;
+    &:not(:hover) .active .label {
+        translate: 2.75rem 0rem !important;
+        rotate: 0deg;
+    }
+    
+    &:hover {
+        box-shadow: 0 -1rem 4rem 3rem var(--body__background-color);
+    }
+    
+    &:hover .menu-bar-item:not(.active) .label {
+        filter: blur(0) alpha(.7);
     }
 }
 
@@ -27,148 +31,132 @@
     justify-content: center;
     align-items: center;
     margin: 0 auto;
-    padding: 0 2rem .75rem;
+    padding: 0 2rem;
     border-radius: 1rem 1rem 0 0;
+}
+
+.menu-bar {
+    display: flex;
+    flex: 1;
+    gap: var(--menu-item-spacing);
+}
+
+.menu-bar-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    cursor: pointer;
+    border-radius: 50%;
+    width: var(--menu-item-size);
+    height: var(--menu-item-size);
+    margin-block: .25rem;
+    transition: background-color .1s;
+    background-color: #fff0;
     
-    &-bar {
-        display: flex;
-        flex: 1;
-        gap: var(--menu-item-spacing);
+    & > .label {
+        position: absolute;
+        pointer-events: none;
+        margin-top: calc(var(--menu-item-size) * -1 - 2.5rem);
+        transition: all .2s, filter .3s;
+        opacity: .7;
+        transform-origin: 0 0;
+        left: 1em;
+        white-space: nowrap;
+        rotate: -30deg;
+        filter: blur(.25rem) alpha(0);
+    }
+    
+    & > .icon {
+        transition: transform .3s cubic-bezier(.6, 0, .4, 1), scale .1s, opacity .1s;
+        font-size: 1.5em;
+        transform: translateY(0);
+    }
+    
+    & > .icon.active {
+        transform: translateY(.1rem);
+        scale: 1.2;
+        opacity: .8;
+    }
+    
+    &:hover {
+        background-color: #fff2;
+    }
+    
+    &:hover > .label {
+        opacity: 1;
+    }
+    
+    &:hover > .label,
+    &.active > .label {
+        opacity: 1;
+        scale: 1.09;
+        filter: blur(0) alpha(1) !important;
+    }
+    
+    &.active {
+        pointer-events: none;
         
-        &-item {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1;
-            cursor: pointer;
-            border-radius: 50%;
-            width: var(--menu-item-size);
-            height: var(--menu-item-size);
-            margin-block: .25rem;
-            transition: background-color .1s;
-            background-color: #fff0;
-            
-            .icon {
-                transition: transform .3s cubic-bezier(.6, 0, .4, 1), scale .1s, opacity .1s;
-                font-size: 1.5em;
-                transform: translateY(0);
-                
-                &.active {
-                    transform: translateY(.1rem);
-                    scale: 1.2;
-                    opacity: .8;
-                }
-            }
-            
-            .label,
-            .hover-label {
-                position: absolute;
-                pointer-events: none;
-            }
-            
-            .label {
-                transform: translateY(3rem);
-                transition: .5s;
-                opacity: 0;
-                white-space: nowrap;
-            }
-            
-            .hover-label {
-                margin-top: calc(var(--menu-item-size) * -1 - 2.5rem);
-                transition: all .2s, filter .3s;
-                opacity: .7;
-                transform-origin: 0 0;
-                translate: 0 -.2rem;
-                left: 1em;
-                white-space: nowrap;
-                rotate: -30deg;
-                filter: blur(.25rem) alpha(0);
-            }
-            
-            &:hover {
-                background-color: #fff2;
-                
-                .hover-label {
-                    opacity: 1;
-                    scale: 1.09;
-                    filter: blur(0) alpha(1) !important;
-                }
-            }
-            
-            &.active {
-                &:hover {
-                    cursor: default;
-                    background-color: unset;
-                    
-                    .hover-label {
-                        opacity: 0;
-                    }
-                }
-                
-                .icon {
-                    transform: translateY(calc(var(--menu-item-size) / -2 - .2rem));
-                }
-                
-                .label {
-                    transform: translateY(1.8rem);
-                    opacity: 1;
-                }
-            }
-            
-            &.dirty::before {
-                @include fas;
-                content: '\f06d';
-                position: absolute;
-                translate: .95rem .825rem;
-                font-size: 1.125rem;
-                transition: translate .6s, font-size .3s;
-                animation-name: fire-3;
-                animation-duration: .53s;
-                animation-iteration-count: infinite;
-                animation-timing-function: ease-in-out;
-                z-index: 1;
-            }
-            
-            &.active {
-                pointer-events: none;
-                
-                .hover-label {
-                    opacity: 0;
-                    translate: 0 -.4rem;
-                }
-            }
-            
-            &.active::before
-            {
-                translate: 0 -4.75rem;
-                font-size: 1.25rem;
-            }
+        &::before {
+            translate: 0 -4.75rem;
+            font-size: 1.25rem;
+        }
+        
+        &:hover {
+            cursor: default;
+            background-color: unset;
+        }
+        
+        &:hover > .label {
+            translate: 0 2rem;
+        }
+        
+        & > .label {
+            translate: 1.75rem -1rem;
+        }
+        
+        & > .icon {
+            transform: translateY(calc(var(--menu-item-size) / -2 - .2rem));
         }
     }
     
-    &-indicator {
-        transition: .4s cubic-bezier(.2, .1, .2, 1);
+    &.dirty::before {
+        @include fas;
+        content: '\f06d';
         position: absolute;
-        background-color: #473;
-        width: var(--menu-item-size);
-        height: var(--menu-item-size);
-        border-radius: 50%;
-        margin-top: calc(var(--menu-item-size) * -1 - .5rem);
-        outline: .4rem solid var(--body__background-color);
-        
-        &::before {
-            content: '';
-            display: block;
-            position: absolute;
-            width: 1.8rem;
-            height: 2rem;
-            margin: calc(var(--menu-item-size) / 2) 0 0 -1.7rem;
-            border-radius: 0 100% 0 0;
-            box-sizing: border-box;
-            box-shadow: .2px -1rem 0 0 var(--body__background-color);
-            -webkit-box-reflect: right calc(var(--menu-item-size) - .175rem);
-        }
+        translate: .95rem .825rem;
+        font-size: 1.125rem;
+        transition: translate .6s, font-size .3s;
+        animation-name: fire-3;
+        animation-duration: .53s;
+        animation-iteration-count: infinite;
+        animation-timing-function: ease-in-out;
+        z-index: 1;
+    }
+}
+
+.menu-indicator {
+    transition: .4s cubic-bezier(.2, .1, .2, 1);
+    position: absolute;
+    background-color: #473;
+    width: var(--menu-item-size);
+    height: var(--menu-item-size);
+    border-radius: 50%;
+    margin-top: calc(var(--menu-item-size) * -1 - .5rem);
+    outline: .4rem solid var(--body__background-color);
+    
+    &::before {
+        content: '';
+        display: block;
+        position: absolute;
+        width: 1.8rem;
+        height: 2rem;
+        margin: calc(var(--menu-item-size) / 2) 0 0 -1.7rem;
+        border-radius: 0 100% 0 0;
+        box-sizing: border-box;
+        box-shadow: .2px -1rem 0 0 var(--body__background-color);
+        -webkit-box-reflect: right calc(var(--menu-item-size) - .175rem);
     }
 }

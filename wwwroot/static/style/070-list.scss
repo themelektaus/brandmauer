@@ -27,7 +27,7 @@
 }
 
 .list .item {
-    transition: scale .1s;
+    transition: scale .2s, filter .2s;
 }
 
 .list .item:not(:has(> div:nth-child(2).display-none)) {
@@ -55,13 +55,8 @@
 }
 
 .list .item > div:nth-child(1)[ripple] > .ripple {
-    width: 10em;
-    height: 10.5em;
-    background-color: #fff6;
-}
-
-.list .item > div:nth-child(1)[ripple] > .ripple.effect {
-    transform: translate(-50%, -50%) scale(15);
+    width: 16rem;
+    filter: alpha(.5);
 }
 
 .list .item > div:nth-child(2) {
