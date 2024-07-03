@@ -104,9 +104,8 @@ InteractiveAction.gotoPage(
                     const html = `<i class="fa fa-${item.icon}"></i>`
                     $.dataset.action = `gotoPage`
                     $.dataset.target = item.targetPage
-                    $.create(`div`).setClass(`icon`).setHtml(html)
                     $.create(`div`).setClass(`label`).setHtml(item.label)
-                    $.create(`div`).setClass(`hover-label`).setHtml(item.label)
+                    $.create(`div`).setClass(`icon`).setHtml(html)
                 }
                 
                 const items = [...this.#bar.children]
