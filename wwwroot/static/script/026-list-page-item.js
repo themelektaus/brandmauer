@@ -45,13 +45,13 @@ class ListPageItem
                     detailsLoaded = true
                     await this.refreshOptions()
                 }
+                
+                this.$.scrollIntoView({ block: `nearest` })
             }
         })
         
         this.$details = this.$.children[1]
         this.$details.setClass(`display-none`, true)
-        
-        this.page.$list.appendChild(this.$)
     }
     
     async refreshOptions()

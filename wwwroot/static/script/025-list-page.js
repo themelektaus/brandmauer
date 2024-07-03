@@ -19,10 +19,16 @@ class ListPage extends Page
             
             const item = ListPageItem.create(this, model)
             item.createNode()
+            this.$list.appendChild(item.$)
             
             item.model.transferTo(item.$)
             
+            if (this.$search)
+                this.$search.value = ``
+            
             this.#onSearch()
+            
+            item.$simple.click()
         })
         
         this.$saveButton = this.$.q(`[data-action="saveAll"]`)
@@ -146,6 +152,7 @@ class ListPage extends Page
         for (const item of this.items)
         {
             item.createNode()
+            this.$list.appendChild(item.$)
             item.loadModelIntoView()
         }
         

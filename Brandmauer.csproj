@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>0.2.9.8</Version>
+        <Version>0.2.9.9</Version>
         <PrivateLocalDownloadFolder>\\fileserver.lan\slave\app\brandmauer\Download</PrivateLocalDownloadFolder>
         <PublicRemoteDownloadFolder>W:\stacks\web\www\download\brandmauer</PublicRemoteDownloadFolder>
     </PropertyGroup>
