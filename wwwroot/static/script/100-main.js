@@ -76,11 +76,6 @@ InteractiveAction.gotoPage(
                 this.#menu = q(`.menu`)
                 this.#bar = this.#menu.q(`.menu-bar`)
                 
-                on("mouseup", () =>
-                {
-                    this.#bar.qAll(".icon").forEach($ => $.setClass("active", false))
-                })
-                
                 this.#indicator = this.#menu.q(`.menu-indicator`)
                 
                 if (!this.#bar.children.length)
@@ -130,8 +125,6 @@ InteractiveAction.gotoPage(
             
             #setupBarItem(items, item, i)
             {
-                item.on(`mousedown`, () => item.q(".icon").setClass(`active`))
-                
                 const activate = () =>
                 {
                     if (item.hasClass(`active`))

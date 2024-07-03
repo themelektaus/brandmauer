@@ -27,14 +27,16 @@
 }
 
 .list .item {
-    transition: scale .2s, filter .2s;
+    transition: .1s;
+    z-index: 0;
+    box-shadow: 0 0 1rem -.5rem #0000;
+    outline: .125rem solid #66c0;
 }
 
 .list .item:not(:has(> div:nth-child(2).display-none)) {
-    outline: .125rem solid #668;
     z-index: 1;
-    box-shadow: 0 0 1.5rem -.5rem black;
-    scale: 1.05;
+    box-shadow: 0 0 1rem -.5rem #000f;
+    outline-color: #67bf;
 }
 
 .list:has(.item > div:nth-child(2):not(.display-none))

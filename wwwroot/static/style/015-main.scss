@@ -29,12 +29,6 @@ main {
     flex-direction: column;
     height: 100vh;
     
-    h1 {
-        flex: 0;
-        box-shadow: 0 0 2rem 0 var(--body__background-color);;
-        z-index: 1;
-    }
-    
     .pages {
         overflow: hidden scroll;
         flex: 1;

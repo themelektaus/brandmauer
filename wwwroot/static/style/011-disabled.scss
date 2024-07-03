@@ -29,3 +29,13 @@ main:has([data-action="gotoPage"][data-target="certificates"].dirty
     cursor: default;
     pointer-events: none;
 }
+
+body[disabled] .checkbox {
+    background-color: #9c93;
+    border-radius: .25rem;
+    scale: .9;
+    
+    & > * {
+        display: none !important;
+    }
+}
