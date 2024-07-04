@@ -32,7 +32,8 @@
     transition: .1s, border-color 0s;
     z-index: 0;
     box-shadow: 0 0 1rem -.5rem #0000;
-    border: .125rem solid var(--item__background-color);
+    outline: .125rem solid var(--item__background-color);
+    margin: .125rem;
 }
 
 .list:has(.item > div:nth-child(2):not(.display-none))
@@ -59,7 +60,7 @@
 .list .item:not(:has(> div:nth-child(2).display-none)) {
     z-index: 1;
     box-shadow: 0 0 1rem -.5rem #000f;
-    border-color: #67bf;
+    outline-color: #67bf;
 }
 
 .list .item > div:nth-child(1)[ripple] > .ripple {
@@ -89,7 +90,7 @@
 }
 
 .list .item:has([data-bind="enabled"]):not(:has([data-bind="enabled"]:checked)) {
-    filter: brightness(.6) contrast(.8) saturate(.5);
+    filter: brightness(.5) contrast(.85) saturate(.3) !important;
 }
 
 .list .item > div:nth-child(2):has([data-bind="enabled"]):not(:has([data-bind="enabled"]:checked)) * {
