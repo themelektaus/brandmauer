@@ -9,7 +9,7 @@
     display: grid;
     background-color: var(--item__background-color__darkest);
     border-radius: var(--border-radius) var(--border-radius) 0 0;
-    border-bottom: .5rem solid var(--item__background-color);
+    margin-bottom: .5rem;
     text-transform: uppercase;
     font-size: .8em;
     padding-block: .675rem .5rem;
@@ -36,9 +36,20 @@
     margin: .125rem;
 }
 
+// open
+.list .item:not(:has(> div:nth-child(2).display-none)) {
+    z-index: 1;
+    box-shadow: 0 0 1rem -.5rem #000f;
+    outline-color: #67bf;
+}
+
 .list:has(.item > div:nth-child(2):not(.display-none))
 .item:has(> div:nth-child(2).display-none) {
-    filter: saturate(.5) contrast(.5) brightness(.6);
+    opacity: .5;
+}
+
+.list .item:has([data-bind="enabled"]):not(:has([data-bind="enabled"]:checked)) {
+    filter: brightness(.6) contrast(.8) saturate(0) !important;
 }
 
 .list .item > div:nth-child(1) {
@@ -55,12 +66,6 @@
 
 .list .item > div:nth-child(1):hover {
     background-color: var(--item__background-color__hover);
-}
-
-.list .item:not(:has(> div:nth-child(2).display-none)) {
-    z-index: 1;
-    box-shadow: 0 0 1rem -.5rem #000f;
-    outline-color: #67bf;
 }
 
 .list .item > div:nth-child(1)[ripple] > .ripple {
@@ -87,10 +92,6 @@
     overflow: hidden;
     border-bottom-width: 0;
     padding: 0;
-}
-
-.list .item:has([data-bind="enabled"]):not(:has([data-bind="enabled"]:checked)) {
-    filter: brightness(.5) contrast(.85) saturate(.3) !important;
 }
 
 .list .item > div:nth-child(2):has([data-bind="enabled"]):not(:has([data-bind="enabled"]:checked)) * {

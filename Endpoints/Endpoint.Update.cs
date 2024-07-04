@@ -113,6 +113,18 @@ public static partial class Endpoint
 
             return Ok();
         }
+
+        public static async Task<IResult> WwwRoot()
+        {
+            DeleteFile("wwwroot.zip");
+            using var client = new HttpClient();
+            var response = await client.GetAsync($"{REMOTE_REPOSITORY_URL}/wwwroot.zip");
+            var wwwrootZipContent = await response.Content.ReadAsByteArrayAsync();
+            await _File.WriteAllBytesAsync("wwwroot.zip", wwwrootZipContent);
+            ZipFile.ExtractToDirectory("wwwroot.zip", ".");
+            DeleteFile("wwwroot.zip");
+            return Ok();
+        }
 #endif
     }
 }

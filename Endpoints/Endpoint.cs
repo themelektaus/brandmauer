@@ -17,6 +17,7 @@ public static partial class Endpoint
 #if LINUX
         app.MapGet($"{API}/update/download", Update.Download);
         app.MapGet($"{API}/update/install", Update.Install);
+        app.MapGet($"{API}/update/wwwroot", Update.WwwRoot);
 #endif
 
         app.MapGet($"{API}/config", Config.Get);
