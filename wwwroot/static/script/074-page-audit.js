@@ -7,15 +7,28 @@ class AuditPage extends Page
     
     async refresh()
     {
+        const options = { screenMessage: `Refreshing` }
+        
+        disable(options)
+        
         await super.refresh()
         
         this.model = await fetchJson(this.#apiPath)
         
         this.model.transferTo(this.$)
         
-        this.$.qAll(`[data-object="selected"] [data-bind="status"]`).forEach($ =>
+        const $status = this.$.qAll(`[data-object="selected"] [data-bind="status"]`)
+        for (const $ of $status)
+            $.style.visibility = `hidden`
+        
+        const $path = this.$.qAll(`[data-bind="archive"] [data-bind="path"]`)
+        for (const $ of $path)
+            $.style.visibility = `hidden`
+        
+        for (const $ of $status)
         {
             const status = +$.innerText
+            
             switch (status)
             {
                 case 0:
@@ -32,26 +45,29 @@ class AuditPage extends Page
                     $.parentNode.setClass(`error`, true)
                     $.innerHTML = `<i class="fas fa-circle-exclamation"></i>`
                     break
-                
-                default:
-                    $.innerHTML = ``
-                    break
-            
             }
-        })
+            
+            $.style.visibility = null
+            
+            await delay(10)
+        }
         
         const $selected = this.$.q(`[data-object="selected"]`)
         $selected.scrollTop = $selected.scrollHeight
         
-        this.$.qAll(`[data-bind="archive"] [data-bind="path"]`).forEach($ =>
+        for (const $ of $path)
         {
-            const text = $.innerText
-            $.innerText = `/${text}`
-            $.onclick = async () =>
+            const text = $.innerHTML
+            $.innerHTML = `/${text}`
+            $.onClick(async () =>
             {
                 this.#apiPath = `${text}?limit=${this.#limit}`
-                await this.refresh()
-            }
-        })
+                await InteractiveAction.refreshPage()
+            })
+            $.style.visibility = null
+            await delay(10)
+        }
+        
+        enable(options)
     }
 }
