@@ -7,7 +7,6 @@
         await delay(50)
         show(q(`h1`))
         await delay(50)
-        show(q(`.menu`))
         show(q(`main`))
     })()
 })()
