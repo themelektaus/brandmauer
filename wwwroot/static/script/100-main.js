@@ -79,6 +79,7 @@ InteractiveAction.gotoPage(
                     this.#items.push({
                         label: item.dataset.label,
                         icon: item.dataset.icon,
+                        color: item.dataset.color ?? null,
                         targetPage: item.dataset.targetPage,
                         active: item.getAttribute(`active`) !== null
                     })
@@ -89,9 +90,19 @@ InteractiveAction.gotoPage(
                 for (const item of this.#items)
                 {
                     const $ = this.#bar.create(`div`).setClass(`menu-bar-item`)
+                    
+                    if (item.color)
+                        $.dataset.color = item.color
+                    
                     const html = `<i class="fa fa-${item.icon}"></i>`
                     $.dataset.action = `gotoPage`
                     $.dataset.target = item.targetPage
+                    
+                    const $decoration = $.create(`div`).setClass(`decoration`)
+                    $decoration.style.background = $.dataset.color
+                        ? `radial-gradient(closest-side, ${$.dataset.color}, transparent)`
+                        : null
+                    
                     $.create(`div`).setClass(`label`).setHtml(item.label)
                     $.create(`div`).setClass(`icon`).setHtml(html)
                 }
@@ -121,7 +132,9 @@ InteractiveAction.gotoPage(
                 const activate = () =>
                 {
                     if (item.hasClass(`active`))
+                    {
                         return
+                    }
                     
                     items.forEach((item, j) => item.setClass(`active`, i == j))
                     
@@ -131,7 +144,9 @@ InteractiveAction.gotoPage(
                 item.on(`click`, activate)
                 
                 if (this.#items[i].active)
+                {
                     activate()
+                }
             }
             
             #setIndicatorOffset(i)
@@ -149,6 +164,8 @@ InteractiveAction.gotoPage(
                 offset -= i * s
                 
                 this.#indicator.style.transform = `translateX(${-offset}rem)`
+                this.#indicator.style.backgroundColor
+                    = this.#bar.children[i].dataset.color ?? null
             }
         }
         

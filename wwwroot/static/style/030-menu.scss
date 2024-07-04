@@ -55,6 +55,15 @@
     transition: background-color .1s;
     background-color: #fff0;
     
+    & > .decoration {
+        position: absolute;
+        width: calc(var(--menu-item-size) * 2);
+        bottom: calc(var(--menu-item-size) * -2);
+        aspect-ratio: 1;
+        pointer-events: none;
+        scale: 1 2;
+    }
+    
     & > .label {
         position: absolute;
         pointer-events: none;
@@ -131,7 +140,7 @@
 .menu-indicator {
     transition: .4s cubic-bezier(.2, .1, .2, 1);
     position: absolute;
-    background-color: #473;
+    background-color: #666;
     width: var(--menu-item-size);
     height: var(--menu-item-size);
     border-radius: 50%;
