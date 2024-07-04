@@ -61,7 +61,7 @@ class Page
             await this.setup()
         }
         
-        await this.refresh()
+        await this.refresh(true)
     }
     
     async setup()
@@ -69,7 +69,7 @@ class Page
         InteractiveAction.checkDirtyBuild()
     }
     
-    async refresh()
+    async refresh(loading)
     {
         
     }

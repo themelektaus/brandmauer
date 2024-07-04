@@ -57,10 +57,10 @@
     & > .decoration {
         position: absolute;
         width: calc(var(--menu-item-size) * 2);
-        bottom: calc(var(--menu-item-size) * -2);
+        bottom: calc(var(--menu-item-size) * -2.25);
         aspect-ratio: 1;
         pointer-events: none;
-        scale: 1 2;
+        scale: 1.25 2.25;
     }
     
     & > .label {
