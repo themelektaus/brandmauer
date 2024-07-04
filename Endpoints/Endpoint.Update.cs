@@ -121,7 +121,7 @@ public static partial class Endpoint
             var response = await client.GetAsync($"{REMOTE_REPOSITORY_URL}/wwwroot.zip");
             var wwwrootZipContent = await response.Content.ReadAsByteArrayAsync();
             await _File.WriteAllBytesAsync("wwwroot.zip", wwwrootZipContent);
-            ZipFile.ExtractToDirectory("wwwroot.zip", ".");
+            ZipFile.ExtractToDirectory("wwwroot.zip", ".", overwriteFiles: true);
             DeleteFile("wwwroot.zip");
             return Ok();
         }
