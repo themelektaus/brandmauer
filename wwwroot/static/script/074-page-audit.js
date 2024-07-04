@@ -5,11 +5,16 @@ class AuditPage extends Page
     #limit = 50
     #apiPath = `api/audit?limit=${this.#limit}`
     
-    async refresh()
+    async refresh(loading)
     {
-        const options = { screenMessage: `Refreshing` }
+        if (loading)
+        {
+            await super.refresh()
+            setTimeout(InteractiveAction.refreshPage, 2)
+            return
+        }
         
-        disable(options)
+        disable()
         
         await super.refresh()
         
@@ -49,7 +54,7 @@ class AuditPage extends Page
             
             $.style.visibility = null
             
-            await delay(10)
+            await delay(1)
         }
         
         const $selected = this.$.q(`[data-object="selected"]`)
@@ -65,9 +70,9 @@ class AuditPage extends Page
                 await InteractiveAction.refreshPage()
             })
             $.style.visibility = null
-            await delay(10)
+            await delay(1)
         }
         
-        enable(options)
+        enable()
     }
 }
