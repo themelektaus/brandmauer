@@ -179,7 +179,9 @@ class InteractiveAction
     
     static async refreshPage($sender)
     {
+        disable()
         await Page.active.refresh()
+        enable()
     }
     
     static openSharePage()

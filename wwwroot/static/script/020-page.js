@@ -42,10 +42,14 @@ class Page
         await Page.active.load()
         
         if (Page.active != this)
+        {
             return
+        }
         
         q(`.loading`).setClass(`display-none`, true)
+        
         await delay(1)
+        
         this.$.setClass(`fade-in`, true)
     }
     
