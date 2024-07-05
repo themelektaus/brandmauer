@@ -22,13 +22,44 @@ class AuditPage extends Page
         
         this.model.transferTo(this.$)
         
-        const $status = this.$.qAll(`[data-object="selected"] [data-bind="status"]`)
-        for (const $ of $status)
-            $.style.visibility = `hidden`
+        const $rows = this.$.qAll(`[data-bind="archive"] li.dynamic`)
         
-        const $path = this.$.qAll(`[data-bind="archive"] [data-bind="path"]`)
-        for (const $ of $path)
-            $.style.visibility = `hidden`
+        for (const $row of $rows)
+        {
+            $row.setClass(`display-none`, true)
+        }
+        
+        const $status = this.$.qAll(`[data-object="selected"] [data-bind="status"]`)
+        
+        for (const $ of $status)
+        {
+            $.parentNode.setClass(`info`, true)
+            $.innerHTML = `<i class="fas fa-circle-info"></i>`
+        }
+        
+        for (const $row of $rows)
+        {
+            const $path = $row.q(`[data-bind="path"]`)
+            
+            if (!$path)
+            {
+                continue
+            }
+            
+            const text = $path.innerHTML
+            $path.innerHTML = `/${text}`
+            $path.onClick(async () =>
+            {
+                this.#apiPath = `${text}?limit=${this.#limit}`
+                await InteractiveAction.refreshPage()
+            })
+            
+            await delay(1)
+            
+            $row.setClass(`display-none`, false)
+        }
+        
+        await delay(1)
         
         for (const $ of $status)
         {
@@ -36,11 +67,6 @@ class AuditPage extends Page
             
             switch (status)
             {
-                case 0:
-                    $.parentNode.setClass(`info`, true)
-                    $.innerHTML = `<i class="fas fa-circle-info"></i>`
-                    break
-                    
                 case 1:
                     $.parentNode.setClass(`warning`, true)
                     $.innerHTML = `<i class="fas fa-triangle-exclamation"></i>`
@@ -52,26 +78,11 @@ class AuditPage extends Page
                     break
             }
             
-            $.style.visibility = null
-            
             await delay(1)
         }
         
         const $selected = this.$.q(`[data-object="selected"]`)
         $selected.scrollTop = $selected.scrollHeight
-        
-        for (const $ of $path)
-        {
-            const text = $.innerHTML
-            $.innerHTML = `/${text}`
-            $.onClick(async () =>
-            {
-                this.#apiPath = `${text}?limit=${this.#limit}`
-                await InteractiveAction.refreshPage()
-            })
-            $.style.visibility = null
-            await delay(1)
-        }
         
         enable()
     }
