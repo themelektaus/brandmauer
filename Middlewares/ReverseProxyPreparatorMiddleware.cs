@@ -89,6 +89,8 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
             unauthorized = !authorized;
         }
 
+        var checkUnknownSourceHosts = true;
+
         if (path == "/api/time")
         {
             authorized = true;
@@ -110,20 +112,32 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
                 .SelectMany(x => x.Value.ToIpAddresses())
                 .ToList();
 
-            if (!source.route.UseWhitelist)
+            if (source.route.WhitelistUsage == ReverseProxyRoute._WhitelistUsage.Deactivated)
+            {
                 if (hostAddressesBundle.Count == 0)
                     goto Accept;
+            }
 
             foreach (var hostAddresses in hostAddressesBundle)
             {
                 foreach (var a in hostAddresses.Split(','))
+                {
                     foreach (var rangeIp in IPAddressRange.Parse(a))
+                    {
                         if (rangeIp.ToIp() == ip)
+                        {
+                            checkUnknownSourceHosts = false;
                             goto Accept;
+                        }
+                    }
+                }
             }
 
-            context.Response.StatusCode = 401;
-            goto Next;
+            if (source.route.WhitelistUsage == ReverseProxyRoute._WhitelistUsage.Deactivated)
+            {
+                context.Response.StatusCode = 401;
+                goto Next;
+            }
         }
 
     Accept:
@@ -177,18 +191,24 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
         }
 
     Authorized:
-        if (!authorized && source.route.UseWhitelist)
+        if (!authorized && source.route.WhitelistUsage != ReverseProxyRoute._WhitelistUsage.Deactivated)
         {
-            var ip = context.Connection.RemoteIpAddress.ToIp();
-
-            if (!source.route.Whitelist.Any(x => x.Value == ip))
+            if (
+                source.route.WhitelistUsage == ReverseProxyRoute._WhitelistUsage.Forced ||
+                (checkUnknownSourceHosts && source.route.WhitelistUsage == ReverseProxyRoute._WhitelistUsage.AllowSourceHosts)
+            )
             {
-                context.Features.Set(new PermissionFeature
+                var ip = context.Connection.RemoteIpAddress.ToIp();
+
+                if (!source.route.Whitelist.Any(x => x.Value == ip))
                 {
-                    Authorized = false,
-                    ReverseProxyRouteId = source.route.Identifier.Id
-                });
-                goto Next;
+                    context.Features.Set(new PermissionFeature
+                    {
+                        Authorized = false,
+                        ReverseProxyRouteId = source.route.Identifier.Id
+                    });
+                    goto Next;
+                }
             }
         }
 
