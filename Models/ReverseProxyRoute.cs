@@ -99,7 +99,8 @@ public class ReverseProxyRoute : Model, IOnDeserialize
     public List<Identifier> AuthenticationReferences { get; set; } = new();
     public List<Authentication> Authentications;
 
-    public bool UseWhitelist { get; set; }
+    public enum _WhitelistUsage { Deactivated, AllowSourceHosts, Forced }
+    public _WhitelistUsage WhitelistUsage { get; set; }
 
     public Identifier SmtpConnectionReference { get; set; }
     public SmtpConnection SmtpConnection;

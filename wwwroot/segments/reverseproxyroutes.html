@@ -103,8 +103,12 @@
                                 </ul>
                             </div>
                             <div class="field">
-                                <label>Use Whitelist</label>
-                                <input type="checkbox" data-bind="useWhitelist">
+                                <label>Whitelist Usage</label>
+                                <select data-bind="whitelistUsage" data-type="number">
+                                    <option value="0">Deactivated</option>
+                                    <option value="1">Allow Source Hosts</option>
+                                    <option value="2">Forced</option>
+                                </select>
                             </div>
                             <div class="field" data-object="smtpConnectionReference">
                                 <label>SMTP Connection</label>
