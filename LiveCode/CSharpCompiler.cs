@@ -83,10 +83,11 @@ public class CSharpCompiler : IAsyncCompiler
         if (references is null)
         {
             var assemblies = new Dictionary<string, Assembly>();
-            var checkedAssemblies = new HashSet<string>();
 
-            foreach (var name in Assembly.GetEntryAssembly()?.GetReferencedAssemblies())
-                assemblies.TryAdd(name.FullName, Assembly.Load(name));
+            AddAssembly(assemblies, typeof(object).Assembly);
+            AddAssembly(assemblies, Assembly.GetEntryAssembly());
+
+            var checkedAssemblies = new HashSet<string>();
 
             while (checkedAssemblies.Count < assemblies.Count)
             {
@@ -97,8 +98,7 @@ public class CSharpCompiler : IAsyncCompiler
                 foreach (var (assemblyName, assembly) in uncheckedAssemblies)
                 {
                     checkedAssemblies.Add(assemblyName);
-                    foreach (var name in assembly.GetReferencedAssemblies())
-                        assemblies.TryAdd(name.FullName, Assembly.Load(name));
+                    AddAssembly(assemblies, assembly);
                 }
             }
 
@@ -108,6 +108,16 @@ public class CSharpCompiler : IAsyncCompiler
         }
 
         return references;
+    }
+
+    static void AddAssembly(Dictionary<string, Assembly> assemblies, Assembly assembly)
+    {
+        if (assembly is null)
+            return;
+
+        assemblies.TryAdd(assembly.GetName().FullName, assembly);
+        foreach (var name in assembly.GetReferencedAssemblies())
+            assemblies.TryAdd(name.FullName, Assembly.Load(name));
     }
 
     unsafe static PortableExecutableReference CreatePortableExecutableReference(Assembly @this)

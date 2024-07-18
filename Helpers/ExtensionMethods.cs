@@ -18,6 +18,14 @@ public static class ExtensionMethods
         return result;
     }
 
+    public static async Task<string> ReadStringAsync(this Stream @this)
+    {
+        string result;
+        using (var reader = new StreamReader(@this, Encoding.UTF8))
+            result = await reader.ReadToEndAsync();
+        return result;
+    }
+
     public static byte[] ToBytes(this string @this)
     {
         return Encoding.UTF8.GetBytes(@this);

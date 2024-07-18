@@ -70,7 +70,7 @@
 
 .list .item > div:nth-child(1)[ripple] > .ripple {
     width: 16rem;
-    filter: alpha(.5);
+    filter: alpha(.5) blur(1em);
 }
 
 .list .item > div:nth-child(2) {
