@@ -6,4 +6,5 @@ public class ReverseProxyFeature
     public string Domain { get; set; }
     public string Target { get; set; }
     public string Suffix { get; set; }
+    public bool UseScript { get; set; }
 }

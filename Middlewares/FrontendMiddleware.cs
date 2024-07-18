@@ -51,18 +51,19 @@ public class FrontendMiddleware
         {
             var path = context.Request.Path.ToString();
 
-            if (path.EndsWith(".scss"))
-            {
-                static string OnLoadContent(string x)
-                    => SassCompiler.Compile(x).CompiledContent;
-
-                await LoadAsync(context, "text/css", path, OnLoadContent);
-                goto Exit;
-            }
-
             if (Utils.IsPublicPath(path))
             {
-                await SendFileAsync(context, path);
+                if (path.EndsWith(".scss"))
+                {
+                    static string OnLoadContent(string x)
+                        => SassCompiler.Compile(x).CompiledContent;
+
+                    await LoadAsync(context, "text/css", path, OnLoadContent);
+                }
+                else
+                {
+                    await SendFileAsync(context, path);
+                }
                 goto Exit;
             }
 

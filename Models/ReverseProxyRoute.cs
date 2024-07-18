@@ -42,6 +42,9 @@ public class ReverseProxyRoute : Model, IOnDeserialize
 
             builder.BeginBadges("flex: 3; ");
             {
+                if (Script != string.Empty)
+                    builder.AppendBadge("reverseproxy", "script", "C# Script", null);
+
                 if (Target != string.Empty)
                 {
                     builder.AppendBadge(
@@ -62,6 +65,28 @@ public class ReverseProxyRoute : Model, IOnDeserialize
                         "Host Modification",
                         HostModification.ToString()
                     );
+
+                if (Authentications.Count > 0)
+                {
+                    builder.AppendBadge(
+                        "reverseproxy",
+                        "authentication",
+                        "Authentication",
+                        null
+                    );
+                }
+
+                if (WhitelistUsage != _WhitelistUsage.Deactivated)
+                {
+                    builder.AppendBadge(
+                        "reverseproxy",
+                        "whitelist",
+                        "Use Whitelist",
+                        WhitelistUsage == _WhitelistUsage.AllowSourceHosts
+                            ? "Allow Source Hosts"
+                            : "Forced"
+                    );
+                }
             }
             builder.EndBadges();
 
@@ -107,7 +132,35 @@ public class ReverseProxyRoute : Model, IOnDeserialize
 
     public List<StringValue> Receivers { get; set; } = new();
 
-    public List<StringValue> Whitelist { get; set; } = new();
+    public class WhiteListItem
+    {
+        public string Value { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public DateTime Timestamp { get; set; } = DateTime.Now;
+
+        public TimeSpan ExpiresIn => Timestamp.AddDays(7) - DateTime.Now;
+        public string ExpiryInfo
+        {
+            get
+            {
+                var builder = new StringBuilder();
+
+                builder.BeginBadges("line-height: 1.5; ");
+
+                if (ExpiresIn.HasExpired())
+                    builder.AppendBadge("reverseproxy", "whitelist-expired-for", "Expired For", ExpiresIn.ToHumanizedString());
+                else
+                    builder.AppendBadge("reverseproxy", "whitelist-expires-in", "Expires In", ExpiresIn.ToHumanizedString());
+
+                builder.EndBadges();
+
+                return builder.ToString();
+            }
+        }
+    }
+    public List<WhiteListItem> Whitelist { get; set; } = new();
+
+    public string Script { get; set; } = string.Empty;
 
     public void OnDeserialize(Database database)
     {

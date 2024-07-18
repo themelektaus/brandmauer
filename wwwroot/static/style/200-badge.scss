@@ -53,12 +53,17 @@
     }
     
     &-reverseproxy-host-modification,
+    &-reverseproxy-whitelist-expires-in,
     &-certificate-expires-in {
         background-color: #663;
     }
     
     &-certificate-invalid,
     &-authentication-totp-disabled,
+    &-reverseproxy-authentication,
+    &-reverseproxy-whitelist,
+    &-reverseproxy-whitelist-expired-for,
+    &-reverseproxy-script,
     &-share-expired-on {
         background-color: #743;
     }
