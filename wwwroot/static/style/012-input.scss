@@ -46,7 +46,8 @@ button {
     }
     
     &[data-action="saveAll"],
-    &[data-action="saveConfig"] {
+    &[data-action="saveConfig"],
+    &[data-action="runScript"] {
         background-color: #373;
     }
     

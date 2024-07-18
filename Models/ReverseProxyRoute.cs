@@ -23,7 +23,7 @@ public class ReverseProxyRoute : Model, IOnDeserialize
                     builder.AppendBadge(
                         "reverseproxy",
                         "source-host",
-                        "Source Host",
+                        "Trusted Host",
                         host
                     );
 
@@ -83,7 +83,7 @@ public class ReverseProxyRoute : Model, IOnDeserialize
                         "whitelist",
                         "Use Whitelist",
                         WhitelistUsage == _WhitelistUsage.AllowSourceHosts
-                            ? "Allow Source Hosts"
+                            ? "Allow Trusted Hosts"
                             : "Forced"
                     );
                 }
@@ -161,6 +161,15 @@ public class ReverseProxyRoute : Model, IOnDeserialize
     public List<WhiteListItem> Whitelist { get; set; } = new();
 
     public string Script { get; set; } = string.Empty;
+
+    public enum _ScriptOutputType
+    {
+        Undefined = 0,
+        Text = 1,
+        Json = 2,
+        Html = 3
+    }
+    public _ScriptOutputType ScriptOutputType { get; set; }
 
     public void OnDeserialize(Database database)
     {

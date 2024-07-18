@@ -5,8 +5,6 @@ namespace Brandmauer.LiveCode;
 
 public class Runner : IDisposable
 {
-    public Host host = new();
-
     public float timeoutInSeconds = -1;
 
     public event EventHandler OnDispose;
@@ -20,7 +18,12 @@ public class Runner : IDisposable
         this.assemblyReference = assemblyReference;
     }
 
-    public async Task<RunnerResult> ExecuteAsync(CancellationToken cancellationToken)
+    public Task<RunnerResult> ExecuteAsync(params object[] args)
+    {
+        return ExecuteAsync(CancellationToken.None, args);
+    }
+
+    public async Task<RunnerResult> ExecuteAsync(CancellationToken cancellationToken, object[] args)
     {
         var result = new RunnerResult();
 
@@ -53,10 +56,25 @@ public class Runner : IDisposable
         }
 
         var parameters = new List<object>();
-        var methodParameters = method.GetParameters();
-        if (methodParameters.Length == 1 && methodParameters[0].ParameterType == typeof(Host))
+
+        foreach (var methodParameter in method.GetParameters())
         {
-            parameters.Add(host);
+            var defaultValue = methodParameter.DefaultValue;
+
+            if (defaultValue is DBNull)
+            {
+                var parameterType = methodParameter.ParameterType;
+                defaultValue = parameterType.IsValueType
+                    ? Activator.CreateInstance(parameterType)
+                    : null;
+            }
+
+            parameters.Add(defaultValue);
+        }
+
+        for (int i = 0; i < args.Length && i < parameters.Count; i++)
+        {
+            parameters[i] = args[i];
         }
 
         Task<object> methodTask;
@@ -68,7 +86,7 @@ public class Runner : IDisposable
                 // invoke method normally
                 try
                 {
-                    return method.Invoke(null, parameters.ToArray());
+                    return method.Invoke(null, [.. parameters]);
                 }
                 catch (Exception ex)
                 {
@@ -84,7 +102,7 @@ public class Runner : IDisposable
                 // invoke method and wait for the result of an async task
                 try
                 {
-                    dynamic awaitable = method.Invoke(null, parameters.ToArray());
+                    dynamic awaitable = method.Invoke(null, [.. parameters]);
                     var resultProperty = (awaitable.GetType() as Type).GetProperty("Result");
                     return resultProperty.GetValue(awaitable);
                 }

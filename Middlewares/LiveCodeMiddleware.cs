@@ -10,21 +10,55 @@ public class LiveCodeMiddleware(RequestDelegate next)
 
         if (feature is not null && feature.UseScript)
         {
-            var result = await ExecuteAsync(feature.Route.Script);
-
             context.Features.Set(new PermissionFeature { Authorized = true });
 
             var response = context.Response;
-            response.ContentType = "text/html";
+
+            switch (feature.Route.ScriptOutputType)
+            {
+                case ReverseProxyRoute._ScriptOutputType.Text:
+                    response.ContentType = "text/plain";
+                    break;
+
+                case ReverseProxyRoute._ScriptOutputType.Json:
+                    response.ContentType = "application/json";
+                    break;
+
+                case ReverseProxyRoute._ScriptOutputType.Html:
+                    response.ContentType = "text/html";
+                    break;
+            }
+
+            var result = await ExecuteAsync(feature.Route.Script, context);
+
             await response.Body.LoadFromAsync(result.ToString());
 
             return;
         }
 
+        if (feature is null)
+        {
+            var request = context.Request;
+            var path = request.Path.ToString();
+
+            if (path.StartsWith("/run") && context.Request.Method == "POST")
+            {
+                context.Features.Set(new PermissionFeature { Authorized = true });
+
+                var sourceCode = await context.Request.Body.ReadStringAsync();
+
+                var result = await ExecuteAsync(sourceCode, context);
+
+                await context.Response.Body.LoadFromAsync(result.ToString());
+
+                return;
+            }
+        }
+
         await next.Invoke(context);
     }
 
-    static async Task<LiveCodeResult> ExecuteAsync(string sourceCode)
+    static async Task<LiveCodeResult> ExecuteAsync(string sourceCode, params object[] args)
     {
         var compiler = new CSharpCompiler { sourceCode = sourceCode };
 
@@ -36,14 +70,14 @@ public class LiveCodeMiddleware(RequestDelegate next)
             {
                 sourceCode = sourceCode,
                 compilerErrors = compilerResult.errors
-                    .Select(x => $"[Line: {x.line}] {x.message}")
+                    .Select(x => $"{x.line}: {x.message}")
                     .ToArray()
             };
         }
 
         using var runner = new Runner(compilerResult);
         
-        var runnerResult = await runner.ExecuteAsync(CancellationToken.None);
+        var runnerResult = await runner.ExecuteAsync(args);
 
         return new()
         {

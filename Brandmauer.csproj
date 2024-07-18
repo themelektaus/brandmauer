@@ -11,7 +11,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>0.3.0.3</Version>
+        <Version>0.3.0.4</Version>
         <PrivateLocalDownloadFolder>\\fileserver.lan\slave\app\brandmauer\Download</PrivateLocalDownloadFolder>
         <PublicRemoteDownloadFolder>W:\stacks\web\www\download\brandmauer</PublicRemoteDownloadFolder>
     </PropertyGroup>
@@ -24,7 +24,7 @@
         <DefineConstants>WINDOWS</DefineConstants>
     </PropertyGroup>
 
-    <Target Condition="$(Configuration) == 'Linux2'" Name="PostPublish-Linux" AfterTargets="AfterPublish">
+    <Target Condition="$(Configuration) == 'Linux'" Name="PostPublish-Linux" AfterTargets="AfterPublish">
         <Message Text="----------------------------------------------------------------------" Importance="high" />
         <Exec Command="%22$(ProjectDir)PostPublish-Linux.bat%22 %22$(PrivateLocalDownloadFolder)%22 %22$(PublicRemoteDownloadFolder)%22 %22$(Version)%22" />
     </Target>

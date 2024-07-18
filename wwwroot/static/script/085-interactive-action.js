@@ -177,6 +177,46 @@ class InteractiveAction
         enable()
     }
     
+    static async runScript($sender)
+    {
+        disable()
+        
+        const $form = $sender.parentNode.parentNode
+        const $result = $form.q(`.script-result`)
+        $result.src = ``
+        
+        const response = await fetch(`run`,
+        {
+            method: `post`,
+            headers: { "Content-Type": `text/plain` },
+            body: $form.q(`[data-bind="script"]`).value
+        })
+        
+        const content = await response.text()
+        
+        const $outputType = $form.q(`[data-bind="scriptOutputType"]`)
+        
+        if ($outputType.value == 2)
+        {
+            $result.src = `data:application/json;charset=utf-8,${escape(content)}`
+        }
+        else if ($outputType.value == 3)
+        {
+            $result.src = `data:text/html;charset=utf-8,${escape(content)}`
+        }
+        else
+        {
+            $result.src = `data:text/plain;charset=utf-8,${escape(content)}`
+        }
+        
+        enable()
+    }
+    
+    static async clearScript($sender)
+    {
+        $sender.parentNode.parentNode.q(`.script-result`).src = ``
+    }
+    
     static async refreshPage($sender)
     {
         disable()

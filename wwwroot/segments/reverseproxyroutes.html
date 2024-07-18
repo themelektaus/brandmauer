@@ -26,17 +26,7 @@
                         <button data-action="delete">Delete</button>
                     </div>
                     <div class="field">
-                        <label>Source Hosts</label>
-                        <ul class="block" data-bind="sourceHostReferences">
-                            <li>
-                                <div class="flex-rows">
-                                    <select data-bind="id" data-options="hosts" data-type="number"></select>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="field">
-                        <label>Source Domains</label>
+                        <label>Source</label>
                         <ul class="group group-string-values" data-bind="sourceDomains">
                             <li>
                                 <input data-bind="value" />
@@ -117,10 +107,20 @@
                                 </ul>
                             </div>
                             <div class="field">
+                                <label>Trusted Hosts</label>
+                                <ul class="block" data-bind="sourceHostReferences">
+                                    <li>
+                                        <div class="flex-rows">
+                                            <select data-bind="id" data-options="hosts" data-type="number"></select>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="field">
                                 <label>Whitelist Usage</label>
                                 <select data-bind="whitelistUsage" data-type="number">
                                     <option value="0">Deactivated</option>
-                                    <option value="1">Allow Source Hosts</option>
+                                    <option value="1">Allow Trusted Hosts</option>
                                     <option value="2">Forced</option>
                                 </select>
                             </div>
@@ -128,7 +128,7 @@
                                 <label></label>
                                 <ul class="group group-string-values" data-bind="whitelist">
                                     <li>
-                                        <input data-bind="value" placeholder="IP Address" style="width: 9rem; max-width: 9rem; "/>
+                                        <input data-bind="value" placeholder="IP Address" style="width: 9rem; max-width: 9rem; " />
                                         <input data-bind="description" placeholder="Description" />
                                         <div data-bind="expiryInfo" style="width: 16rem; max-width: 16rem; "></div>
                                     </li>
@@ -150,12 +150,35 @@
                     </div>
                     <div class="foldout">
                         <div class="foldout-title">
-                            Code
+                            Live Code
+                            <span style="background-color: #252; font-size: .9em;
+                                         border-radius: .25em; padding: .125em .325em;
+                                         margin-inline: .25em; ">C#</span>
+                            <span style="background-color: #124; font-size: .9em;
+                                         border-radius: .25em; padding: .125em .325em; ">.NET</span>
                         </div>
                         <div class="foldout-content">
                             <div class="field">
-                                <label>C# Script</label>
-                                <textarea data-bind="script"></textarea>
+                                <label>Output Type</label>
+                                <select data-bind="scriptOutputType" data-type="number" style="width: 6rem; max-width: 6rem; ">
+                                    <option value="0"></option>
+                                    <option value="1">Text</option>
+                                    <option value="2">JSON</option>
+                                    <option value="3">HTML</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label>Script</label>
+                                <textarea data-bind="script" style="height: 15em; "></textarea>
+                            </div>
+                            <div class="field">
+                                <label>Result</label>
+                                <iframe class="script-result"></iframe>
+                            </div>
+                            <div class="buttons">
+                                <label></label>
+                                <button data-action="runScript" ripple><div>Run</div></button>
+                                <button data-action="clearScript" ripple><div>Clear</div></button>
                             </div>
                         </div>
                     </div>
