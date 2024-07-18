@@ -185,7 +185,7 @@ class InteractiveAction
         const $result = $form.q(`.script-result`)
         $result.src = ``
         
-        const response = await fetch(`run`,
+        const response = await fetch(`api/run`,
         {
             method: `post`,
             headers: { "Content-Type": `text/plain` },

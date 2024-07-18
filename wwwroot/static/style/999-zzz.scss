@@ -103,3 +103,30 @@
     height: 6em;
     border: .075em solid #fffc;
 }
+
+[data-bind="endpoints"] {
+    li {
+        display: flex;
+        align-items: center;
+        gap: .325em;
+        margin-left: 1em;
+    }
+    
+    [data-bind="method"] {
+        flex: 0 0 4.5em;
+        font-size: .9em;
+        padding: .25em 0 .125em;
+        border-radius: .25em;
+        text-align: center;
+        
+        &[data-value="GET"] {background-color: #262; }
+        &[data-value="POST"] {background-color: #355; }
+        &[data-value="PUT"] {background-color: #348; }
+        &[data-value="DELETE"] {background-color: #622; }
+    }
+    
+    [data-bind="path"] {
+        
+    }
+    
+}
