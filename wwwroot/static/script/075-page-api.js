@@ -8,17 +8,30 @@ class ApiPage extends Page
         
         this.model = await fetchJson(`api`)
         
-        this.model.endpoints = this.model.endpoints
-            .filter(x => x.method == "GET")
-            .filter(x => !x.path.includes(`{id}`))
-        
         this.model.transferTo(this.$)
         
-        this.$.qAll(`[data-bind="path"]`).forEach($ =>
+        this.$.qAll(`li`).forEach($ =>
         {
-            const text = $.innerText
-            $.href = text
-            $.innerText = `/${text}`
+            
+            const $method = $.q(`[data-bind="method"]`)
+            const method = $method.dataset.value
+            
+            if (method)
+            {
+                $method.innerHTML = method
+                
+                const $path = $.q(`[data-bind="path"]`)
+                const path = $path.dataset.value
+                
+                if (method == `GET` && !path.includes(`{`))
+                {
+                    $path.innerHTML = `<a href="${path}" target="_blank">/${path}</a>`
+                }
+                else
+                {
+                    $path.innerHTML = `/${path}`
+                }
+            }
         })
     }
 }

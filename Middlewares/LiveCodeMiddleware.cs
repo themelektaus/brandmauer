@@ -36,29 +36,10 @@ public class LiveCodeMiddleware(RequestDelegate next)
             return;
         }
 
-        if (feature is null)
-        {
-            var request = context.Request;
-            var path = request.Path.ToString();
-
-            if (path.StartsWith("/run") && context.Request.Method == "POST")
-            {
-                context.Features.Set(new PermissionFeature { Authorized = true });
-
-                var sourceCode = await context.Request.Body.ReadStringAsync();
-
-                var result = await ExecuteAsync(sourceCode, context);
-
-                await context.Response.Body.LoadFromAsync(result.ToString());
-
-                return;
-            }
-        }
-
         await next.Invoke(context);
     }
 
-    static async Task<LiveCodeResult> ExecuteAsync(string sourceCode, params object[] args)
+    public static async Task<LiveCodeResult> ExecuteAsync(string sourceCode, params object[] args)
     {
         var compiler = new CSharpCompiler { sourceCode = sourceCode };
 

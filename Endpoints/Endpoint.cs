@@ -172,6 +172,14 @@ public static partial class Endpoint
         app.MapGet($"{API}/whatsmyip", WhatsMyIp);
         app.MapGet($"{API}/time", Time);
 
+        app.MapPost(
+            $"{API}/run",
+            async (HttpContext context) =>
+            {
+                return await RunAsync(context);
+            }
+        );
+
         app.MapGet($"{API}/audit"/*?limit={{limit}}*/, Audit.Get);
         app.MapGet($"{API}/audit/{{id}}"/*?limit={{limit}}*/, Audit.GetById);
 
@@ -242,5 +250,12 @@ public static partial class Endpoint
     static IResult Time(HttpContext context)
     {
         return Results.Text(DateTimeOffset.Now.ToUnixTimeSeconds().ToString());
+    }
+
+    static async Task<IResult> RunAsync(HttpContext context)
+    {
+        var sourceCode = await context.Request.Body.ReadStringAsync();
+        var result = await LiveCodeMiddleware.ExecuteAsync(sourceCode, context);
+        return Results.Text(result.ToString());
     }
 }
