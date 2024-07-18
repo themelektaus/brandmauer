@@ -20,14 +20,23 @@ public static partial class Endpoint
         public static IResult Get([FromQuery] int? limit) => GetById(0, limit);
         public static IResult GetById(long id, [FromQuery] int? limit)
         {
-            var ids = Directory.Exists(_Audit.FOLDER)
-                ? Directory.GetFiles(_Audit.FOLDER, "*.json")
-                    .Select(Path.GetFileNameWithoutExtension)
-                    .Select(x => long.TryParse(x, out var id) ? id : 0)
-                    .Where(x => x != 0)
-                    .OrderByDescending(x => x)
-                    .ToList()
-                : [];
+            var _limit = limit ?? 0;
+
+            var ids = Enumerable.Empty<long>();
+
+            if (Directory.Exists(_Audit.FOLDER))
+            {
+                ids = ids.Concat(
+                    Directory.GetFiles(_Audit.FOLDER, "*.json")
+                        .Select(Path.GetFileNameWithoutExtension)
+                        .Select(x => long.TryParse(x, out var id) ? id : 0)
+                        .Where(x => x != 0)
+                        .OrderByDescending(x => x)
+                );
+            }
+
+            if (_limit > 0)
+                ids = ids.Take(_limit);
 
             _Audit audit;
 
@@ -45,7 +54,7 @@ public static partial class Endpoint
                 {
                     var json = File.ReadAllText(file);
                     audit = json.FromJson<_Audit>();
-                    audit.Entries = audit.Entries.ToList();
+                    audit.Entries = [.. audit.Entries];
                 }
                 else
                 {
@@ -53,9 +62,8 @@ public static partial class Endpoint
                 }
             }
 
-            var _limit = limit ?? 0;
             if (_limit > 0)
-                audit.Entries = audit.Entries.TakeLast(_limit).ToList();
+                audit.Entries = [.. audit.Entries.TakeLast(_limit)];
 
             return Results.Json(new
             {

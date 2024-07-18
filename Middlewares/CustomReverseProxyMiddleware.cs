@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.Extensions;
 
-using System.Net;
-
 namespace Brandmauer;
 
 public class CustomReverseProxyMiddleware(RequestDelegate next)

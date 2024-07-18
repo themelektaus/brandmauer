@@ -200,7 +200,7 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
             {
                 var ip = context.Connection.RemoteIpAddress.ToIp();
 
-                if (!source.route.Whitelist.Any(x => x.Value == ip))
+                if (!source.route.Whitelist.Any(x => x.Value == ip && !x.ExpiresIn.HasExpired()))
                 {
                     context.Features.Set(new PermissionFeature
                     {
@@ -212,14 +212,16 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
             }
         }
 
-        if (!unauthorized && target != string.Empty)
+        var useScript = source.route.Script != string.Empty;
+        if (!unauthorized && (target != string.Empty || useScript))
         {
             context.Features.Set(new ReverseProxyFeature
             {
                 Route = source.route,
                 Domain = source.domain,
                 Target = target,
-                Suffix = path[(basePath.Length + 1)..]
+                Suffix = path[(basePath.Length + 1)..],
+                UseScript = useScript
             });
         }
 

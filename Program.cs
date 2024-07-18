@@ -79,6 +79,10 @@ app.Urls.Add($"https://0.0.0.0:{Utils.HTTPS}");
 
 Brandmauer.Endpoint.MapAll(app);
 
+#if DEBUG
+//app.UseMiddleware<HelloWorldMiddleware>();
+#endif
+
 app.UseMiddleware<WellKnownMiddleware>();
 app.UseMiddleware<LoginMiddleware>();
 app.UseMiddleware<WhitelistMiddleware>();
@@ -88,6 +92,7 @@ app.UseMiddleware<IconMiddleware>();
 app.UseMiddleware<ReverseProxyPreparatorMiddleware>();
 app.UseMiddleware<YarpReverseProxyMiddleware>();
 app.UseMiddleware<CustomReverseProxyMiddleware>();
+app.UseMiddleware<LiveCodeMiddleware>();
 app.UseMiddleware<FrontendMiddleware>();
 app.UseMiddleware<TeapotMiddleware>();
 

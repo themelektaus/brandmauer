@@ -49,7 +49,7 @@
                     </div>
                     <div class="foldout">
                         <div class="foldout-title">
-                            Detail Settings
+                            Engine
                         </div>
                         <div class="foldout-content">
                             <div class="field">
@@ -74,6 +74,13 @@
                                     <option value="1">Null</option>
                                 </select>
                             </div>
+                        </div>
+                    </div>
+                    <div class="foldout">
+                        <div class="foldout-title">
+                            Response
+                        </div>
+                        <div class="foldout-content">
                             <div class="field">
                                 <label>Timeout</label>
                                 <!--segment: timeout {attr:data-bind="timeout"}-->
@@ -92,6 +99,13 @@
                                     </select>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    <div class="foldout">
+                        <div class="foldout-title">
+                            Access
+                        </div>
+                        <div class="foldout-content">
                             <div class="field">
                                 <label>Authentications</label>
                                 <ul class="block" data-bind="authenticationReferences">
@@ -110,6 +124,16 @@
                                     <option value="2">Forced</option>
                                 </select>
                             </div>
+                            <div class="field">
+                                <label></label>
+                                <ul class="group group-string-values" data-bind="whitelist">
+                                    <li>
+                                        <input data-bind="value" placeholder="IP Address" style="width: 9rem; max-width: 9rem; "/>
+                                        <input data-bind="description" placeholder="Description" />
+                                        <div data-bind="expiryInfo" style="width: 16rem; max-width: 16rem; "></div>
+                                    </li>
+                                </ul>
+                            </div>
                             <div class="field" data-object="smtpConnectionReference">
                                 <label>SMTP Connection</label>
                                 <select data-bind="id" data-options="smtpconnections" data-type="number"></select>
@@ -122,14 +146,16 @@
                                     </li>
                                 </ul>
                             </div>
+                        </div>
+                    </div>
+                    <div class="foldout">
+                        <div class="foldout-title">
+                            Code
+                        </div>
+                        <div class="foldout-content">
                             <div class="field">
-                                <label>Whitelist</label>
-                                <ul class="group group-string-values" data-bind="whitelist">
-                                    <li>
-                                        <input data-bind="value" placeholder="IP Address" style="flex: 1; " />
-                                        <input data-bind="description" placeholder="Description" style="flex: 3; " />
-                                    </li>
-                                </ul>
+                                <label>C# Script</label>
+                                <textarea data-bind="script"></textarea>
                             </div>
                         </div>
                     </div>

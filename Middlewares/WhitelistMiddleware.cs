@@ -74,7 +74,7 @@ public class WhitelistMiddleware(RequestDelegate next)
         if (route is null)
             return _403_FORBIDDEN;
 
-        if (!route.Whitelist.Any(x => x.Value == ipAddress))
+        if (!route.Whitelist.Any(x => x.Value == ipAddress && !x.ExpiresIn.HasExpired()))
             return _403_FORBIDDEN;
 
         return _202_ACCEPTED;
@@ -89,8 +89,8 @@ public class WhitelistMiddleware(RequestDelegate next)
 
         if (hasCorrectPath && request.Query.TryGetValue("token", out _))
         {
-			context.Features.Set(new PermissionFeature { Authorized = true });
-			goto Next;
+            context.Features.Set(new PermissionFeature { Authorized = true });
+            goto Next;
         }
 
         var headers = request.Headers;
@@ -123,7 +123,7 @@ public class WhitelistMiddleware(RequestDelegate next)
                     var route = x.ReverseProxyRoutes.FirstOrDefault(
                         y => y.Identifier.Id == reverseProxyRouteId
                     );
-                    route.Whitelist.Add(new(pendingRequest.IpAddress));
+                    route.Whitelist.Add(new() { Value = pendingRequest.IpAddress });
                 });
             }
 
@@ -175,7 +175,7 @@ public class WhitelistMiddleware(RequestDelegate next)
                 var subject = $"🔥 Permission Request";
 
                 var baseUrl = Database.Use(x => x.GetBaseUrl(context.Request));
-                
+
                 var domain = reverseProxyRoute
                     .SourceDomains.FirstOrDefault().Value;
 

@@ -11,7 +11,7 @@ public abstract class ReverseProxyMiddleware
         Utils.LogBegin(GetType(), context);
 
         var feature = context.Features.Get<ReverseProxyFeature>();
-        if (feature is null || feature.Target is null)
+        if (feature is null || feature.UseScript)
         {
             await NextAsync(context);
             return;
