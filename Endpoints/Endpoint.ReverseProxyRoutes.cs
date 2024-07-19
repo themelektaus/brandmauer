@@ -14,7 +14,7 @@ public static partial class Endpoint
             return Results.Json(data);
         }
 
-        public static IResult Get(long id)
+        public static IResult Get(long id, HttpRequest request)
         {
             var data = Database.Use(
                 x => x.ReverseProxyRoutes.FirstOrDefault(
@@ -25,7 +25,23 @@ public static partial class Endpoint
             if (data is null)
                 return Results.NotFound();
 
+            if (request.Query.TryGetValue("format", out var format))
+                if (format == "html")
+                    return GetAsHtml(data);
+
             return Results.Json(data);
+        }
+
+        static IResult GetAsHtml(ReverseProxyRoute route)
+        {
+            var content = route.Script;
+            
+            var html = File.ReadAllText("wwwroot/editor.html")
+                .Replace("<!--id-->", route.Identifier.Id.ToString())
+                .Replace("<!--output-type-->", route.ScriptOutputType.ToString())
+                .Replace("<!--script-->", content.ToBase64());
+
+            return Results.Content(html, "text/html");
         }
 
         public static IResult Post()
@@ -46,7 +62,20 @@ public static partial class Endpoint
             Database.Use(x =>
             {
                 var index = x.ReverseProxyRoutes.FindIndex(data.IsReferenceOf);
+                data.Script = x.ReverseProxyRoutes[index].Script;
                 x.ReverseProxyRoutes[index] = x.Replace(x.ReverseProxyRoutes[index], data);
+                x.Save(logging: true);
+            });
+
+            return Results.Ok();
+        }
+
+        public static IResult PutScript(ReverseProxyRoute data)
+        {
+            Database.Use(x =>
+            {
+                var index = x.ReverseProxyRoutes.FindIndex(data.IsReferenceOf);
+                x.ReverseProxyRoutes[index].Script = data.Script;
                 x.Save(logging: true);
             });
 

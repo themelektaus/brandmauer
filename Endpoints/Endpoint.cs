@@ -89,6 +89,10 @@ public static partial class Endpoint
             $"{API}/reverseproxyroutes",
             ReverseProxyRoutes.Put
         );
+        app.MapPut(
+            $"{API}/reverseproxyroutes/script",
+            ReverseProxyRoutes.PutScript
+        );
         app.MapDelete(
             $"{API}/reverseproxyroutes/{{id}}",
             ReverseProxyRoutes.Delete
