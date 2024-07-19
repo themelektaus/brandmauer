@@ -54,7 +54,7 @@ public struct LiveCodeResult
             return runnerResult.returnValue.ToString();
         }
 
-        var result = "[" + runnerResult.status + "]";
+        var result = runnerResult.status.ToString();
 
         if (HasException && runnerResult.returnValue is not null)
         {

@@ -51,7 +51,7 @@ public class LiveCodeMiddleware(RequestDelegate next)
             {
                 sourceCode = sourceCode,
                 compilerErrors = compilerResult.errors
-                    .Select(x => $"{x.line}: {x.message}")
+                    .Select(x => $"{x.message} ({x.line})")
                     .ToArray()
             };
         }

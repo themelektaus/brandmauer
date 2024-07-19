@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Editor</title>
+        
+        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+        
+        <base href="/">
+        
+        <style>
+            
+            @font-face {
+                font-family: rubik;
+                src: url(static/res/rubik.ttf);
+            }
+            
+            @font-face {
+                font-family: dejavu;
+                src: url(static/res/dejavu.ttf);
+            }
+            
+            ::-webkit-scrollbar {
+                width: 7px;
+                height: 7px;
+            }
+            
+            ::-webkit-scrollbar-track {
+                background: #222;
+            }
+            
+            ::-webkit-scrollbar-thumb {
+                background: #444;
+            }
+            
+            ::-webkit-scrollbar-thumb:hover {
+                background: #555;
+            }
+            
+            ::-webkit-scrollbar-corner {
+                background: none;
+            }
+            
+            html, body {
+                height: 100vh;
+            }
+            
+            body, button {
+                font-family: rubik;
+                font-size: 1em;
+                color: white;
+            }
+            
+            body {
+                background-color: #111;
+                line-height: 1.25;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            body, main, .editor, .output {
+                margin: 0;
+            }
+            
+            main {
+                flex: 1;
+                display: flex;
+            }
+            
+            .editor, .editor * {
+                font-family: dejavu !important;
+            }
+            
+            .editor {
+                flex: 3;
+                font-size: .9em !important;
+                line-height: 1.6em !important;
+            }
+            
+            .output {
+                flex: 2;
+                overflow: hidden scroll;
+            }
+            
+            pre.output {
+                max-height: calc(100vh - 2.85em);
+                background-color: #111;
+                font-family: dejavu;
+                line-height: 1.25;
+                font-size: 1em;
+                padding: 1em;
+                box-sizing: border-box;
+            }
+            
+            iframe.output {
+                border: none;
+                background-color: white;
+            }
+            
+            .actions {
+                display: flex;
+                justify-content: center;
+                padding: .5em;
+                gap: .5em;
+            }
+            
+            button {
+                padding: .325em .75em;
+                border: none;
+                background-color: #447;
+                cursor: pointer;
+                border-radius: .125em;
+                filter: brightness(.8);
+            }
+            
+            button:hover {
+                filter: brightness(.9);
+            }
+
+            button:active {
+                filter: brightness(1);
+            }
+            
+            body.disabled button {
+                filter: saturate(0) brightness(.6);
+                pointer-events: none;
+            }
+            
+            .hidden {
+                display: none;
+            }
+            
+        </style>
+        
+        <script src="static/ace/ace.js"></script>
+        
+        <script>
+            
+            const outputType = `<!--output-type-->`
+            
+            const aceInstances = { }
+            
+            function loadACE(elementId)
+            {
+                const editor = ace.edit(elementId);
+                
+                editor.setTheme("ace/theme/merbivore_soft");
+                
+                editor.session.setMode("ace/mode/csharp");
+                
+                const renderer = editor.renderer
+                
+                renderer.setAnimatedScroll(true)
+                renderer.setVScrollBarAlwaysVisible(true)
+                renderer.setOption("showPrintMargin", false)
+                renderer.setPadding(15)
+                renderer.setScrollMargin(10)
+                renderer.setOption("scrollPastEnd", 0.5)
+                
+                aceInstances[elementId] = editor;
+            }
+            
+            function getACEValue(elementId)
+            {
+                return aceInstances[elementId].getValue();
+            }
+            
+            function setACEValue(elementId, value)
+            {
+                aceInstances[elementId].setValue(value, -1);
+            }
+            
+            function htmlEntities(str)
+            {
+                return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+            }
+            
+            addEventListener(`load`, () =>
+            {
+                loadACE(`editor`)
+                
+                setACEValue(`editor`, atob(`<!--script-->`))
+                
+                document.querySelector(`#run`).addEventListener(`click`, async () =>
+                {
+                    document.body.classList.add(`disabled`)
+                    
+                    const response = await fetch(`api/run`,
+                    {
+                        method: `post`,
+                        headers: { "Content-Type": `text/plain` },
+                        body: getACEValue(`editor`)
+                    })
+                    
+                    const content = await response.text()
+                    
+                    const $iframe = document.querySelector(`iframe.output`)
+                    const $pre = document.querySelector(`pre.output`)
+                    
+                    if (content != `` && outputType == `Html`)
+                    {
+                        $pre.classList.add(`hidden`)
+                        $iframe.classList.remove(`hidden`)
+                        $iframe.src = `data:text/html;charset=utf-8,${escape(content)}`
+                    }
+                    else
+                    {
+                        $iframe.classList.add(`hidden`)
+                        $pre.classList.remove(`hidden`)
+                        $pre.innerHTML = htmlEntities(content)
+                    }
+                    
+                    document.body.classList.remove(`disabled`)
+                })
+                
+                document.querySelector(`#save`).addEventListener(`click`, async () =>
+                {
+                    document.body.classList.add(`disabled`)
+                    
+                    const data = {
+                        identifier: { id: parseInt("<!--id-->") },
+                        script: getACEValue(`editor`)
+                    }
+                    
+                    await fetch(`api/reverseproxyroutes/script`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    })
+                    
+                    document.body.classList.remove(`disabled`)
+                })
+            })
+            
+        </script>
+    </head>
+    <body>
+        <div class="actions">
+            <button id="run">Run</button>
+            <button id="save">Save</button>
+        </div>
+        <main>
+            <pre class="editor" id="editor"></pre>
+            <pre class="output"></pre>
+            <iframe class="output hidden"></iframe>
+        </main>
+    </body>
+</html>
