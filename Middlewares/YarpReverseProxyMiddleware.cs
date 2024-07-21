@@ -107,6 +107,7 @@ public class YarpReverseProxyMiddleware(
             headers.TryAddWithoutValidation("X-Forwarded-Proto", scheme);
 
             var feature = httpContext.Features.Get<ReverseProxyFeature>();
+            headers.TryAddWithoutValidation("X-Source", feature.Source);
 
             switch (feature.Route.HostModification)
             {

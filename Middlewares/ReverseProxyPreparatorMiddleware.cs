@@ -40,7 +40,7 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
             x => x.ReverseProxyRoutes.Where(x => x.Enabled).ToList()
         );
 
-        var sources = new List<(ReverseProxyRoute route, string domain)>();
+        var sources = new List<(ReverseProxyRoute route, string value)>();
 
         foreach (var route in routes)
         {
@@ -56,11 +56,11 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
         var path = context.Request.Path.ToString();
         var trimmedPath = path.Trim('/');
 
-        (ReverseProxyRoute route, string domain) source = (null, null);
+        (ReverseProxyRoute route, string value) source = (null, null);
 
         foreach (var x in sources)
         {
-            var subPath = x.domain
+            var subPath = x.value
                 .Split('/', 2)
                 .Skip(1)
                 .FirstOrDefault(string.Empty);
@@ -68,8 +68,8 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
             if (!trimmedPath.StartsWith(subPath))
                 continue;
 
-            var domain = source.domain;
-            if (domain is null || domain.Length < x.domain.Length)
+            var value = source.value;
+            if (value is null || value.Length < x.value.Length)
                 source = x;
         }
 
@@ -141,7 +141,7 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
         }
 
     Accept:
-        var basePath = source.domain
+        var basePath = source.value
             .Split('/')
             .Skip(1)
             .FirstOrDefault(string.Empty);
@@ -218,7 +218,7 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
             context.Features.Set(new ReverseProxyFeature
             {
                 Route = source.route,
-                Domain = source.domain,
+                Source = source.value,
                 Target = target,
                 Suffix = path[(basePath.Length + 1)..],
                 UseScript = useScript

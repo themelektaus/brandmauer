@@ -170,7 +170,7 @@ public class FrontendMiddleware
                             var keyValue = value.Split(':');
                             if (keyValue.Length != 2)
                                 continue;
-                            
+
                             segment = segment.Replace(
                                 $"{{{keyValue[0]}}}",
                                 keyValue[1]
