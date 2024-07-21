@@ -20,6 +20,7 @@ public class CustomReverseProxyMiddleware(RequestDelegate next)
         }
 
         feature.Suffix += context.Request.QueryString;
+
         var url = new Uri($"{feature.Target}/{feature.Suffix.TrimStart('/')}");
 
         var request = new HttpRequestMessage
@@ -49,6 +50,8 @@ public class CustomReverseProxyMiddleware(RequestDelegate next)
         request.Headers.TryAddWithoutValidation("X-Real-IP", ip);
         request.Headers.TryAddWithoutValidation("X-Forwarded-For", ip);
         request.Headers.TryAddWithoutValidation("X-Forwarded-Proto", scheme);
+
+        request.Headers.TryAddWithoutValidation("X-Source", feature.Source);
 
         switch (feature.Route.HostModification)
         {

@@ -123,6 +123,7 @@ public class ShareMiddleware(RequestDelegate next)
                     { "upload-display", "inherit" },
                     { "password-display", "none" },
                     { "download-display", "none" },
+                    { "create-another-share-display", "none" },
                     { "content", "<!--segment: share-->" }
                 }
             };
@@ -153,12 +154,11 @@ public class ShareMiddleware(RequestDelegate next)
                         { "upload-display", "none" },
                         { "password-display", "inherit" },
                         { "download-display", "none" },
+                        { "create-another-share-display", "none" },
                         { "content", "<!--segment: share-->" }
                     }
                 };
             }
-
-            var baseUrl = Database.Use(x => x.GetBaseUrl(request));
 
             var fileListHtml = new StringBuilder();
 
@@ -174,7 +174,7 @@ public class ShareMiddleware(RequestDelegate next)
                     $"<div><b>{info.Length.ToHumanizedSize()}</b></div>";
                 name = Path.GetFileNameWithoutExtension(name).Replace('_', ' ');
 
-                var url = GetFileDownloadLink(baseUrl, share, i);
+                var url = GetFileDownloadLink(string.Empty, share, i);
 
                 fileListHtml.AppendLine(
                     $" <div>                                               " +
@@ -190,6 +190,18 @@ public class ShareMiddleware(RequestDelegate next)
                 );
             }
 
+            bool createAnotherShareDisplay;
+
+            if (request.Headers.TryGetValue("X-Source", out var source))
+            {
+                var _source = source.ToString().Split('/', 2).LastOrDefault(string.Empty);
+                createAnotherShareDisplay = _source == string.Empty;
+            }
+            else
+            {
+                createAnotherShareDisplay = true;
+            }
+
             return new()
             {
                 path = "prompt.html",
@@ -198,6 +210,7 @@ public class ShareMiddleware(RequestDelegate next)
                     { "upload-display", "none" },
                     { "password-display", "none" },
                     { "download-display", "inherit" },
+                    { "create-another-share-display", createAnotherShareDisplay ? "inherit" : "none" },
                     { "text", share.Text },
                     { "file-list", fileListHtml.ToString() },
                     { "content", "<!--segment: share-->" }
