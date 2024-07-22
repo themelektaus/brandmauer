@@ -75,3 +75,9 @@ button:not(:disabled):not([ripple]):active {
 select {
     padding: .45rem .25rem;
 }
+
+input.error {
+    color: #fb6;
+    background-color: #f004;
+    outline: .125em solid #943;
+}
