@@ -38,6 +38,7 @@ public static partial class Endpoint
             
             var html = File.ReadAllText("wwwroot/editor.html")
                 .Replace("<!--id-->", route.Identifier.Id.ToString())
+                .Replace("<!--title-->", route.SourceDomains.FirstOrDefault().Value)
                 .Replace("<!--output-type-->", route.ScriptOutputType.ToString())
                 .Replace("<!--script-->", content.ToBase64());
 
