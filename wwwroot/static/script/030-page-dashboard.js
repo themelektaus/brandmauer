@@ -13,29 +13,56 @@ class DashboardPage extends Page
     
     async refreshVersionInfo()
     {
-        this.model.update = await fetchJson(`api/update`)
+        this.model.update = undefined
         
-        const $installButton = this.$.q(`[data-action="updateInstall"]`)
+        const response = await fetch(`api/update`)
         
-        const version = this.model.update.downloadedVersion
-        
-        if (version.includes(`Not available`))
+        if (response.ok)
         {
-            this.$.q(`[data-action="updateCheck"]`).setEnabled(false)
-            this.$.q(`[data-action="updateDownload"]`).setEnabled(false)
-            $installButton.setEnabled(false)
+            try { this.model.update = await response.json() } catch { }
         }
-        else if (version)
+        
+        const error = this.model.update === undefined
+        
+        this.$.q(`[data-bind="update.remoteVersion"]`).setClass(`error`, error)
+        this.$.q(`[data-bind="update.downloadedVersion"]`).setClass(`error`, error)
+        this.$.q(`[data-bind="update.installedVersion"]`).setClass(`error`, error)
+        
+        if (error)
         {
-            $installButton.setEnabled(true)
-            Internal.setPageTargetDirty(`dashboard`, true)
+            this.$.q(`[data-action="updateDownload"]`).setEnabled(false)
+            
+            this.model.update = {
+                remoteVersion: `Status: ${response.status}`,
+                downloadedVersion: ``,
+                installedVersion: ``
+            }
         }
         else
         {
-            $installButton.setEnabled(false)
-            Internal.setPageTargetDirty(`dashboard`, false)
+            const $installButton = this.$.q(`[data-action="updateInstall"]`)
+            
+            const version = this.model.update.downloadedVersion
+            
+            if (version.includes(`Not available`))
+            {
+                this.$.q(`[data-action="updateCheck"]`).setEnabled(false)
+                this.$.q(`[data-action="updateDownload"]`).setEnabled(false)
+                $installButton.setEnabled(false)
+            }
+            else if (version)
+            {
+                $installButton.setEnabled(true)
+                Internal.setPageTargetDirty(`dashboard`, true)
+            }
+            else
+            {
+                $installButton.setEnabled(false)
+                Internal.setPageTargetDirty(`dashboard`, false)
+            }
         }
         
         this.model.transferTo(this.$)
     }
 }
+
