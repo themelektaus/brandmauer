@@ -28,7 +28,8 @@ public static class TotpUtils
 
     public static byte[] GenerateQrCode(string text)
     {
-        return PngByteQRCodeHelper.GetQRCode(text, QRCodeGenerator.ECCLevel.M, 6);
+        return PngByteQRCodeHelper.GetQRCode(
+            text, QRCodeGenerator.ECCLevel.M, 6
+        );
     }
 }
-

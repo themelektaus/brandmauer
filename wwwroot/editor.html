@@ -3,7 +3,7 @@
     <head>
         <title>Editor</title>
         
-        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+        <meta charset="UTF-8">
         
         <base href="/">
         
@@ -204,7 +204,9 @@
                     {
                         $pre.classList.add(`hidden`)
                         $iframe.classList.remove(`hidden`)
-                        $iframe.src = `data:text/html;charset=utf-8,${escape(content)}`
+                        $iframe.src = URL.createObjectURL(
+                            new Blob([ content ], { type: `text/html` })
+                        )
                     }
                     else
                     {

@@ -39,7 +39,10 @@ public class LiveCodeMiddleware(RequestDelegate next)
         await next.Invoke(context);
     }
 
-    public static async Task<LiveCodeResult> ExecuteAsync(string sourceCode, params object[] args)
+    public static async Task<LiveCodeResult> ExecuteAsync(
+        string sourceCode,
+        params object[] args
+    )
     {
         var compiler = new CSharpCompiler { sourceCode = sourceCode };
 

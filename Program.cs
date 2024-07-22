@@ -79,34 +79,35 @@ app.Urls.Add($"https://0.0.0.0:{Utils.HTTPS}");
 
 Brandmauer.Endpoint.MapAll(app);
 
+foreach (var x in new[] {
 #if DEBUG
-//app.UseMiddleware<HelloWorldMiddleware>();
+    typeof(HelloWorldMiddleware),
 #endif
+    typeof(WellKnownMiddleware),
+    typeof(LoginMiddleware),
+    typeof(WhitelistMiddleware),
+    typeof(PushMiddleware),
+    typeof(ShareMiddleware),
+    typeof(IconMiddleware),
+    typeof(ReverseProxyPreparatorMiddleware),
+    typeof(YarpReverseProxyMiddleware),
+    typeof(CustomReverseProxyMiddleware),
+    typeof(LiveCodeMiddleware),
+    typeof(FrontendMiddleware),
+    typeof(TeapotMiddleware),
+}) app.UseMiddleware(x);
 
-app.UseMiddleware<WellKnownMiddleware>();
-app.UseMiddleware<LoginMiddleware>();
-app.UseMiddleware<WhitelistMiddleware>();
-app.UseMiddleware<PushMiddleware>();
-app.UseMiddleware<ShareMiddleware>();
-app.UseMiddleware<IconMiddleware>();
-app.UseMiddleware<ReverseProxyPreparatorMiddleware>();
-app.UseMiddleware<YarpReverseProxyMiddleware>();
-app.UseMiddleware<CustomReverseProxyMiddleware>();
-app.UseMiddleware<LiveCodeMiddleware>();
-app.UseMiddleware<FrontendMiddleware>();
-app.UseMiddleware<TeapotMiddleware>();
-
-app.RunInBackground<IntervalTask_Continuously>();
-app.RunInBackground<IntervalTask_Daily>();
-app.RunInBackground<IntervalTask_DnsServer>();
-app.RunInBackground<IntervalTask_ReloadDatabase>();
-
+foreach (var x in new[] {
+    typeof(IntervalTask_Continuously),
+    typeof(IntervalTask_Daily),
+    typeof(IntervalTask_DnsServer),
+    typeof(IntervalTask_ReloadDatabase),
 #if LINUX
-app.RunInBackground<IntervalTask_UpdateBrandmauer>();
-app.RunInBackground<IntervalTask_RenewCertifcates>();
-app.RunInBackground<IntervalTask_Startup>();
+    typeof(IntervalTask_UpdateBrandmauer),
+    typeof(IntervalTask_RenewCertifcates),
+    typeof(IntervalTask_Startup),
 #endif
-
+}) app.RunInBackground(x);
 
 await app.RunAsync();
 await app.DisposeAllIntervalTasksAsync();

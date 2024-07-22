@@ -37,18 +37,32 @@ public class Share : Model, IOnDeserialize
                 {
                     if (expiresIn.HasExpired())
                     {
-                        builder.AppendBadge("share", "expired-on", "Expired On", expiresOn.ToHumanizedString());
-                        builder.AppendBadge("share", "expired-for", "Expired For", expiresIn.ToHumanizedString());
+                        builder.AppendBadge(
+                            "share", "expired-on", "Expired On",
+                            expiresOn.ToHumanizedString()
+                        );
+                        builder.AppendBadge(
+                            "share", "expired-for", "Expired For",
+                            expiresIn.ToHumanizedString()
+                        );
                     }
                     else
                     {
-                        builder.AppendBadge("share", "expires-on", "Expires On", expiresOn.ToHumanizedString());
-                        builder.AppendBadge("share", "expires-in", "Expires In", expiresIn.ToHumanizedString());
+                        builder.AppendBadge(
+                            "share", "expires-on", "Expires On",
+                            expiresOn.ToHumanizedString()
+                        );
+                        builder.AppendBadge(
+                            "share", "expires-in", "Expires In",
+                            expiresIn.ToHumanizedString()
+                        );
                     }
                 }
                 else
                 {
-                    builder.AppendBadge("share", "expires-never", "Expires", "Never");
+                    builder.AppendBadge(
+                        "share", "expires-never", "Expires", "Never"
+                    );
                 }
             }
             builder.EndBadges();

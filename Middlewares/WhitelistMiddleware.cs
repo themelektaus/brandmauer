@@ -74,8 +74,14 @@ public class WhitelistMiddleware(RequestDelegate next)
         if (route is null)
             return _403_FORBIDDEN;
 
-        if (!route.Whitelist.Any(x => x.Value == ipAddress && !x.ExpiresIn.HasExpired()))
+        if (
+            !route.Whitelist.Any(
+                x => x.Value == ipAddress && !x.ExpiresIn.HasExpired()
+            )
+        )
+        {
             return _403_FORBIDDEN;
+        }
 
         return _202_ACCEPTED;
     }
@@ -123,7 +129,9 @@ public class WhitelistMiddleware(RequestDelegate next)
                     var route = x.ReverseProxyRoutes.FirstOrDefault(
                         y => y.Identifier.Id == reverseProxyRouteId
                     );
-                    route.Whitelist.Add(new() { Value = pendingRequest.IpAddress });
+                    route.Whitelist.Add(
+                        new() { Value = pendingRequest.IpAddress }
+                    );
                 });
             }
 

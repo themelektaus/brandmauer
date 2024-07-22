@@ -43,7 +43,7 @@ public class ReverseProxyRoute : Model, IOnDeserialize
             builder.BeginBadges("flex: 3; ");
             {
                 if (Script != string.Empty)
-                    builder.AppendBadge("reverseproxy", "script", "C# Script", null);
+                    builder.AppendBadge("reverseproxy", "script", "Script", null);
 
                 if (Target != string.Empty)
                 {
@@ -147,10 +147,14 @@ public class ReverseProxyRoute : Model, IOnDeserialize
 
                 builder.BeginBadges("line-height: 1.5; ");
 
-                if (ExpiresIn.HasExpired())
-                    builder.AppendBadge("reverseproxy", "whitelist-expired-for", "Expired For", ExpiresIn.ToHumanizedString());
-                else
-                    builder.AppendBadge("reverseproxy", "whitelist-expires-in", "Expires In", ExpiresIn.ToHumanizedString());
+                var hasExpired = ExpiresIn.HasExpired();
+                
+                builder.AppendBadge(
+                    "reverseproxy",
+                    $"whitelist-expire{(hasExpired ? "d-for" : "s-in")}",
+                    hasExpired ? "Expired For" : "Expires In",
+                    ExpiresIn.ToHumanizedString()
+                );
 
                 builder.EndBadges();
 

@@ -54,20 +54,44 @@ public class Certificate : Model, IOnDeserialize
 
             builder.BeginBadges("flex: 1; ");
             {
-                if (isValid)
-                    builder.AppendBadge("certificate", "valid", "Valid", "<i class=\"fa-solid fa-check\"></i>");
-                else
-                    builder.AppendBadge("certificate", "invalid", "Invalid", "<i class=\"fa-solid fa-xmark\"></i>");
+                builder.AppendBadge(
+                    "certificate",
+                    isValid ? "valid" : "invalid",
+                    isValid ? "Valid" : "Invalid",
+                    isValid
+                        ? "<i class=\"fa-solid fa-check\"></i>"
+                        : "<i class=\"fa-solid fa-xmark\"></i>"
+                );
 
                 if (!expiresIn.HasExpired())
-                    builder.AppendBadge("certificate", "expires-in", "Expires in", expiresIn.ToHumanizedString());
+                {
+                    builder.AppendBadge(
+                        "certificate",
+                        "expires-in",
+                        "Expires in",
+                        expiresIn.ToHumanizedString()
+                    );
+                }
 
                 if (!string.IsNullOrEmpty(issuerCommonName))
-                    builder.AppendBadge("certificate", "issuer", "CN", issuerCommonName);
+                {
+                    builder.AppendBadge(
+                        "certificate",
+                        "issuer",
+                        "CN",
+                        issuerCommonName
+                    );
+                }
 
                 if (!string.IsNullOrEmpty(issuerOrganisation))
-                    builder.AppendBadge("certificate", "organisation", "O", issuerOrganisation);
-
+                {
+                    builder.AppendBadge(
+                        "certificate",
+                        "organisation",
+                        "O", 
+                        issuerOrganisation
+                    );
+                }
             }
             builder.EndBadges();
 

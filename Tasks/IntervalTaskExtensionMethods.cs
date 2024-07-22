@@ -4,19 +4,16 @@ public static class IntervalTaskExtensionMethods
 {
     static readonly List<IntervalTask> instances = new();
 
-    public static void RunInBackground<T>(
-        this WebApplication @this
-    ) where T : IntervalTask
+    public static void RunInBackground(this WebApplication @this, Type type)
     {
-        var constructor = typeof(T).GetConstructors().FirstOrDefault();
+        var constructor = type.GetConstructors().FirstOrDefault();
         var paramters = constructor.GetParameters();
 
-        IntervalTask instance;
-        if (paramters.Length > 0)
-            instance = Activator.CreateInstance(typeof(T), [@this])
-                as IntervalTask;
-        else
-            instance = Activator.CreateInstance<T>();
+        var instance = (
+            paramters.Length == 1
+                ? Activator.CreateInstance(type, [@this])
+                : Activator.CreateInstance(type)
+            ) as IntervalTask;
 
         instances.Add(instance);
         instance.RunInBackground();
