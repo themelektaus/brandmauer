@@ -80,7 +80,7 @@
                     entries.forEach(entry =>
                     {
                         const $ = entry.target
-                        const off = entry.intersectionRatio <= 0
+                        const off = entry.intersectionRatio < 0
                         const url = off
                             ? `static/res/fire1.svg`
                             : $.dataset.image

@@ -17,7 +17,9 @@ public class Audit
         public string Message { get; set; } = string.Empty;
         public Status Status { get; set; }
     }
+
     readonly object handle = new();
+
     public List<Entry> Entries { get; set; } = new();
 
     public static List<Entry> GetAll()

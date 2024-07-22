@@ -1,5 +1,7 @@
 ﻿using System.Text;
 
+using SslPolicyErrors = System.Net.Security.SslPolicyErrors;
+
 namespace Brandmauer;
 
 public class SmtpConnection : Model
@@ -92,7 +94,7 @@ public class SmtpConnection : Model
         {
             var response = await client.Send();
 
-            if (response.sslPolicyErrors == System.Net.Security.SslPolicyErrors.None)
+            if (response.sslPolicyErrors == SslPolicyErrors.None)
             {
                 result.AppendLine("[OK] Success");
             }

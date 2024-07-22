@@ -210,7 +210,10 @@ public class ShareMiddleware(RequestDelegate next)
                     { "upload-display", "none" },
                     { "password-display", "none" },
                     { "download-display", "inherit" },
-                    { "create-another-share-display", createAnotherShareDisplay ? "inherit" : "none" },
+                    {
+                        "create-another-share-display",
+                        createAnotherShareDisplay ? "inherit" : "none"
+                    },
                     { "text", share.Text },
                     { "file-list", fileListHtml.ToString() },
                     { "content", "<!--segment: share-->" }

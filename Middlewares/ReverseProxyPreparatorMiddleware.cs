@@ -5,6 +5,8 @@ using IHttpMaxRequestBodySizeFeature
 
 namespace Brandmauer;
 
+using Usage = ReverseProxyRoute._WhitelistUsage;
+
 public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
 {
     public class TargetCache : ThreadsafeCache<string, string>
@@ -112,7 +114,7 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
                 .SelectMany(x => x.Value.ToIpAddresses())
                 .ToList();
 
-            if (source.route.WhitelistUsage == ReverseProxyRoute._WhitelistUsage.Deactivated)
+            if (source.route.WhitelistUsage == Usage.Deactivated)
             {
                 if (hostAddressesBundle.Count == 0)
                     goto Accept;
@@ -133,7 +135,7 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
                 }
             }
 
-            if (source.route.WhitelistUsage == ReverseProxyRoute._WhitelistUsage.Deactivated)
+            if (source.route.WhitelistUsage == Usage.Deactivated)
             {
                 context.Response.StatusCode = 401;
                 goto Next;
@@ -172,8 +174,16 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
                 var cookies = context.Request.Cookies;
                 var key = LoginMiddleware.SessionTokenKey;
                 if (cookies.TryGetValue(key, out var sessionToken))
-                    if (authentications.Any(x => LoginMiddleware.IsAuthorized(x, sessionToken)))
+                {
+                    if (
+                        authentications.Any(
+                            x => LoginMiddleware.IsAuthorized(x, sessionToken)
+                        )
+                    )
+                    {
                         goto Authorized;
+                    }
+                }
 
                 context.Features.Set(new PermissionFeature
                 {
@@ -184,6 +194,7 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
         }
 
         var maxBodySize = source.route.MaxBodySize.GetBytes();
+
         if (maxBodySize is not null)
         {
             context.Features.Get<IHttpMaxRequestBodySizeFeature>()
@@ -191,23 +202,32 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
         }
 
     Authorized:
-        if (!authorized && source.route.WhitelistUsage != ReverseProxyRoute._WhitelistUsage.Deactivated)
+        if (!authorized)
         {
-            if (
-                source.route.WhitelistUsage == ReverseProxyRoute._WhitelistUsage.Forced ||
-                (checkUnknownSourceHosts && source.route.WhitelistUsage == ReverseProxyRoute._WhitelistUsage.AllowSourceHosts)
-            )
-            {
-                var ip = context.Connection.RemoteIpAddress.ToIp();
+            var usage = source.route.WhitelistUsage;
 
-                if (!source.route.Whitelist.Any(x => x.Value == ip && !x.ExpiresIn.HasExpired()))
+            if (usage != Usage.Deactivated)
+            {
+                var isForced = usage == Usage.Forced;
+                var allowSourceHosts = usage == Usage.AllowSourceHosts;
+
+                if (isForced || (checkUnknownSourceHosts && allowSourceHosts))
                 {
-                    context.Features.Set(new PermissionFeature
+                    var ip = context.Connection.RemoteIpAddress.ToIp();
+
+                    if (
+                        !source.route.Whitelist.Any(
+                            x => x.Value == ip && !x.ExpiresIn.HasExpired()
+                        )
+                    )
                     {
-                        Authorized = false,
-                        ReverseProxyRouteId = source.route.Identifier.Id
-                    });
-                    goto Next;
+                        context.Features.Set(new PermissionFeature
+                        {
+                            Authorized = false,
+                            ReverseProxyRouteId = source.route.Identifier.Id
+                        });
+                        goto Next;
+                    }
                 }
             }
         }
