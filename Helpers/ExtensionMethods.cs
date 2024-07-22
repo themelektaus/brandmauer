@@ -79,20 +79,30 @@ public static class ExtensionMethods
         @this.Add($"{prefix}{item}{suffix}");
     }
 
-    static JsonSerializerOptions jsonOptions;
-
-    public static string ToJson<T>(this T @this)
+    static readonly JsonSerializerOptions jsonOptionsWithoutFields = new()
     {
-        if (jsonOptions is null)
-        {
-            jsonOptions = new()
-            {
-                WriteIndented = true,
-                IgnoreReadOnlyProperties = true,
-            };
-            jsonOptions.Converters.Add(new ExceptionConverter());
-        }
-        return JsonSerializer.Serialize(@this, jsonOptions);
+        WriteIndented = true,
+        IgnoreReadOnlyProperties = true,
+        IncludeFields = false,
+        Converters = { new ExceptionConverter() }
+    };
+
+    static readonly JsonSerializerOptions jsonOptionsWithFields = new()
+    {
+        WriteIndented = true,
+        IgnoreReadOnlyProperties = true,
+        IncludeFields = true,
+        Converters = { new ExceptionConverter() }
+    };
+
+    public static string ToJson<T>(this T @this, bool includeFields = false)
+    {
+        return JsonSerializer.Serialize(
+            @this,
+            includeFields
+                ? jsonOptionsWithFields
+                : jsonOptionsWithoutFields
+        );
     }
 
     public static T FromJson<T>(this string @this)
