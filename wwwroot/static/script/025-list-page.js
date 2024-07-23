@@ -18,8 +18,8 @@ class ListPage extends Page
             )
             
             const item = ListPageItem.create(this, model)
-            item.createNode()
-            this.$list.appendChild(item.$)
+            
+            await this.createNode(item)
             
             item.model.transferTo(item.$)
             
@@ -151,11 +151,16 @@ class ListPage extends Page
         
         for (const item of this.items)
         {
-            item.createNode()
-            this.$list.appendChild(item.$)
+            await this.createNode(item)
             item.loadModelIntoView()
         }
         
         this.#onSearch()
+    }
+    
+    async createNode(item)
+    {
+        item.createNode()
+        this.$list.appendChild(item.$)
     }
 }

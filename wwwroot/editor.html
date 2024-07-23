@@ -84,7 +84,7 @@
             
             .output {
                 flex: 1;
-                overflow: hidden scroll;
+                overflow: scroll;
                 height: calc(100vh - var(--bar-height) * 2);
                 transition: .15s;
             }
@@ -368,7 +368,10 @@
                     
                     const content = await response.text()
                     
-                    if (content != `` && outputType == `Html`)
+                    if (
+                        (content != `` && outputType == `Html`) ||
+                        content.match(/\<[a-z\-]+\>.*\<\/[a-z\-]+\>/s)
+                    )
                     {
                         $pre.classList.add(`hidden`)
                         $iframe.classList.remove(`hidden`)

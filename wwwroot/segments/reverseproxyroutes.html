@@ -158,18 +158,15 @@
                                          border-radius: .25em; padding: .125em .325em; ">.NET</span>
                         </div>
                         <div class="foldout-content">
-                            <div class="field">
+                            <div class="field" style="grid-template-columns: 9rem 5rem 1fr; ">
                                 <label>Output Type</label>
-                                <select data-bind="scriptOutputType" data-type="number" style="width: 6rem; max-width: 6rem; ">
-                                    <option value="0"></option>
+                                <select data-bind="scriptOutputType" data-type="number">
+                                    <option value="0">Auto</option>
                                     <option value="1">Text</option>
                                     <option value="2">JSON</option>
                                     <option value="3">HTML</option>
                                 </select>
-                            </div>
-                            <div class="field" style="margin: .5em 0; ">
-                                <label></label>
-                                <a class="edit-script" target="_blank" style="display: none; "></a>
+                                <a class="edit-script" target="_blank" style="margin: auto 0 auto .5em; "></a>
                             </div>
                         </div>
                     </div>

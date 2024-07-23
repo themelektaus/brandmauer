@@ -8,6 +8,13 @@ class InteractiveFoldout
         $content.setClass(`display-none`)
         
         const $title = $.q(`.foldout-title`)
-        $title.onClick(() => $content.toggleClass(`display-none`))
+        $title.onClick(() =>
+        {
+            $content.toggleClass(`display-none`)
+            if ($content.hasClass(`display-none`))
+                return
+            
+            $content.scrollIntoView({ block: `nearest` })
+        })
     }
 }
