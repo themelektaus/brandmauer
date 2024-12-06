@@ -31,10 +31,12 @@ case $1 in
 
   update)
 
-    rm -rf /app/brandmauer/Download
+    apt install wget unzip
 
+    rm -rf /app/brandmauer/Download
     mkdir /app/brandmauer/Download
-    wget https://steinalt.online/download/brandmauer/data.zip \
+
+    wget https://web.app.it-guards.at/download/brandmauer/data.zip \
          -O /app/brandmauer/Download/data.zip
     unzip /app/brandmauer/Download/data.zip -d /app/brandmauer/Download
 

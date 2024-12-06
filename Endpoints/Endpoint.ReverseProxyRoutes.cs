@@ -35,7 +35,7 @@ public static partial class Endpoint
         static IResult GetAsHtml(ReverseProxyRoute route)
         {
             var content = route.Script;
-            
+
             var html = File.ReadAllText("wwwroot/editor.html")
                 .Replace("<!--id-->", route.Identifier.Id.ToString())
                 .Replace("<!--title-->", route.SourceDomains.FirstOrDefault().Value)

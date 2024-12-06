@@ -1,11 +1,9 @@
 ﻿// Source: https://github.com/rlipscombe/bouncy-castle-csharp/blob/master/CreateCertificate/Program.cs
 
 extern alias PortableBouncyCastle;
-
 using Certes;
 using Certes.Acme;
 using Certes.Acme.Resource;
-
 using PortableBouncyCastle.Org.BouncyCastle.Asn1;
 using PortableBouncyCastle.Org.BouncyCastle.Asn1.X509;
 using PortableBouncyCastle.Org.BouncyCastle.Crypto;
@@ -16,17 +14,13 @@ using PortableBouncyCastle.Org.BouncyCastle.Pkcs;
 using PortableBouncyCastle.Org.BouncyCastle.Security;
 using PortableBouncyCastle.Org.BouncyCastle.Utilities;
 using PortableBouncyCastle.Org.BouncyCastle.X509;
-
+using RegionInfo = System.Globalization.RegionInfo;
 using RSAExtensions
     = System.Security.Cryptography.X509Certificates.RSACertificateExtensions;
-
 using X509Certificate2
     = System.Security.Cryptography.X509Certificates.X509Certificate2;
-
 using X509KeyStorageFlags
     = System.Security.Cryptography.X509Certificates.X509KeyStorageFlags;
-
-using RegionInfo = System.Globalization.RegionInfo;
 
 namespace Brandmauer;
 
@@ -92,7 +86,7 @@ public static class CertificateUtils
 
             var keyAuthz = challengeContext.KeyAuthz;
             Audit.Info("ACME", $"KeyAuthz: {keyAuthz}");
-            
+
             acmeChallenges.Use(x => x.Add(token, keyAuthz));
 
             var challenge = await challengeContext.Validate();
@@ -145,7 +139,7 @@ public static class CertificateUtils
         }
 
         Audit.Info("ACME", $"Order Status: {order.Status}");
-        
+
         var cert = await orderContext.Download();
 
         var pfx = cert.ToPfx(certKey);

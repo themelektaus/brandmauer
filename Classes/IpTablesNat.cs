@@ -37,7 +37,7 @@ public class IpTablesNat
         }
 
         var address = natRoule.Host.Addresses[0].Value;
-        
+
         if (!Utils.TryGetIpAddress(address, out var destinationIpAddress))
         {
             basePrerouting.errors.Add("destination is not a ip address");
@@ -90,7 +90,7 @@ public class IpTablesNat
             else
             {
                 var targetPort = translation.TargetPort;
-                
+
                 prerouting.destinationPort = translation.SourcePort.ToString();
                 prerouting.destination = $"{destinationIpAddress}:{targetPort}";
             }

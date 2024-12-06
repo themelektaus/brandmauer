@@ -88,7 +88,7 @@ public class Certificate : Model, IOnDeserialize
                     builder.AppendBadge(
                         "certificate",
                         "organisation",
-                        "O", 
+                        "O",
                         issuerOrganisation
                     );
                 }

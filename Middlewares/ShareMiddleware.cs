@@ -1,8 +1,7 @@
-﻿using FileExtensionContentTypeProvider
-    = Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider;
-
-using System.Net;
+﻿using System.Net;
 using System.Text;
+using FileExtensionContentTypeProvider
+    = Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider;
 
 namespace Brandmauer;
 

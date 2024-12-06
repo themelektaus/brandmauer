@@ -1,19 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <InvariantGlobalization>false</InvariantGlobalization>
         <Configurations>Debug;Linux;Windows</Configurations>
         <CefSharpAnyCpuSupport>true</CefSharpAnyCpuSupport>
         <Platforms>AnyCPU</Platforms>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <CompressionEnabled>false</CompressionEnabled>
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>0.3.0.6</Version>
-        <PrivateLocalDownloadFolder>\\fileserver.lan\slave\app\brandmauer\Download</PrivateLocalDownloadFolder>
-        <PublicRemoteDownloadFolder>W:\stacks\web\www\download\brandmauer</PublicRemoteDownloadFolder>
+        <Version>0.3.0.7</Version>
+        <PrivateLocalDownloadFolder>G:\Development\Brandmauer\Build\Linux</PrivateLocalDownloadFolder>
+        <PublicRemoteDownloadFolder>N:\var\lib\docker\workspace\stacks\web\html\download\brandmauer</PublicRemoteDownloadFolder>
     </PropertyGroup>
 
     <PropertyGroup Condition="$(Configuration) == 'Linux'">
@@ -65,23 +66,23 @@
     <ItemGroup>
         <PackageReference Include="Certes" Version="3.0.4" />
         <PackageReference Include="DNS" Version="7.0.0" />
-        <PackageReference Include="IPAddressRange" Version="6.0.0" />
+        <PackageReference Include="IPAddressRange" Version="6.1.0" />
         <PackageReference Include="LibSassHost" Version="1.5.0" />
         <PackageReference Include="LibSassHost.Native.linux-x64" Version="1.5.0" />
         <PackageReference Include="LibSassHost.Native.win-x64" Version="1.5.0" />
-        <PackageReference Include="MailKit" Version="4.7.1.1" />
+        <PackageReference Include="MailKit" Version="4.8.0" />
         <PackageReference Include="Material.Icons" Version="2.1.10" />
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0" />
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.1" />
-        <PackageReference Include="Mjml.Net" Version="3.11.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+        <PackageReference Include="Mjml.Net" Version="4.5.0" />
         <PackageReference Include="Otp.NET" Version="1.4.0" />
         <PackageReference Include="Portable.BouncyCastle" Version="1.9.0">
           <Aliases>PortableBouncyCastle</Aliases>
         </PackageReference>
         <PackageReference Include="QRCoder" Version="1.6.0" />
-        <PackageReference Include="SSH.NET" Version="2024.1.0" />
-        <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
-        <PackageReference Include="Yarp.ReverseProxy" Version="2.1.0" />
+        <PackageReference Include="SSH.NET" Version="2024.2.0" />
+        <PackageReference Include="System.Formats.Asn1" Version="9.0.0" />
+        <PackageReference Include="Yarp.ReverseProxy" Version="2.2.0" />
     </ItemGroup>
 
     <ItemGroup Condition="$(Configuration) == 'Windows'">

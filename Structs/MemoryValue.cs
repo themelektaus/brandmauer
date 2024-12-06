@@ -21,7 +21,7 @@ public struct MemoryValue
 
         var bytes = Value;
         var unit = (int) Unit;
-        
+
         for (int i = 0; i < unit; i++)
             bytes *= 1000;
 

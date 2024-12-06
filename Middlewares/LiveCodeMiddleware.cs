@@ -60,7 +60,7 @@ public class LiveCodeMiddleware(RequestDelegate next)
         }
 
         using var runner = new Runner(compilerResult);
-        
+
         var runnerResult = await runner.ExecuteAsync(args);
 
         return new()
