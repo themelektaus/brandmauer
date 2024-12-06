@@ -100,7 +100,7 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
             goto Accept;
         }
 
-        if (authorized || Utils.IsPublicPath(path))
+        if (authorized)
         {
             goto Accept;
         }
@@ -133,6 +133,11 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
                         }
                     }
                 }
+            }
+
+            if (Utils.IsPublicPath(path))
+            {
+                goto Accept;
             }
 
             if (source.route.WhitelistUsage == Usage.Deactivated)

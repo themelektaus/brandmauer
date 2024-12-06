@@ -148,7 +148,7 @@ public class ReverseProxyRoute : Model, IOnDeserialize
                 builder.BeginBadges("line-height: 1.5; ");
 
                 var hasExpired = ExpiresIn.HasExpired();
-                
+
                 builder.AppendBadge(
                     "reverseproxy",
                     $"whitelist-expire{(hasExpired ? "d-for" : "s-in")}",

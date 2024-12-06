@@ -52,7 +52,7 @@ public class SmtpClient
         else
             await client.ConnectAsync(host, port);
 
-        if (username is not null && password is not null)
+        if (!string.IsNullOrEmpty(username) && string.IsNullOrEmpty(password))
             await client.AuthenticateAsync(username, password);
 
         var result = await client.SendAsync(message);
