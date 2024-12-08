@@ -14,7 +14,7 @@
     <PropertyGroup>
         <Version>0.3.0.7</Version>
         <PrivateLocalDownloadFolder>G:\Development\Brandmauer\Build\Linux</PrivateLocalDownloadFolder>
-        <PublicRemoteDownloadFolder>N:\var\lib\docker\workspace\stacks\web\html\download\brandmauer</PublicRemoteDownloadFolder>
+        <PublicRemoteDownloadFolder>N:\var\lib\docker\workspace\stacks\koeck-web\html\download\brandmauer</PublicRemoteDownloadFolder>
     </PropertyGroup>
 
     <PropertyGroup Condition="$(Configuration) == 'Linux'">
