@@ -47,14 +47,14 @@ public static partial class Endpoint
         app.MapPost($"{API}/natroutes", NatRoutes.Post);
         app.MapPut($"{API}/natroutes", NatRoutes.Put);
         app.MapDelete($"{API}/natroutes/{{id}}", NatRoutes.Delete);
+#endif
 
+#if LINUX
         app.MapGet(
             $"{API}/iptables"/*?output=<script|stdout|stderr|data>*/,
             IpTables.Get
         );
-#endif
 
-#if LINUX
         app.MapGet(
             $"{API}/build/preview",
             Build.Preview
@@ -201,6 +201,15 @@ public static partial class Endpoint
                 return await NameCom.GetDomainRecords(context, domain);
             }
         );
+
+#if DEBUG || LINUX
+        app.MapGet($"{API}/fortigate/connect", FortiClient.Connect);
+        app.MapGet($"{API}/fortigate/disconnect", FortiClient.Disconnect);
+        app.MapGet($"{API}/fortigate/disconnect-if-reconnecting", FortiClient.DisconnectIfReconnecting);
+        app.MapGet($"{API}/fortigate/reconnect", FortiClient.Reconnect);
+        app.MapGet($"{API}/fortigate/status", FortiClient.Status);
+        app.MapGet($"{API}/fortigate/update", FortiClient.Update);
+#endif
     }
 
     static IResult Api(IEnumerable<EndpointDataSource> endpointSources)
