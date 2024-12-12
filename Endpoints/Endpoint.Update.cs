@@ -33,7 +33,7 @@ public static partial class Endpoint
         }
 #else
         const string REMOTE_REPOSITORY_URL
-            = "https://web.app.it-guards.at/download/brandmauer";
+            = "https://nockal.com/download/brandmauer";
 
         public static async Task<IResult> Check()
         {

@@ -1,0 +1,24 @@
+spawn ssh user@::1
+
+set timeout 10
+
+expect {
+    eof { exit }
+    timeout { exit }
+    "$ " {
+        send "forticlient vpn connect ck --always-up --auto-connect\r"
+        exp_continue
+    }
+    "Password:" {
+        send "*************\r"
+        exp_continue
+    }
+    "Confirm (y/n)" {
+        send "y\r"
+        exp_continue
+    }
+    "There is a VPN" { exit }
+    "DONE" { exit }
+}
+
+expect eof

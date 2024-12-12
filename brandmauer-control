@@ -36,7 +36,7 @@ case $1 in
     rm -rf /app/brandmauer/Download
     mkdir /app/brandmauer/Download
 
-    wget https://web.app.it-guards.at/download/brandmauer/data.zip \
+    wget https://nockal.com/download/brandmauer/data.zip \
          -O /app/brandmauer/Download/data.zip
     unzip /app/brandmauer/Download/data.zip -d /app/brandmauer/Download
 

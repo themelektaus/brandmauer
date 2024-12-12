@@ -1,4 +1,4 @@
-﻿#if DEBUG || LINUX
+﻿#if LINUX
 namespace Brandmauer;
 
 public static partial class Endpoint

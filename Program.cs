@@ -106,6 +106,7 @@ foreach (var x in new[] {
     typeof(IntervalTask_UpdateBrandmauer),
     typeof(IntervalTask_RenewCertifcates),
     typeof(IntervalTask_Startup),
+    typeof(IntervalTask_FortiClient),
 #endif
 }) app.RunInBackground(x);
 
