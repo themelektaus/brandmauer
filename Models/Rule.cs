@@ -24,7 +24,7 @@ public class Rule : Model, IOnDeserialize
             builder.BeginBadges();
             {
                 if (Services.Count == 0)
-                    builder.AppendBadge("rule", "service", "any", null);
+                    builder.AppendBadge("rule", "service", "none", null);
                 else
                     foreach (var service in Services.Select(x => x.ToString()))
                         builder.AppendBadge("rule", "service", service, null);

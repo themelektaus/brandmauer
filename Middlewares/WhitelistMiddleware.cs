@@ -40,6 +40,12 @@ public class WhitelistMiddleware(RequestDelegate next)
         return pendingRequests.ToList();
     }
 
+    public static IResult ClearPendingRequests()
+    {
+        pendingRequests.Clear();
+        return Results.Ok();
+    }
+
     static PendingRequest GetPendingRequest(string token)
     {
         return pendingRequests.FirstOrDefault(x => x.Token == token);
