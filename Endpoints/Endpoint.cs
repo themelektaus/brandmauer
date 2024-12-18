@@ -101,6 +101,10 @@ public static partial class Endpoint
             $"{API}/reverseproxyroutes/requests",
             WhitelistMiddleware.GetPendingRequests
         );
+        app.MapGet(
+            $"{API}/reverseproxyroutes/requests/clear",
+            WhitelistMiddleware.ClearPendingRequests
+        );
 
         app.MapGet($"{API}/certificates", Certificates.GetAll);
         app.MapGet($"{API}/certificates/{{id}}", Certificates.Get);
