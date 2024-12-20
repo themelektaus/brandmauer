@@ -145,6 +145,7 @@
     border-radius: 50%;
     margin-top: calc(var(--menu-item-size) * -1 - .5rem);
     outline: .4rem solid var(--body__background-color);
+    pointer-events: none;
     
     &::before {
         content: '';
