@@ -206,7 +206,7 @@ public static partial class Endpoint
             }
         );
 
-#if DEBUG || LINUX
+#if FORTI && (DEBUG || LINUX)
         app.MapGet($"{API}/fortigate/connect", FortiClient.Connect);
         app.MapGet($"{API}/fortigate/disconnect", FortiClient.Disconnect);
         app.MapGet($"{API}/fortigate/disconnect-if-reconnecting", FortiClient.DisconnectIfReconnecting);

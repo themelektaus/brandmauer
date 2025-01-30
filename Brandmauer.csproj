@@ -12,7 +12,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>0.3.0.8</Version>
+        <Version>0.3.0.9</Version>
         <PrivateLocalDownloadFolder>G:\Development\Brandmauer\Build\Linux</PrivateLocalDownloadFolder>
         <PublicRemoteDownloadFolder>\\nockal.com\stein2\var\lib\docker\workspace\stacks\web\html\download\brandmauer</PublicRemoteDownloadFolder>
     </PropertyGroup>
@@ -36,6 +36,11 @@
     </Target>
 
     <ItemGroup>
+        <Compile Remove="Bash\**" />
+        <Content Remove="Bash\**" />
+        <EmbeddedResource Remove="Bash\**" />
+        <None Remove="Bash\**" />
+        
         <Compile Remove="Build\**" />
         <Content Remove="Build\**" />
         <EmbeddedResource Remove="Build\**" />

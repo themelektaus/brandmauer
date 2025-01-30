@@ -1,4 +1,4 @@
-﻿#if LINUX
+﻿#if LINUX && FORTI
 namespace Brandmauer;
 
 [Delay(60)]

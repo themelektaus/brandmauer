@@ -1,4 +1,4 @@
-﻿#if DEBUG || LINUX
+﻿#if FORTI && (DEBUG || LINUX)
 namespace Brandmauer;
 
 public static partial class Endpoint

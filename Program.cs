@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Http.Json;
 
-#if WINDOWS
+#if WINDOWS && RELEASE
 using Microsoft.Extensions.Hosting.WindowsServices;
 #endif
 
 using Brandmauer;
 
-#if WINDOWS
+#if WINDOWS && RELEASE
 Environment.CurrentDirectory = Path.GetDirectoryName(Environment.ProcessPath);
 #endif
 
@@ -68,7 +68,7 @@ builder.WebHost.UseKestrel(options =>
     });
 });
 
-#if WINDOWS
+#if WINDOWS && RELEASE
 builder.Host.UseWindowsService();
 #endif
 
@@ -106,8 +106,11 @@ foreach (var x in new[] {
     typeof(IntervalTask_UpdateBrandmauer),
     typeof(IntervalTask_RenewCertifcates),
     typeof(IntervalTask_Startup),
+#endif
+#if LINUX && FORTI
     typeof(IntervalTask_FortiClient),
 #endif
+
 }) app.RunInBackground(x);
 
 await app.RunAsync();

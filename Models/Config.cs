@@ -8,4 +8,5 @@ public class Config : Model
     public string LastBuild { get; set; }
     public bool EnableDnsServer { get; set; }
     public bool EnableFortiClient { get; set; }
+    public bool EnableOpenConnect { get; set; }
 }
