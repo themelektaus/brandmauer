@@ -35,6 +35,8 @@ public class NatRoute : Model, IOnDeserialize
     public Identifier HostReference { get; set; }
     public Host Host;
 
+    public string Target { get; set; } = string.Empty;
+
     public class Translation
     {
         public ProtocolType Protocol { get; set; } = ProtocolType.Tcp;

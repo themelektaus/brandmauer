@@ -68,10 +68,11 @@ public abstract class ThreadsafeCache<TKey, TValue>
 
         if (tempValue.value is null)
         {
-            Audit.Warning(
-                GetType(),
-                $"Could not add {k} because value is null."
-            );
+            if (Logging)
+                Audit.Warning(
+                    GetType(),
+                    $"Could not add {k} because value is null."
+                );
         }
         else
         {
@@ -79,7 +80,9 @@ public abstract class ThreadsafeCache<TKey, TValue>
             var v = tempValue.value.ToJson();
             if (v.Length > 90)
                 v = $"{v[..90]}...";
-            Audit.Info(t, $"Added {k} with value {v}.");
+
+            if (Logging)
+                Audit.Info(t, $"Added {k} with value {v}.");
         }
 
         return tempValue.value;

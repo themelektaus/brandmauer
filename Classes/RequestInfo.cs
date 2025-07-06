@@ -7,7 +7,7 @@ public class RequestInfo
     static readonly object handle = new();
     static readonly List<RequestInfo> items = new();
 
-    public static void Add(RequestInfo item)
+    static void Add(RequestInfo item)
     {
         lock (handle)
             items.Add(item);

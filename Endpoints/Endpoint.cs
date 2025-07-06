@@ -10,6 +10,9 @@ public static partial class Endpoint
 
         app.MapGet(API, Api);
 
+#if LINUX
+        app.MapGet($"{API}/systeminfo", SystemInfo.Get);
+#endif
         app.MapGet($"{API}/info", Info.Get);
         app.MapGet($"{API}/info/requests", Info.GetRequests);
 
@@ -54,11 +57,15 @@ public static partial class Endpoint
             $"{API}/iptables"/*?output=<script|stdout|stderr|data>*/,
             IpTables.Get
         );
+#endif
 
+#if LINUX || DEBUG
         app.MapGet(
             $"{API}/build/preview",
             Build.Preview
         );
+#endif
+#if LINUX
         app.MapGet(
             $"{API}/build/dirty",
             Build.Dirty

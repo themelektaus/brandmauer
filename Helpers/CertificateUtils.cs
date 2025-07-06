@@ -15,19 +15,16 @@ using PortableBouncyCastle.Org.BouncyCastle.Security;
 using PortableBouncyCastle.Org.BouncyCastle.Utilities;
 using PortableBouncyCastle.Org.BouncyCastle.X509;
 using RegionInfo = System.Globalization.RegionInfo;
-using RSAExtensions
-    = System.Security.Cryptography.X509Certificates.RSACertificateExtensions;
-using X509Certificate2
-    = System.Security.Cryptography.X509Certificates.X509Certificate2;
-using X509KeyStorageFlags
-    = System.Security.Cryptography.X509Certificates.X509KeyStorageFlags;
+using RSAExtensions = System.Security.Cryptography.X509Certificates.RSACertificateExtensions;
+using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
+using X509CertificateLoader = System.Security.Cryptography.X509Certificates.X509CertificateLoader;
+using X509KeyStorageFlags = System.Security.Cryptography.X509Certificates.X509KeyStorageFlags;
 
 namespace Brandmauer;
 
 public static class CertificateUtils
 {
-    public static readonly ThreadsafeObject<Dictionary<string, string>>
-        acmeChallenges = new(new());
+    public static readonly ThreadsafeObject<Dictionary<string, string>> acmeChallenges = new([]);
 
     public static X509Certificate2 CreateSelfSigned(
         Certificate ca,
@@ -163,7 +160,11 @@ public static class CertificateUtils
         }
 
         var pfxData = pfx.Build(domains[0], string.Empty);
-        return new(pfxData, string.Empty, X509KeyStorageFlags.Exportable);
+
+        // Deprecated
+        //return new(pfxData, string.Empty, X509KeyStorageFlags.Exportable);
+
+        return X509CertificateLoader.LoadPkcs12(pfxData, string.Empty, X509KeyStorageFlags.Exportable);
     }
 
     public static X509Certificate2 CreateCertificate(
@@ -373,10 +374,18 @@ public static class CertificateUtils
         );
         using var stream = new MemoryStream();
         store.Save(stream, [], random);
-        return new X509Certificate2(
-            rawData: stream.ToArray(),
+
+        // Deprecated
+        //return new X509Certificate2(
+        //    rawData: stream.ToArray(),
+        //    password: string.Empty,
+        //    X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable
+        //);
+
+        return X509CertificateLoader.LoadPkcs12(
+            data: stream.ToArray(),
             password: string.Empty,
-            X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable
+            X509KeyStorageFlags.Exportable
         );
     }
 }

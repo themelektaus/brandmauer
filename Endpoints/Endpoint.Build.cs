@@ -1,4 +1,4 @@
-﻿#if LINUX
+﻿#if LINUX || DEBUG
 namespace Brandmauer;
 
 public static partial class Endpoint
@@ -10,6 +10,7 @@ public static partial class Endpoint
             return Results.Text(GenerateBuilder().ToString());
         }
 
+#if LINUX
         static string LastBuild;
 
         public static IResult Dirty()
@@ -47,6 +48,7 @@ public static partial class Endpoint
             }
             return result;
         }
+#endif
 
         static IpTablesBuilder GenerateBuilder()
         {

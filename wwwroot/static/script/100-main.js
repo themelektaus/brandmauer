@@ -1,12 +1,6 @@
 {
     (function()
     {
-        
-        if (!LINUX)
-        {
-            qAll(`[data-target-page="build"]`).forEach($ => $.remove())
-        }
-        
         if (WINDOWS)
         {
             qAll(`[data-target-page="services"]`).forEach($ => $.remove())

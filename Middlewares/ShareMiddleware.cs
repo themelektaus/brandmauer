@@ -7,7 +7,7 @@ namespace Brandmauer;
 
 public class ShareMiddleware(RequestDelegate next)
 {
-    const string PATH = "/share";
+    static readonly string[] PATHS = [ "/share", "/-" ];
 
     public async Task Invoke(HttpContext context)
     {
@@ -16,12 +16,12 @@ public class ShareMiddleware(RequestDelegate next)
         var request = context.Request;
         var path = request.Path.ToString();
 
-        if (path.StartsWith(PATH))
+        if (PATHS.Any(path.StartsWith))
             context.Features.Set(new PermissionFeature { Authorized = true });
 
         var response = context.Response;
 
-        if (path == PATH && request.Method == "POST")
+        if (PATHS.Contains(path) && request.Method == "POST")
         {
             var (statusCode, token) = Upload(request);
             if (statusCode == 200)
@@ -39,7 +39,7 @@ public class ShareMiddleware(RequestDelegate next)
             goto Next;
         }
 
-        var contextParameters = new ContextParameters(PATH, path);
+        var contextParameters = new ContextParameters(in PATHS, path);
         var _fileIndex = contextParameters.fileIndex;
         var _token = contextParameters.token;
         var _password = contextParameters.password;
@@ -107,12 +107,12 @@ public class ShareMiddleware(RequestDelegate next)
         var request = context.Request;
         var path = request.Path.ToString();
 
-        var contextParameters = new ContextParameters(PATH, path);
+        var contextParameters = new ContextParameters(in PATHS, path);
         var _fileIndex = contextParameters.fileIndex;
         var _token = contextParameters.token;
         var _password = contextParameters.password;
 
-        if (path.TrimEnd('/') == PATH)
+        if (PATHS.Any(x => x == path.TrimEnd('/')))
         {
             return new()
             {
@@ -173,7 +173,7 @@ public class ShareMiddleware(RequestDelegate next)
                     $"<div><b>{info.Length.ToHumanizedSize()}</b></div>";
                 name = Path.GetFileNameWithoutExtension(name).Replace('_', ' ');
 
-                var url = GetFileDownloadLink(string.Empty, share, i);
+                var url = GetFileDownloadLink(share, i);
 
                 fileListHtml.AppendLine(
                     $" <div>                                               " +
@@ -223,9 +223,9 @@ public class ShareMiddleware(RequestDelegate next)
         return default;
     }
 
-    static string GetFileDownloadLink(string baseUrl, Share share, int? i)
+    static string GetFileDownloadLink(Share share, int? i)
     {
-        var url = $"{baseUrl}{PATH}/{share.Token}";
+        var url = $"{PATHS.LastOrDefault()}/{share.Token}";
 
         if (i.HasValue)
         {
@@ -283,13 +283,7 @@ public class ShareMiddleware(RequestDelegate next)
             share.Files.Add(file);
         }
 
-        var baseUrl = Database.Use(x =>
-        {
-            x.Save(logging: true);
-            return x.GetBaseUrl(request);
-        });
-
-        return (200, GetFileDownloadLink(baseUrl, share, null));
+        return (200, GetFileDownloadLink(share, null));
     }
 
     public class ContextParameters
@@ -298,34 +292,37 @@ public class ShareMiddleware(RequestDelegate next)
         public readonly int? fileIndex;
         public readonly string password = string.Empty;
 
-        public ContextParameters(string basePath, string path)
+        public ContextParameters(in string[] basePaths, string path)
         {
-            var subPath = $"{basePath}/";
+            var subPaths = basePaths.Select(x => $"{x}/").ToArray();
 
-            if (!path.StartsWith(subPath))
-                return;
+            foreach (var subPath in subPaths)
+            {
+                if (!path.StartsWith(subPath))
+                    continue;
 
-            var tokenLength = Utils.DEFAULT_TOKEN_LENGTH;
-            var length = subPath.Length + tokenLength;
+                var tokenLength = Utils.DEFAULT_TOKEN_LENGTH;
+                var length = subPath.Length + tokenLength;
 
-            if (path.Length < length)
-                return;
+                if (path.Length < length)
+                    continue;
 
-            token = path.Substring(subPath.Length, tokenLength);
+                token = path.Substring(subPath.Length, tokenLength);
 
-            var parts = path.Split('$', 2);
-            if (parts.Length == 2)
-                password = parts[1];
+                var parts = path.Split('$', 2);
+                if (parts.Length == 2)
+                    password = parts[1];
 
-            path = parts[0];
-            if (path.Length < length + 2)
-                return;
+                path = parts[0];
+                if (path.Length < length + 2)
+                    continue;
 
-            var fileIndexString = path[(length + 1)..].Split('/', 2)[0];
-            if (!int.TryParse(fileIndexString, out var fileIndex))
-                return;
+                var fileIndexString = path[(length + 1)..].Split('/', 2)[0];
+                if (!int.TryParse(fileIndexString, out var fileIndex))
+                    continue;
 
-            this.fileIndex = fileIndex;
+                this.fileIndex = fileIndex;
+            }
         }
     }
 }

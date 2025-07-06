@@ -179,7 +179,7 @@
                 qAll(`.dice`).forEach($ => $.style = `transition: all ${T}ms; `)
                 setTimeout(() => q(`main`).classList.remove(`hidden`))
                 q(`button`).addEventListener(`click`, roll)
-                roll()
+                setTimeout(() => roll(), 700)
             })
             
             function roll()
@@ -312,13 +312,13 @@
         </script>
     </head>
     
-    <body>
+    <body style="background-color: #112; ">
         <main class="hidden">
             <h1>Poker dice</h1>
             <div class="content">
                 <div class="dices"></div>
                 <div class="result"></div>
-                <button>Roll again</button>
+                <button disabled>Roll again</button>
             </div>
         </div>
     </body>

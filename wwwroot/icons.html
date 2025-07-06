@@ -35,6 +35,10 @@
                 font-size: 3em;
                 margin: 0;
                 color: orange;
+                cursor: pointer;
+            }
+            h1:hover {
+                color: yellow;
             }
             input {
                 border: none;
@@ -94,13 +98,21 @@
             const $search = q(`#search`)
             const $icons = qAll(`.icons > div`)
             
+            $h1.addEventListener(`click`, () =>
+            {
+                if ($h1.innerText != `/icon`)
+                {
+                    open(`${$h1.innerText}?color=black&size=256`)
+                }
+            })
+            
             $search.addEventListener(`input`, e =>
             {
                 $icons.forEach($ =>
                 {
                     const name = $.dataset.url.substring(5)
                     const value = $search.value.toLowerCase()
-                    const visible = value && name.includes(value)
+                    const visible = value.length >= 3 && name.includes(value)
                     $.style.display = visible ? `` : `none`
                 })
             })

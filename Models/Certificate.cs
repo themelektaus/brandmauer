@@ -139,7 +139,11 @@ public class Certificate : Model, IOnDeserialize
 
         Pem = X509Certificate2.CreateFromPem(CertPem, KeyPem);
         PfxData = Pem.Export(X509ContentType.Pfx);
-        Pfx = new(PfxData, string.Empty, X509KeyStorageFlags.Exportable);
+
+        // Deprecated
+        //Pfx = new(PfxData, string.Empty, X509KeyStorageFlags.Exportable);
+
+        Pfx = X509CertificateLoader.LoadPkcs12(PfxData, string.Empty, X509KeyStorageFlags.Exportable);
 
         if (Pem.SubjectName.ToDictonary().TryGetValue("CN", out var cn))
             fileBaseName = cn;

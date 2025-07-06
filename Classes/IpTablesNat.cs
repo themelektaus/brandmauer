@@ -4,6 +4,7 @@ public class IpTablesNat
 {
     public string name;
     public string source;
+    public string target;
     public string protocol;
     public string destinationPort;
     public string destination;
@@ -46,6 +47,7 @@ public class IpTablesNat
         }
 
         basePrerouting.enabled = natRoule.Enabled;
+        basePrerouting.target = natRoule.Target.ToIpAddress(justLocal: true);
 
         foreach (var translation in natRoule.Translations)
         {
@@ -75,7 +77,8 @@ public class IpTablesNat
 
             var prerouting = new IpTablesNat
             {
-                enabled = basePrerouting.enabled
+                enabled = basePrerouting.enabled,
+                target = basePrerouting.target
             };
 
             if (sources.Count > 0)
@@ -119,6 +122,7 @@ public class IpTablesNat
             args.Add($"-m {protocol}");
         args.Add($"\\\n   {e} ");
         args.AddIfNotNull("-s ", source);
+        args.AddIfNotNull("-d ", target);
         args.AddIfNotNull("--dport ", destinationPort);
         args.Add("-j DNAT");
         args.Add($"\\\n   {e} ");

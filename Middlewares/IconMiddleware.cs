@@ -44,25 +44,25 @@ public class IconMiddleware(RequestDelegate next)
         { [ "ico" ], ("star", "white") },
     };
 
-    class IconCache : ThreadsafeCache<(string path, string color), string>
+    class IconCache : ThreadsafeCache<(string path, int size, string color), string>
     {
         protected override bool Logging => false;
 
         protected override TimeSpan? MaxAge => default;
 
-        protected override string GetNew((string path, string color) key)
+        protected override string GetNew((string path, int size, string color) key)
         {
             return "data:image/svg+xml;base64," +
-                $"{GetSvg(key.path, key.color).ToBase64()}";
+                $"{GetSvg(key.path, key.size, key.color).ToBase64()}";
         }
     }
     static readonly IconCache iconCache = new();
 
-    static string GetSvg(string path, string color)
+    static string GetSvg(string path, int size, string color)
     {
         var data = GetData(path);
         return "<svg xmlns=\"http://www.w3.org/2000/svg\" " +
-            $"width=\"24px\" height=\"24px\" " +
+            $"width=\"{size}px\" height=\"{size}px\" " +
             $"viewBox=\"0 0 24 24\" " +
             //$"preserveAspectRatio=\"xMidYMid meet\" " +
             $"fill=\"{color}\"><path d=\"{data}\"/></svg>";
@@ -103,10 +103,11 @@ public class IconMiddleware(RequestDelegate next)
             var names = Enum.GetNames<MaterialIconKind>().Order();
 
             var builder = new StringBuilder();
+
             foreach (var name in names)
             {
                 var url = $"icon/{name.ToLower()}.svg";
-                svg = iconCache.Get((url, "white"));
+                svg = iconCache.Get((url, 24, "white"));
                 builder.Append(
                     $"<div data-url=\"{url}\" data-image=\"{svg}\"></div>"
                 );
@@ -120,9 +121,14 @@ public class IconMiddleware(RequestDelegate next)
         }
 
         string color = null;
+        int size = 0;
 
         if (query.TryGetValue("color", out var _color))
             color = _color;
+
+        if (query.TryGetValue("size", out var _size))
+            if (int.TryParse(_size, out var _size2))
+                size = _size2;
 
         if (fileExtension is not null)
         {
@@ -150,8 +156,9 @@ public class IconMiddleware(RequestDelegate next)
         }
 
         color ??= "white";
+        size = size <= 0 ? 24 : size;
 
-        svg = GetSvg(path, color);
+        svg = GetSvg(path, size, color);
         if (svg is null)
         {
             response.StatusCode = 404;

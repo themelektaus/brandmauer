@@ -32,11 +32,11 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
 
         var host = context.Request.Host.Host;
 
-        if (Utils.allLocalIpAddresses.Contains(host))
-            goto Next;
+        //if (Utils.allLocalIpAddresses.Contains(host))
+        //    goto Next;
 
-        if (Utils.IsIpAddress(host))
-            goto Next;
+        //if (Utils.IsIpAddress(host))
+        //    goto Next;
 
         var routes = Database.Use(
             x => x.ReverseProxyRoutes.Where(x => x.Enabled).ToList()

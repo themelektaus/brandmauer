@@ -226,13 +226,13 @@ class InteractiveAction
     
     static openSharePage()
     {
-        window.open(`share`)
+        window.open(`-`)
     }
     
     static openShare1($sender)
     {
         const $token = $sender.parentNode.parentNode.q(`[data-bind="token"]`)
-        window.open(`share/${$token.innerText}`)
+        window.open(`-/${$token.innerText}`)
     }
     
     static openShare2($sender)
@@ -240,6 +240,6 @@ class InteractiveAction
         const $parent = $sender.parentNode.parentNode
         const $token = $parent.q(`[data-bind="token"]`)
         const $password = $parent.q(`[data-bind="password"]`)
-        window.open(`share/${$token.innerText}$${btoa($password.value)}`)
+        window.open(`-/${$token.innerText}$${btoa($password.value)}`)
     }
 }

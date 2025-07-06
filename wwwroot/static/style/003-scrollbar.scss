@@ -1,6 +1,6 @@
 ::-webkit-scrollbar {
-    width: 7px;
-    height: 7px;
+    width: 5px;
+    height: 5px;
     
     &-track {
         background: #333;
@@ -8,6 +8,7 @@
     
     &-thumb {
         background: #555;
+        border-radius: 2px;
         
         &:hover {
             background: #666;

@@ -1,5 +1,7 @@
 [data-page] {
+    //min-width: 59rem;
     width: 59rem;
+    max-width: 100%;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -52,7 +54,12 @@
 [data-page="build"] {
     padding-bottom: 3rem;
     
-    & > .content + div {
+    > .linux-info {
+        padding-block: .5rem 0;
+        text-align: center;
+    }
+        
+    > .buttons {
         display: flex;
         gap: .5rem;
         justify-content: center;
