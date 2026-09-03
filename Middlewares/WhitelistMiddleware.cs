@@ -35,6 +35,12 @@ public class WhitelistMiddleware(RequestDelegate next)
     }
     static readonly List<PendingRequest> pendingRequests = new();
 
+    static void CleanupExpiredPendingRequests()
+    {
+        var cutoff = DateTime.Now.AddHours(-24);
+        pendingRequests.RemoveAll(x => x.Timestamp < cutoff);
+    }
+
     public static List<PendingRequest> GetPendingRequests()
     {
         return pendingRequests.ToList();
@@ -218,6 +224,7 @@ public class WhitelistMiddleware(RequestDelegate next)
                 }
 
             SkipMail:
+                CleanupExpiredPendingRequests();
                 pendingRequests.Add(pendingRequest);
                 context.Response.StatusCode = _201_CREATED;
             }

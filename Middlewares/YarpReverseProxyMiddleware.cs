@@ -42,6 +42,7 @@ public class YarpReverseProxyMiddleware(
             var handler = feature.Route.CreateHandler(_timeout);
             client.invoker = new(handler);
             client.config = new() { ActivityTimeout = _timeout };
+            Console.WriteLine($"clientCache.Add({timeout}, client)");
             clientCache.Add(timeout, client);
         }
 

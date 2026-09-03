@@ -9,6 +9,7 @@ public class LoginMiddleware(RequestDelegate next)
     {
         public readonly long authenticationId;
         public readonly string token;
+        public readonly DateTime createdAt = DateTime.Now;
 
         public Session(long authenticationId)
         {
@@ -17,6 +18,12 @@ public class LoginMiddleware(RequestDelegate next)
         }
     }
     static readonly List<Session> sessions = new();
+
+    static void CleanupExpiredSessions()
+    {
+        var cutoff = DateTime.Now.AddHours(-24);
+        sessions.RemoveAll(x => x.createdAt < cutoff);
+    }
 
     public static bool IsAuthorized(
         Authentication authentication,
@@ -49,6 +56,8 @@ public class LoginMiddleware(RequestDelegate next)
 
             if (authentication is not null)
             {
+                CleanupExpiredSessions();
+
                 var newSession = new Session(authentication.Identifier.Id);
                 sessions.Add(newSession);
 

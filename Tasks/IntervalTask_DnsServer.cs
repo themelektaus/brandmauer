@@ -10,6 +10,12 @@ public class IntervalTask_DnsServer : IntervalTask
     DnsServer dnsServer;
     Task task;
 
+#if DEBUG
+    EventHandler<DnsServer.RespondedEventArgs> respondedHandler;
+#endif
+    EventHandler<EventArgs> listeningHandler;
+    EventHandler<DnsServer.ErroredEventArgs> erroredHandler;
+
     protected override Task OnStartAsync() => default;
 
     protected override Task OnBeforeFirstTickAsync() => default;
@@ -37,13 +43,16 @@ public class IntervalTask_DnsServer : IntervalTask
         dnsServer = new(new MasterFile(), "208.67.222.222");
 
 #if DEBUG
-        dnsServer.Responded += (sender, e)
+        respondedHandler = (sender, e)
             => Audit.Info<DnsServer>($"{e.Request} => {e.Response}");
+        dnsServer.Responded += respondedHandler;
 #endif
-        dnsServer.Listening += (sender, e)
-            => Audit.Info<DnsServer>("Listening...");
 
-        dnsServer.Errored += (sender, e) =>
+        listeningHandler = (sender, e)
+            => Audit.Info<DnsServer>("Listening...");
+        dnsServer.Listening += listeningHandler;
+
+        erroredHandler = (sender, e) =>
         {
             Audit.Error<DnsServer>(e.Exception);
 
@@ -51,6 +60,7 @@ public class IntervalTask_DnsServer : IntervalTask
             if (error is not null)
                 Audit.Error<DnsServer>(error.Response);
         };
+        dnsServer.Errored += erroredHandler;
 
         Audit.Info<DnsServer>("Starting...");
         task = dnsServer.Listen();
@@ -64,6 +74,15 @@ public class IntervalTask_DnsServer : IntervalTask
             Audit.Info<DnsServer>("Stopping...");
             try
             {
+#if DEBUG
+                if (respondedHandler is not null)
+                    dnsServer.Responded -= respondedHandler;
+#endif
+                if (listeningHandler is not null)
+                    dnsServer.Listening -= listeningHandler;
+                if (erroredHandler is not null)
+                    dnsServer.Errored -= erroredHandler;
+
                 dnsServer.Dispose();
                 dnsServer = null;
                 Audit.Info<DnsServer>("Stopped.");

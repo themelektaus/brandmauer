@@ -1,7 +1,7 @@
 ﻿namespace Brandmauer;
 
-[Delay(43200)]
-[Interval(86400)]
+[Delay(7200)]
+[Interval(21600)]
 public class IntervalTask_Daily : IntervalTask
 {
     protected override Task OnStartAsync() => default;
