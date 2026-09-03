@@ -33,6 +33,10 @@
                             </li>
                         </ul>
                     </div>
+                    <div class="field" data-object="dnsChallengeHostReference">
+                        <label>DNS Challenge via</label>
+                        <select data-bind="id" data-options="dynamicdnshosts" data-type="number"></select>
+                    </div>
                     <div class="buttons" data-bind="identifier.id" data-value>
                         <label>Generate</label>
                         <button data-action="updateCertificate"

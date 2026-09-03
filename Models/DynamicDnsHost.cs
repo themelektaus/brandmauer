@@ -47,6 +47,20 @@ public partial class DynamicDnsHost : Model, IAsyncUpdateable
     }
     public _Provider_NameCom Provider_NameCom { get; set; } = new();
 
+    public string GetDnsChallengeZone()
+        => Provider == _Provider.NameCom ? Provider_NameCom.Domain : null;
+
+    public string GetDnsChallengeAuthorization()
+    {
+        if (Provider != _Provider.NameCom)
+            return null;
+
+        var username = Provider_NameCom.Username;
+        var password = Provider_NameCom.Password;
+
+        return $"Basic {$"{username}:{password}".ToBase64()}";
+    }
+
     public override string HtmlInfo
     {
         get

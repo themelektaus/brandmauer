@@ -14,15 +14,14 @@ public class IntervalTask_RenewCertifcates : IntervalTask
         var certificates = Certificate.GetAll()
             .Where(x => x.ExpiresSoon).ToList();
 
-        var letsEncryptCertificate = certificates.FirstOrDefault(
-            x => x.issuerCommonName.StartsWith('R') &&
-                x.issuerOrganisation == "Let's Encrypt"
+        var letsEncryptCertificates = certificates.Where(
+            x => x.issuerOrganisation == "Let's Encrypt"
         );
 
-        if (letsEncryptCertificate is not null)
+        foreach (var certificate in letsEncryptCertificates)
         {
             await Endpoint.Certificates.Update(
-                id: letsEncryptCertificate.Identifier.Id,
+                id: certificate.Identifier.Id,
                 letsEncrypt: true,
                 staging: false
             );

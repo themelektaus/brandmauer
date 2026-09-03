@@ -45,14 +45,28 @@ public static class CertificateUtils
         );
     }
 
+    public static bool RequiresDnsChallenge(IEnumerable<string> domains)
+        => domains.Any(x => x.StartsWith('*'));
+
     public static async Task<X509Certificate2> RequestLetsEncryptAsync(
         string accountMailAddress,
         bool staging,
+        DnsChallengeProvider dnsChallenge,
         params string[] domains
     )
     {
         if (domains.Length == 0)
             return null;
+
+        if (dnsChallenge is null && RequiresDnsChallenge(domains))
+        {
+            Audit.Error(
+                "ACME",
+                "A wildcard domain requires a DNS-01 challenge. Select a "
+                    + "Dynamic DNS entry on this certificate."
+            );
+            return null;
+        }
 
         var accountKey = KeyFactory.NewKey(KeyAlgorithm.ES256);
 
@@ -74,38 +88,14 @@ public static class CertificateUtils
 
         var orderContext = await acmeContext.NewOrder(domains);
 
-        foreach (var authContext in await orderContext.Authorizations())
-        {
-            var challengeContext = await authContext.Http();
+        var authContexts = (await orderContext.Authorizations()).ToList();
 
-            var token = challengeContext.Token;
-            Audit.Info("ACME", $"Token: {token}");
+        var validated = dnsChallenge is null
+            ? await ValidateHttpAsync(authContexts)
+            : await ValidateDnsAsync(acmeContext, authContexts, dnsChallenge);
 
-            var keyAuthz = challengeContext.KeyAuthz;
-            Audit.Info("ACME", $"KeyAuthz: {keyAuthz}");
-
-            acmeChallenges.Use(x => x.Add(token, keyAuthz));
-
-            var challenge = await challengeContext.Validate();
-
-            for (; ; )
-            {
-                await Task.Delay(500);
-
-                challenge = await challengeContext.Resource();
-                if (challenge.Status == ChallengeStatus.Valid)
-                    break;
-
-                if (challenge.Status == ChallengeStatus.Invalid)
-                {
-                    Audit.Error("ACME", challenge.Error.Detail);
-                    return null;
-                }
-
-                await Task.Delay(500);
-            }
-            Audit.Info("ACME", $"Challenge Status: {challenge.Status}");
-        }
+        if (!validated)
+            return null;
 
         var certKey = KeyFactory.NewKey(KeyAlgorithm.RS256);
 
@@ -165,6 +155,135 @@ public static class CertificateUtils
         //return new(pfxData, string.Empty, X509KeyStorageFlags.Exportable);
 
         return X509CertificateLoader.LoadPkcs12(pfxData, string.Empty, X509KeyStorageFlags.Exportable);
+    }
+
+    static readonly TimeSpan dnsPropagationTimeout = TimeSpan.FromMinutes(5);
+    static readonly TimeSpan challengeTimeout = TimeSpan.FromMinutes(5);
+
+    static async Task<bool> ValidateHttpAsync(
+        List<IAuthorizationContext> authContexts
+    )
+    {
+        foreach (var authContext in authContexts)
+        {
+            var challengeContext = await authContext.Http();
+
+            var token = challengeContext.Token;
+            Audit.Info("ACME", $"Token: {token}");
+
+            var keyAuthz = challengeContext.KeyAuthz;
+            Audit.Info("ACME", $"KeyAuthz: {keyAuthz}");
+
+            acmeChallenges.Use(x => x.Add(token, keyAuthz));
+
+            if (!await WaitForChallengeAsync(challengeContext))
+                return false;
+        }
+
+        return true;
+    }
+
+    static async Task<bool> ValidateDnsAsync(
+        IAcmeContext acmeContext,
+        List<IAuthorizationContext> authContexts,
+        DnsChallengeProvider dnsChallenge
+    )
+    {
+        var challengeContexts = new List<IChallengeContext>();
+        var valuesByRecordName = new Dictionary<string, List<string>>();
+
+        try
+        {
+            foreach (var authContext in authContexts)
+            {
+                var challengeContext = await authContext.Dns();
+                challengeContexts.Add(challengeContext);
+
+                var authorization = await authContext.Resource();
+                var identifier = authorization.Identifier.Value;
+
+                var recordName = DnsChallengeProvider.GetRecordName(identifier);
+
+                var value = acmeContext.AccountKey
+                    .DnsTxt(challengeContext.Token);
+
+                Audit.Info("ACME", $"TXT {recordName} = {value}");
+
+                if (!await dnsChallenge.AddAsync(recordName, value))
+                    return false;
+
+                if (!valuesByRecordName.TryGetValue(recordName, out var values))
+                {
+                    values = new();
+                    valuesByRecordName.Add(recordName, values);
+                }
+
+                values.Add(value);
+            }
+
+            foreach (var (recordName, values) in valuesByRecordName)
+            {
+                var propagated = await DnsUtils.WaitForTxtRecordsAsync(
+                    dnsChallenge.Zone,
+                    recordName,
+                    values,
+                    dnsPropagationTimeout
+                );
+
+                if (!propagated)
+                    return false;
+            }
+
+            foreach (var challengeContext in challengeContexts)
+                if (!await WaitForChallengeAsync(challengeContext))
+                    return false;
+
+            return true;
+        }
+        finally
+        {
+            await dnsChallenge.CleanupAsync();
+        }
+    }
+
+    static async Task<bool> WaitForChallengeAsync(
+        IChallengeContext challengeContext
+    )
+    {
+        var challenge = await challengeContext.Validate();
+
+        var deadline = DateTime.UtcNow + challengeTimeout;
+
+        for (; ; )
+        {
+            await Task.Delay(500);
+
+            challenge = await challengeContext.Resource();
+
+            if (challenge.Status == ChallengeStatus.Valid)
+                break;
+
+            if (challenge.Status == ChallengeStatus.Invalid)
+            {
+                Audit.Error("ACME", challenge.Error?.Detail);
+                return false;
+            }
+
+            if (DateTime.UtcNow >= deadline)
+            {
+                Audit.Error(
+                    "ACME",
+                    $"Challenge stuck at \"{challenge.Status}\" for "
+                        + $"{challengeTimeout.TotalSeconds:0} seconds."
+                );
+                return false;
+            }
+
+            await Task.Delay(500);
+        }
+
+        Audit.Info("ACME", $"Challenge Status: {challenge.Status}");
+        return true;
     }
 
     public static X509Certificate2 CreateCertificate(

@@ -4,6 +4,8 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace Brandmauer;
 
+using _Audit = Audit;
+
 public static partial class Endpoint
 {
     public static class Certificates
@@ -129,13 +131,47 @@ public static partial class Endpoint
 
             if (letsEncrypt ?? false)
             {
-                var accountMailAddress = Database.Use(
-                    x => x.Config.LetsEncryptAccountMailAddress
-                );
+                var (accountMailAddress, dnsChallengeHost) = Database.Use(x => (
+                    x.Config.LetsEncryptAccountMailAddress,
+                    x.DynamicDnsHosts.FirstOrDefault(
+                        y => y.Identifier.Id
+                            == certificate.DnsChallengeHostReference.Id
+                    )
+                ));
+
+                DnsChallengeProvider dnsChallenge = null;
+
+                if (certificate.UsesDnsChallenge)
+                {
+                    if (dnsChallengeHost is null)
+                    {
+                        _Audit.Error(
+                            "ACME",
+                            "The Dynamic DNS entry selected for the DNS "
+                                + "challenge no longer exists."
+                        );
+                        return Results.StatusCode(500);
+                    }
+
+                    dnsChallenge = new(dnsChallengeHost);
+
+                    if (!dnsChallenge.IsSupported)
+                    {
+                        _Audit.Error(
+                            "ACME",
+                            $"The Dynamic DNS entry \"{dnsChallengeHost.Name}\""
+                                + " cannot serve DNS challenges. A name.com "
+                                + "entry with domain and credentials is "
+                                + "required."
+                        );
+                        return Results.StatusCode(500);
+                    }
+                }
 
                 pfxCert = await CertificateUtils.RequestLetsEncryptAsync(
                     accountMailAddress,
                     staging ?? true,
+                    dnsChallenge,
                     domains
                 );
 

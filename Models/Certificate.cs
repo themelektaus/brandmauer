@@ -92,6 +92,16 @@ public class Certificate : Model, IOnDeserialize
                         issuerOrganisation
                     );
                 }
+
+                if (UsesDnsChallenge)
+                {
+                    builder.AppendBadge(
+                        "certificate",
+                        "challenge",
+                        "Challenge",
+                        "DNS-01"
+                    );
+                }
             }
             builder.EndBadges();
 
@@ -105,6 +115,11 @@ public class Certificate : Model, IOnDeserialize
     public string CertPem { get; set; }
     public string KeyPem { get; set; }
     public bool HasAuthority { get; set; }
+
+    public Identifier DnsChallengeHostReference { get; set; }
+
+    [JsonIgnore] public bool UsesDnsChallenge
+        => DnsChallengeHostReference.Id != 0;
 
     [JsonIgnore] public X509Certificate2 Pem { get; private set; }
     [JsonIgnore] public byte[] PfxData { get; private set; }
