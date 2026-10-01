@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Http.Extensions;
+﻿using System.Collections.Concurrent;
+
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Brandmauer;
 
 public class CustomReverseProxyMiddleware(RequestDelegate next)
     : ReverseProxyMiddleware
 {
-    static readonly Dictionary<int, HttpClient> httpClientCache = new();
+    static readonly ConcurrentDictionary<int, Lazy<HttpClient>> httpClientCache = new();
 
     protected override RequestDelegate Next => next;
 
@@ -84,13 +86,12 @@ public class CustomReverseProxyMiddleware(RequestDelegate next)
             if (!feature.Route.TryGetTimeout(out var timeout))
                 timeout = 100;
 
-            if (!httpClientCache.TryGetValue(timeout, out var httpClient))
+            var httpClient = httpClientCache.GetOrAdd(timeout, _ => new(() =>
             {
                 var _timeout = TimeSpan.FromSeconds(timeout);
                 var handler = feature.Route.CreateHandler(_timeout);
-                httpClient = new(handler) { Timeout = _timeout };
-                httpClientCache.Add(timeout, httpClient);
-            }
+                return new HttpClient(handler) { Timeout = _timeout };
+            })).Value;
 
             using var response = await httpClient.SendAsync(
                 request,
@@ -140,16 +141,26 @@ public class CustomReverseProxyMiddleware(RequestDelegate next)
         }
         catch (Exception ex)
         {
-            try
+            if (context.RequestAborted.IsCancellationRequested)
             {
-                Console.WriteLine(ex.ToJson());
+                Console.WriteLine(
+                    $"[CANCELED] {ex.GetType().Name} {context.Request.Method} " +
+                    $"{context.Request.GetDisplayUrl()}"
+                );
             }
-            catch
+            else
             {
-                Console.WriteLine(ex.ToString());
-            }
+                try
+                {
+                    Console.WriteLine(ex.ToJson());
+                }
+                catch
+                {
+                    Console.WriteLine(ex.ToString());
+                }
 
-            Console.WriteLine();
+                Console.WriteLine();
+            }
 
             if (ex is HttpRequestException _ex)
                 if (_ex.HttpRequestError == HttpRequestError.ConnectionError)

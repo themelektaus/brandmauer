@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http.Extensions;
+﻿using System.Collections.Concurrent;
+
+using Microsoft.AspNetCore.Http.Extensions;
 
 using Yarp.ReverseProxy.Forwarder;
 
@@ -14,7 +16,7 @@ public class YarpReverseProxyMiddleware(
         public HttpMessageInvoker invoker;
         public ForwarderRequestConfig config;
     }
-    static readonly Dictionary<int, Client> clientCache = new();
+    static readonly ConcurrentDictionary<int, Lazy<Client>> clientCache = new();
 
     protected override RequestDelegate Next => next;
 
@@ -35,16 +37,16 @@ public class YarpReverseProxyMiddleware(
         if (!feature.Route.TryGetTimeout(out var timeout))
             timeout = 100;
 
-        if (!clientCache.TryGetValue(timeout, out var client))
+        var client = clientCache.GetOrAdd(timeout, _ => new(() =>
         {
-            client = new();
             var _timeout = TimeSpan.FromSeconds(timeout);
             var handler = feature.Route.CreateHandler(_timeout);
-            client.invoker = new(handler);
-            client.config = new() { ActivityTimeout = _timeout };
-            Console.WriteLine($"clientCache.Add({timeout}, client)");
-            clientCache.Add(timeout, client);
-        }
+            return new()
+            {
+                invoker = new(handler),
+                config = new() { ActivityTimeout = _timeout }
+            };
+        })).Value;
 
         var error = await forwarder.SendAsync(
             context,
@@ -58,10 +60,22 @@ public class YarpReverseProxyMiddleware(
 
         if (error != ForwarderError.None)
         {
-            if (
-                error != ForwarderError.UpgradeRequestCanceled &&
-                error != ForwarderError.UpgradeResponseCanceled
-            )
+            var upgradeCanceled =
+                error == ForwarderError.UpgradeRequestCanceled ||
+                error == ForwarderError.UpgradeResponseCanceled;
+
+            var canceled =
+                error == ForwarderError.RequestCanceled ||
+                context.RequestAborted.IsCancellationRequested;
+
+            if (!upgradeCanceled && canceled)
+            {
+                Console.WriteLine(
+                    $"[CANCELED] {error} {context.Request.Method} " +
+                    $"{context.Request.GetDisplayUrl()} {path}"
+                );
+            }
+            else if (!upgradeCanceled)
             {
                 Console.WriteLine(
                     $"[ERROR] {error} {context.Request.Method} " +

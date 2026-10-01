@@ -1,4 +1,8 @@
+using System.Net.Security;
+using System.Security.Authentication;
+
 using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.Server.Kestrel.Https;
 
 #if WINDOWS && RELEASE
 using Microsoft.Extensions.Hosting.WindowsServices;
@@ -45,21 +49,29 @@ builder.WebHost.UseKestrel(options =>
     options.ListenAnyIP(Utils.HTTP);
     options.ListenAnyIP(Utils.HTTPS, x =>
     {
-        x.UseHttps(x =>
+        x.UseHttps(new TlsHandshakeCallbackOptions
         {
-            x.ServerCertificateSelector = (_, sni) =>
+            OnConnection = context =>
             {
-                if (string.IsNullOrEmpty(sni))
-                    return null;
+                var sni = context.ClientHelloInfo.ServerName;
 
-                if (Utils.allLocalIpAddresses.Contains(sni))
-                    return null;
+                SslStreamCertificateContext certificateContext = null;
 
-                if (Utils.IsIpAddress(sni))
-                    return null;
+                if (
+                    !string.IsNullOrEmpty(sni) &&
+                    !Utils.allLocalIpAddresses.Contains(sni) &&
+                    !Utils.IsIpAddress(sni)
+                )
+                    certificateContext = Certificate.GetContext(sni);
 
-                return Certificate.Get(sni)?.Pfx;
-            };
+                if (certificateContext is null)
+                    throw new AuthenticationException($"No certificate for '{sni}'");
+
+                return ValueTask.FromResult(new SslServerAuthenticationOptions
+                {
+                    ServerCertificateContext = certificateContext
+                });
+            }
         });
 
 #if DEBUG

@@ -1,4 +1,6 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿using System.Collections.Concurrent;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 
 using System.Text;
 using System.Text.Json.Serialization;
@@ -35,6 +37,8 @@ public class Certificate : Model, IOnDeserialize
         }
     }
     static readonly Cache cache = new();
+
+    static readonly ConcurrentDictionary<string, SslStreamCertificateContext> contexts = new();
 
     public override string HtmlInfo
     {
@@ -204,6 +208,37 @@ public class Certificate : Model, IOnDeserialize
             cache.database = database;
             return cache.Get(domain);
         });
+    }
+
+    public static SslStreamCertificateContext GetContext(string domain)
+    {
+        var pfx = Get(domain)?.Pfx;
+        if (pfx is null)
+            return null;
+
+        var thumbprint = pfx.Thumbprint;
+        if (contexts.TryGetValue(thumbprint, out var context))
+            return context;
+
+        lock (contexts)
+        {
+            if (contexts.TryGetValue(thumbprint, out context))
+                return context;
+
+            context = SslStreamCertificateContext.Create(pfx, null);
+
+            var current = GetAll()
+                .Where(x => x.Pfx is not null)
+                .Select(x => x.Pfx.Thumbprint)
+                .ToHashSet();
+
+            foreach (var key in contexts.Keys)
+                if (!current.Contains(key))
+                    contexts.TryRemove(key, out _);
+
+            contexts[thumbprint] = context;
+            return context;
+        }
     }
 
     public string GetFilename(string format)
