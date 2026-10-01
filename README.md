@@ -2,13 +2,13 @@
 
 [![Build Status](https://github.com/themelektaus/brandmauer/actions/workflows/dotnet.yml/badge.svg)](https://github.com/themelektaus/brandmauer/actions/workflows/dotnet.yml)
 
-**Version:** 0.3.1.4
-**Framework:** .NET 9.0
+**Version:** 0.3.1.8
+**Framework:** .NET 10.0
 **Platform:** Cross-platform (Linux production, Windows development)
 
 ## Project Overview
 
-Brandmauer is an enterprise-grade, all-in-one network management solution that combines the functionality of a reverse proxy, firewall, certificate authority, and network monitoring system into a single, lightweight application. Built on .NET 9, it provides comprehensive network infrastructure management with an emphasis on security, automation, and ease of deployment.
+Brandmauer is an enterprise-grade, all-in-one network management solution that combines the functionality of a reverse proxy, firewall, certificate authority, and network monitoring system into a single, lightweight application. Built on .NET 10, it provides comprehensive network infrastructure management with an emphasis on security, automation, and ease of deployment.
 
 The name "Brandmauer" (German for "firewall") reflects the application's core mission: to serve as a protective barrier and intelligent traffic manager for network infrastructure. Unlike traditional solutions that require multiple disparate tools, Brandmauer consolidates essential network services into one cohesive platform.
 
@@ -42,7 +42,7 @@ Comprehensive SSL/TLS certificate lifecycle management:
 - **Automatic CA Generation**: Creates self-signed Certificate Authority on first run
 - **Let's Encrypt Integration**: Automated certificate issuance via ACME protocol (using Certes library)
 - **Auto-Renewal**: Background task monitors and renews certificates before expiration
-- **Multiple Export Formats**: PFX, PEM, CER, and other formats supported
+- **Multiple Export Formats**: PFX, CRT and KEY (PEM)
 - **Certificate Storage**: Secure storage with hot-reload capability
 - **SNI-Based Selection**: Dynamic certificate serving based on requested hostname
 
@@ -71,10 +71,9 @@ Enterprise-grade authentication with modern security standards:
 
 Built-in DNS server functionality:
 
-- **Dynamic DNS (DDNS)**: Automatic hostname updates for dynamic IP addresses
-- **Custom DNS Server**: Full DNS server implementation for internal name resolution
-- **DNS Record Management**: Configure A, AAAA, CNAME, and other record types
-- **Integration with Routing**: DNS records automatically sync with reverse proxy routes
+- **Dynamic DNS (DDNS)**: Automatic hostname updates for dynamic IP addresses (name.com, No-IP)
+- **DNS Server**: Optional forwarding DNS server (relays queries to an upstream resolver)
+- **DNS-01 Challenges**: Let's Encrypt wildcard certificates via the name.com API
 
 ### 6. Monitoring and Observability
 
@@ -119,7 +118,7 @@ Optimized for different deployment scenarios:
 ### Technology Stack
 
 #### Core Framework
-- **.NET 9.0**: Latest .NET framework for high performance and modern features
+- **.NET 10.0**: Latest .NET framework for high performance and modern features
 - **ASP.NET Core**: Web framework and hosting infrastructure
 - **Kestrel**: High-performance web server with custom SSL/TLS configuration
 
@@ -128,27 +127,27 @@ Optimized for different deployment scenarios:
 **Network and Proxy**
 - **YARP (Yet Another Reverse Proxy) 2.3.0**: Microsoft's reverse proxy library
 - **DNS 7.0.0**: DNS protocol implementation
-- **IPAddressRange 6.0.0**: IP address range parsing and matching
+- **IPAddressRange 6.3.0**: IP address range parsing and matching
 
 **Security and Certificates**
-- **Certes 3.0.4**: ACME protocol client for Let's Encrypt
+- **Certes 4.1.0**: ACME protocol client for Let's Encrypt
 - **Portable.BouncyCastle 1.9.0**: Cryptographic operations
-- **System.Formats.Asn1 9.0.6**: ASN.1 encoding for certificates
-- **Otp.NET 1.4.0**: TOTP two-factor authentication
-- **QRCoder 1.6.0**: QR code generation for 2FA setup
+- **System.Formats.Asn1 10.0.12**: ASN.1 encoding for certificates
+- **Otp.NET 1.4.1**: TOTP two-factor authentication
+- **QRCoder 1.8.0**: QR code generation for 2FA setup
 
 **Data and Communication**
-- **MailKit 4.13.0**: Email sending via SMTP
-- **Mjml.NET 4.9.0**: Email template rendering (MJML to HTML)
-- **Microsoft.Data.SqlClient 6.0.2**: SQL Server connectivity for monitoring
-- **SSH.NET 2025.0.0**: SSH client for remote operations
+- **MailKit 4.18.1**: Email sending via SMTP
+- **Mjml.NET 4.15.0**: Email template rendering (MJML to HTML)
+- **Microsoft.Data.SqlClient 7.1.1**: SQL Server connectivity for monitoring
+- **SSH.NET 2026.0.0**: SSH client for remote operations
 
 **Development and Compilation**
-- **Microsoft.CodeAnalysis.CSharp 4.14.0**: Roslyn compiler for live code execution
+- **Microsoft.CodeAnalysis.CSharp 5.9.0**: Roslyn compiler for live code execution
 - **LibSassHost 1.5.0**: SCSS/Sass compilation for frontend styling
 
 **UI**
-- **Material.Icons 2.4.1**: Material Design icons for web interface
+- **Material.Icons 3.0.2**: Material Design icons for web interface
 
 ### System Architecture
 
@@ -164,12 +163,12 @@ Brandmauer uses a custom JSON-based persistence layer designed for simplicity an
 
 ```csharp
 // Example database usage pattern
-Database.UseAsync(async db => {
-    var route = new ReverseProxyRoute {
-        Domain = "example.com",
-        Target = "http://localhost:3000"
-    };
+Database.Use(db => {
+    var route = db.Create<ReverseProxyRoute>();
+    route.SourceDomains.Add(new("example.com"));
+    route.Target = "http://localhost:3000";
     db.ReverseProxyRoutes.Add(route);
+    db.Save(logging: true);
 });
 ```
 
@@ -210,7 +209,7 @@ Automated operations via interval-based task scheduling:
 - **Base Class**: `IntervalTask` provides common infrastructure
 - **Attribute Configuration**:
   - `[Interval(seconds)]`: Periodic execution interval
-  - `[Delay(milliseconds)]`: Initial startup delay
+  - `[Delay(seconds)]`: Initial startup delay
   - `[OneShot]`: Execute once and terminate
 - **Graceful Shutdown**: All tasks implement `IAsyncDisposable`
 - **Built-in Tasks**:
@@ -218,7 +217,7 @@ Automated operations via interval-based task scheduling:
   - `IntervalTask_Daily`: Daily maintenance tasks
   - `IntervalTask_DnsServer`: DNS service operation
   - `IntervalTask_ReloadDatabase`: Hot-reload of configuration
-  - `IntervalTask_RenewCertificates`: Certificate renewal (Linux only)
+  - `IntervalTask_RenewCertifcates`: Certificate renewal (Linux only)
   - `IntervalTask_UpdateBrandmauer`: Self-update mechanism (Linux only)
   - `IntervalTask_Startup`: Boot-time initialization (Linux only)
 
@@ -284,6 +283,7 @@ Client receives response
 [Unit]
 Description=Brandmauer
 After=network.target
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple
@@ -291,6 +291,7 @@ Restart=always
 RestartSec=5
 User=root
 WorkingDirectory=/app/brandmauer
+ExecStartPre=/bin/chmod -R 777 /app/brandmauer/Brandmauer
 ExecStart=/app/brandmauer/Brandmauer
 
 [Install]
@@ -350,13 +351,13 @@ dotnet publish -c Windows -p:PublishProfile=Properties/PublishProfiles/Windows.p
 **Linux:**
 - Linux kernel with iptables support
 - systemd init system
-- .NET 9.0 runtime (bundled in self-contained build)
+- .NET 10.0 runtime (bundled in self-contained build)
 - Root access for port binding (80/443) and iptables
 - Network access for Let's Encrypt certificate issuance
 
 **Windows:**
 - Windows 10/11 or Windows Server 2016+
-- .NET 9.0 runtime (bundled in self-contained build)
+- .NET 10.0 runtime (bundled in self-contained build)
 - Admin rights for production deployment (service installation)
 
 ### Installation
@@ -456,7 +457,7 @@ Located in `Tasks/` directory:
 - **IntervalTask_Daily**: Daily maintenance and cleanup
 - **IntervalTask_DnsServer**: DNS server operation loop
 - **IntervalTask_ReloadDatabase**: Hot-reload database on file changes
-- **IntervalTask_RenewCertificates**: Certificate renewal automation (Linux)
+- **IntervalTask_RenewCertifcates**: Certificate renewal automation (Linux)
 - **IntervalTask_UpdateBrandmauer**: Self-update mechanism (Linux)
 - **IntervalTask_Startup**: Initialization tasks on application start (Linux)
 - **IntervalTask_FortiClient**: FortiClient VPN integration (optional, Linux)
@@ -465,7 +466,7 @@ Located in `Tasks/` directory:
 
 - **CertificateUtils**: Certificate generation, parsing, and conversion
 - **TotpUtils**: TOTP token generation and validation
-- **IpTablesManager**: Linux iptables rule management (Linux only)
+- **IpTablesBuilder / IpTablesFilter / IpTablesNat**: Linux iptables rule management (Linux only)
 - **Utils**: Common utilities (IP address handling, string parsing, etc.)
 - **Audit**: Application-wide logging and audit trail
 - **ExceptionConverter**: JSON serialization for exceptions
@@ -497,7 +498,7 @@ Located in `Endpoints/` directory as partial classes of `Endpoint`:
 
 1. Create class inheriting from `IntervalTask` in `Tasks/`
 2. Add `[Interval(seconds)]` attribute for periodic execution
-3. Implement required methods: `OnStartAsync()`, `OnTickAsync()`, `OnDisposeAsync()`
+3. Implement required methods: `OnStartAsync()`, `OnBeforeFirstTickAsync()`, `OnTickAsync()`, `OnDisposeAsync()`
 4. Register in `Program.cs` task registration section
 
 ### Adding a Middleware
@@ -546,7 +547,6 @@ Brandmauer excels in scenarios requiring consolidated network management:
 
 While Brandmauer is production-ready, potential enhancements could include:
 
-- Web-based UI for configuration (currently API-driven)
 - Metrics and analytics dashboard
 - High availability and clustering support
 - Additional monitoring plugins
@@ -558,7 +558,7 @@ While Brandmauer is production-ready, potential enhancements could include:
 ## Support and Documentation
 
 - **Build Status**: Automated CI/CD via GitHub Actions
-- **Version**: 0.3.1.4 (actively developed)
+- **Version**: 0.3.1.8 (actively developed)
 - **License**: Check repository for licensing information
 - **Platform Support**: Linux (primary), Windows (supported)
 
@@ -588,12 +588,12 @@ While Brandmauer is production-ready, potential enhancements could include:
 
 ## Conclusion
 
-Brandmauer represents a modern approach to network infrastructure management, consolidating essential services into a cohesive, easy-to-deploy platform. Built on .NET 9 with careful attention to security, performance, and developer experience, it serves as both a production-ready solution and a flexible development tool.
+Brandmauer represents a modern approach to network infrastructure management, consolidating essential services into a cohesive, easy-to-deploy platform. Built on .NET 10 with careful attention to security, performance, and developer experience, it serves as both a production-ready solution and a flexible development tool.
 
 Whether deployed in enterprise environments, development labs, or home networks, Brandmauer provides the tools needed to manage, secure, and monitor network traffic with minimal complexity and maximum control.
 
 ---
 
-**Project Repository**: D:\1\Development\Brandmauer
+**Project Repository**: https://github.com/themelektaus/brandmauer
 **Documentation**: See CLAUDE.md for developer guidance
 **Build Status**: [![Build](https://github.com/themelektaus/brandmauer/actions/workflows/dotnet.yml/badge.svg)](https://github.com/themelektaus/brandmauer/actions/workflows/dotnet.yml)

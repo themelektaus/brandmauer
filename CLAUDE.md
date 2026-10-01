@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Brandmauer is a .NET 9 web application that functions as a reverse proxy, firewall, and network management system with certificate management, DNS capabilities, and monitoring features. It's designed to run on both Linux (production) and Windows (development/debug).
+Brandmauer is a .NET 10 web application that functions as a reverse proxy, firewall, and network management system with certificate management, DNS capabilities, and monitoring features. It's designed to run on both Linux (production) and Windows (development/debug).
 
 ## Build & Run Commands
 
@@ -46,7 +46,7 @@ Note: On Linux production builds, the application listens on standard HTTP (80) 
 - Models can implement `IOnDeserialize` for post-load initialization
 - Models can implement `IAsyncUpdateable` for periodic updates
 
-**Middleware Pipeline** (`Program.cs:82-98`)
+**Middleware Pipeline** (`Program.cs:94-110`)
 Middlewares are executed in this specific order:
 1. `HelloWorldMiddleware` (DEBUG only)
 2. `WellKnownMiddleware` - Serves `.well-known` paths for ACME/Let's Encrypt
@@ -71,7 +71,7 @@ Middlewares are executed in this specific order:
 **Background Tasks** (`Tasks/IntervalTask.cs`)
 - Base class for all background operations
 - Controlled via attributes: `[Interval]`, `[Delay]`, `[OneShot]`
-- Tasks registered in `Program.cs:100-114`
+- Tasks registered in `Program.cs:112-126`
 - All tasks implement graceful shutdown via `IAsyncDisposable`
 
 ### Key Feature Areas
@@ -132,7 +132,7 @@ Code uses conditional compilation:
 2. **Model Lifecycle**: Models register themselves on creation and must be disposed properly
 3. **Logging**: Use `Audit` class for application logging, not `Console.WriteLine`
 4. **Unsafe Code**: Project allows unsafe blocks for low-level operations
-5. **SSL/TLS**: Certificate selection happens dynamically via `ServerCertificateSelector` in `Program.cs:50-61`
+5. **SSL/TLS**: Certificate selection happens dynamically per SNI via `TlsHandshakeCallbackOptions` in `Program.cs:50-75` (`Certificate.GetContext`)
 
 ## Common Tasks
 
@@ -147,12 +147,12 @@ Code uses conditional compilation:
 1. Create class inheriting from `IntervalTask` in `Tasks/`
 2. Add `[Interval(seconds)]` attribute for periodic execution
 3. Implement `OnStartAsync()`, `OnBeforeFirstTickAsync()`, `OnTickAsync()`, `OnDisposeAsync()`
-4. Register in `Program.cs` middleware registration section
+4. Register in `Program.cs` task registration section
 
 ### Adding a Middleware
 1. Create middleware class in `Middlewares/`
 2. Implement `Invoke(HttpContext context)` method with `RequestDelegate next` constructor parameter
-3. Add to middleware pipeline in `Program.cs:82-98` (order matters!)
+3. Add to middleware pipeline in `Program.cs:94-110` (order matters!)
 
 ## Dependencies of Note
 
