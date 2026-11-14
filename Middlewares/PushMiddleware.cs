@@ -12,10 +12,6 @@ public class PushMiddleware(RequestDelegate next)
 
         var request = context.Request;
         var path = request.Path.ToString();
-
-        if (path.StartsWith(PATH))
-            context.Features.Set(new PermissionFeature { Authorized = true });
-
         var headers = request.Headers;
         var response = context.Response;
 

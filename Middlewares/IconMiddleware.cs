@@ -83,13 +83,10 @@ public class IconMiddleware(RequestDelegate next)
         var request = context.Request;
         var path = request.Path.ToString();
         var query = request.Query;
-        var features = context.Features;
         var response = context.Response;
 
         if (path.Trim('/').Split('/')[0] != PATH.TrimStart('/'))
             goto Next;
-
-        features.Set(new PermissionFeature { Authorized = true });
 
         var fileExtension = query.TryGetValue("file-extension", out var ext)
             ? ext.ToString() : null;

@@ -15,10 +15,6 @@ public class ShareMiddleware(RequestDelegate next)
 
         var request = context.Request;
         var path = request.Path.ToString();
-
-        if (PATHS.Any(path.StartsWith))
-            context.Features.Set(new PermissionFeature { Authorized = true });
-
         var response = context.Response;
 
         if (PATHS.Contains(path) && request.Method == "POST")
@@ -43,6 +39,15 @@ public class ShareMiddleware(RequestDelegate next)
         var _fileIndex = contextParameters.fileIndex;
         var _token = contextParameters.token;
         var _password = contextParameters.password;
+
+        var isSharePage = _token is not null
+            && !_fileIndex.HasValue
+            && FindShare(_token) is not null;
+
+        if (IsUploadPage(path) || isSharePage)
+        {
+            context.Features.Set(new PermissionFeature { Authorized = true });
+        }
 
         if (_fileIndex.HasValue)
         {
@@ -112,7 +117,7 @@ public class ShareMiddleware(RequestDelegate next)
         var _token = contextParameters.token;
         var _password = contextParameters.password;
 
-        if (PATHS.Any(x => x == path.TrimEnd('/')))
+        if (IsUploadPage(path))
         {
             return new()
             {
@@ -130,17 +135,8 @@ public class ShareMiddleware(RequestDelegate next)
 
         if (_token is not null && !_fileIndex.HasValue)
         {
-            var share = Database.Use(
-                x => x.Shares.FirstOrDefault(
-                    y => y.Token == _token
-                )
-            );
-
+            var share = FindShare(_token);
             if (share is null)
-                return default;
-
-            share.OnDeserialize();
-            if (share.Lifetime > 0 && share.expiresIn.HasExpired())
                 return default;
 
             if (share.Password != _password)
@@ -221,6 +217,29 @@ public class ShareMiddleware(RequestDelegate next)
         }
 
         return default;
+    }
+
+    static bool IsUploadPage(string path)
+    {
+        return PATHS.Any(x => x == path.TrimEnd('/'));
+    }
+
+    static Share FindShare(string token)
+    {
+        var share = Database.Use(
+            x => x.Shares.FirstOrDefault(
+                y => y.Token == token
+            )
+        );
+
+        if (share is null)
+            return null;
+
+        share.OnDeserialize();
+        if (share.Lifetime > 0 && share.expiresIn.HasExpired())
+            return null;
+
+        return share;
     }
 
     static string GetFileDownloadLink(Share share, int? i)

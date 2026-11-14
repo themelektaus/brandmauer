@@ -105,9 +105,17 @@ public class WhitelistMiddleware(RequestDelegate next)
         var request = context.Request;
         var hasCorrectPath = request.Path == "/whitelist";
 
-        if (hasCorrectPath && request.Query.TryGetValue("token", out _))
+        if (
+            hasCorrectPath &&
+            request.Query.TryGetValue("token", out var queryToken)
+        )
         {
-            context.Features.Set(new PermissionFeature { Authorized = true });
+            if (GetPendingRequest(queryToken) is not null)
+            {
+                context.Features.Set(
+                    new PermissionFeature { Authorized = true }
+                );
+            }
             goto Next;
         }
 

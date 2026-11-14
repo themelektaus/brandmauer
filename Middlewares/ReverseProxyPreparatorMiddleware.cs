@@ -100,6 +100,17 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
             goto Accept;
         }
 
+        // Pages of Brandmauer itself are only answered on routes that do not
+        // pass the request on; otherwise the route's own checks apply.
+        var passesOn = source.route.Target.Trim('/') != string.Empty
+            || source.route.Script != string.Empty;
+
+        if (authorized && passesOn)
+        {
+            authorized = false;
+            unauthorized = false;
+        }
+
         if (authorized)
         {
             goto Accept;
