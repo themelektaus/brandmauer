@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using System.Net.NetworkInformation;
 
 using System.Reflection;
+using System.Security.Cryptography;
 
 using System.Text.RegularExpressions;
 
@@ -261,15 +262,10 @@ public static partial class Utils
         bool upperCase = false
     )
     {
-        var token = string.Empty;
-
         var characters = "abcdefghijklmnopqrstuvwxyz234567";
         if (upperCase)
             characters = characters.ToUpper();
 
-        while (token.Length < DEFAULT_TOKEN_LENGTH)
-            token += characters[Random.Shared.Next(0, 32)];
-
-        return token;
+        return RandomNumberGenerator.GetString(characters, length);
     }
 }

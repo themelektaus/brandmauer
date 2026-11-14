@@ -7,7 +7,11 @@ public class Share : Model, IOnDeserialize
 {
     static readonly string FILES_FOLDER = Path.Combine("Data", "Shared Files");
 
-    public string Token { get; set; } = Utils.GenerateToken();
+    // Share links carry the token at a fixed length (see
+    // ShareMiddleware.ContextParameters); existing links rely on it.
+    public const int TOKEN_LENGTH = 64;
+
+    public string Token { get; set; } = Utils.GenerateToken(TOKEN_LENGTH);
     public string Text { get; set; } = string.Empty;
     public List<StringValue> Files { get; set; } = new();
     public int Lifetime { get; set; }

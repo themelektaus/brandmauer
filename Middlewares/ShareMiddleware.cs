@@ -329,7 +329,7 @@ public class ShareMiddleware(RequestDelegate next)
                 if (!path.StartsWith(subPath))
                     continue;
 
-                var tokenLength = Utils.DEFAULT_TOKEN_LENGTH;
+                var tokenLength = Share.TOKEN_LENGTH;
                 var length = subPath.Length + tokenLength;
 
                 if (path.Length < length)

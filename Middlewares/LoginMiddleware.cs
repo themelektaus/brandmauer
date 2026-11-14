@@ -18,11 +18,17 @@ public class LoginMiddleware(RequestDelegate next)
         }
     }
     static readonly List<Session> sessions = new();
+    static readonly object sessionsHandle = new();
 
-    static void CleanupExpiredSessions()
+    static void AddSession(Session session)
     {
         var cutoff = DateTime.Now.AddHours(-24);
-        sessions.RemoveAll(x => x.createdAt < cutoff);
+
+        lock (sessionsHandle)
+        {
+            sessions.RemoveAll(x => x.createdAt < cutoff);
+            sessions.Add(session);
+        }
     }
 
     public static bool IsAuthorized(
@@ -30,10 +36,13 @@ public class LoginMiddleware(RequestDelegate next)
         string sessionToken
     )
     {
-        return sessions.Any(x
-            => x.authenticationId == authentication.Identifier.Id
-            && x.token == sessionToken
-        );
+        lock (sessionsHandle)
+        {
+            return sessions.Any(x
+                => x.authenticationId == authentication.Identifier.Id
+                && x.token == sessionToken
+            );
+        }
     }
 
     public async Task Invoke(HttpContext context)
@@ -56,10 +65,8 @@ public class LoginMiddleware(RequestDelegate next)
 
             if (authentication is not null)
             {
-                CleanupExpiredSessions();
-
                 var newSession = new Session(authentication.Identifier.Id);
-                sessions.Add(newSession);
+                AddSession(newSession);
 
                 context.Response.Cookies.Append(
                     SessionTokenKey,
@@ -67,7 +74,10 @@ public class LoginMiddleware(RequestDelegate next)
                     new()
                     {
                         Domain = request.Host.Host,
-                        Path = "/"
+                        Path = "/",
+                        HttpOnly = true,
+                        Secure = request.IsHttps,
+                        SameSite = SameSiteMode.Lax
                     }
                 );
                 goto Exit;
