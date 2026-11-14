@@ -113,16 +113,10 @@ public class YarpReverseProxyMiddleware(
                 cancellationToken
             );
 
-            var ip = httpContext.Connection.RemoteIpAddress.ToIp();
-            var scheme = httpContext.Request.Scheme;
-
             var headers = proxyRequest.Headers;
-            headers.TryAddWithoutValidation("X-Real-IP", ip);
-            headers.TryAddWithoutValidation("X-Forwarded-For", ip);
-            headers.TryAddWithoutValidation("X-Forwarded-Proto", scheme);
+            SetForwardedHeaders(httpContext, headers);
 
             var feature = httpContext.Features.Get<ReverseProxyFeature>();
-            headers.TryAddWithoutValidation("X-Source", feature.Source);
 
             switch (feature.Route.HostModification)
             {

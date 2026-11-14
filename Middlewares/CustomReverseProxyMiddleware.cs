@@ -46,14 +46,7 @@ public class CustomReverseProxyMiddleware(RequestDelegate next)
             }
         }
 
-        var ip = context.Connection.RemoteIpAddress.ToIp();
-        var scheme = context.Request.Scheme;
-
-        request.Headers.TryAddWithoutValidation("X-Real-IP", ip);
-        request.Headers.TryAddWithoutValidation("X-Forwarded-For", ip);
-        request.Headers.TryAddWithoutValidation("X-Forwarded-Proto", scheme);
-
-        request.Headers.TryAddWithoutValidation("X-Source", feature.Source);
+        SetForwardedHeaders(context, request.Headers);
 
         switch (feature.Route.HostModification)
         {

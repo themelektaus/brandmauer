@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Net;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace Brandmauer;
 
@@ -262,11 +264,21 @@ public static partial class Endpoint
 
     static IResult WhatsMyIp(HttpContext context)
     {
+        var remoteIp = context.Connection.RemoteIpAddress;
+
+        // Only a request forwarded by this instance itself carries
+        // headers that can be trusted.
+        if (remoteIp.IsIPv4MappedToIPv6)
+            remoteIp = remoteIp.MapToIPv4();
+
+        if (!IPAddress.IsLoopback(remoteIp))
+            return Results.Text(remoteIp.ToIp());
+
         var headers = context.Request.Headers;
 
         if (!headers.TryGetValue("X-Real-IP", out var ip))
             if (!headers.TryGetValue("X-Forwarded-For", out ip))
-                ip = context.Connection.RemoteIpAddress.ToIp();
+                ip = remoteIp.ToIp();
 
         return Results.Text(ip);
     }

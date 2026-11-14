@@ -1,4 +1,6 @@
-﻿namespace Brandmauer;
+﻿using System.Net.Http.Headers;
+
+namespace Brandmauer;
 
 public abstract class ReverseProxyMiddleware
 {
@@ -25,5 +27,26 @@ public abstract class ReverseProxyMiddleware
         await Next(context);
 
         Utils.LogEnd(GetType(), context);
+    }
+
+    protected static void SetForwardedHeaders(
+        HttpContext context,
+        HttpRequestHeaders headers
+    )
+    {
+        var ip = context.Connection.RemoteIpAddress.ToIp();
+        var scheme = context.Request.Scheme;
+        var source = context.Features.Get<ReverseProxyFeature>().Source;
+
+        SetHeader(headers, "X-Real-IP", ip);
+        SetHeader(headers, "X-Forwarded-For", ip);
+        SetHeader(headers, "X-Forwarded-Proto", scheme);
+        SetHeader(headers, "X-Source", source);
+    }
+
+    static void SetHeader(HttpRequestHeaders headers, string name, string value)
+    {
+        headers.Remove(name);
+        headers.TryAddWithoutValidation(name, value);
     }
 }
