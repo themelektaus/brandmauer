@@ -168,12 +168,17 @@ public class ShareMiddleware(RequestDelegate next)
                 var ext = info.Extension.TrimStart('.');
                 var iconUrl = $"icon?file-extension={ext}";
 
-                var name = share.Files[i].Value;
-                var tooltip = $"<div>{name}</div>" +
-                    $"<div><b>{info.Length.ToHumanizedSize()}</b></div>";
-                name = Path.GetFileNameWithoutExtension(name).Replace('_', ' ');
+                var fileName = share.Files[i].Value;
+                var size = info.Exists ? info.Length.ToHumanizedSize() : "-";
+                var tooltip = WebUtility.HtmlEncode(
+                    $"<div>{WebUtility.HtmlEncode(fileName)}</div>" +
+                    $"<div><b>{size}</b></div>"
+                );
+                var name = WebUtility.HtmlEncode(
+                    Path.GetFileNameWithoutExtension(fileName).Replace('_', ' ')
+                );
 
-                var url = GetFileDownloadLink(share, i);
+                var url = WebUtility.HtmlEncode(GetFileDownloadLink(share, i));
 
                 fileListHtml.AppendLine(
                     $" <div>                                               " +
@@ -213,7 +218,7 @@ public class ShareMiddleware(RequestDelegate next)
                         "create-another-share-display",
                         createAnotherShareDisplay ? "inherit" : "none"
                     },
-                    { "text", share.Text },
+                    { "text", WebUtility.HtmlEncode(share.Text) },
                     { "file-list", fileListHtml.ToString() },
                     { "content", "<!--segment: share-->" }
                 }
