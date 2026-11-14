@@ -15,6 +15,7 @@ public class WhitelistMiddleware(RequestDelegate next)
     const int _208_ALREADY_REPORTED = 208;
     const int _401_UNAUTHORIZED = 401;
     const int _403_FORBIDDEN = 403;
+    const int _404_NOT_FOUND = 404;
 
     public class PendingRequest
     {
@@ -183,15 +184,28 @@ public class WhitelistMiddleware(RequestDelegate next)
             {
                 reverseProxyRouteId = pendingRequest.ReverseProxyRouteId;
 
-                Database.Use(x =>
+                var added = Database.Use(x =>
                 {
                     var route = x.ReverseProxyRoutes.FirstOrDefault(
                         y => y.Identifier.Id == reverseProxyRouteId
                     );
+
+                    // The route may have been deleted since the request.
+                    if (route is null)
+                        return false;
+
                     route.Whitelist.Add(
                         new() { Value = pendingRequest.IpAddress }
                     );
+                    x.Save(logging: true);
+                    return true;
                 });
+
+                if (!added)
+                {
+                    context.Response.StatusCode = _404_NOT_FOUND;
+                    goto Exit;
+                }
             }
 
             context.Response.StatusCode = _202_ACCEPTED;
@@ -316,6 +330,9 @@ public class WhitelistMiddleware(RequestDelegate next)
                     y => y.Identifier.Id == request.ReverseProxyRouteId
                 )
             );
+
+            if (route is null)
+                return new() { notFound = true };
 
             return new()
             {
