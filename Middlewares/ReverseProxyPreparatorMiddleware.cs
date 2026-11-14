@@ -93,13 +93,6 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
 
         var checkUnknownSourceHosts = true;
 
-        if (path == "/api/time")
-        {
-            authorized = true;
-            unauthorized = false;
-            goto Accept;
-        }
-
         // Pages of Brandmauer itself are only answered on routes that do not
         // pass the request on; otherwise the route's own checks apply.
         var passesOn = source.route.Target.Trim('/') != string.Empty
@@ -108,6 +101,12 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
         if (authorized && passesOn)
         {
             authorized = false;
+            unauthorized = false;
+        }
+
+        if (!passesOn && path == "/api/time")
+        {
+            authorized = true;
             unauthorized = false;
         }
 
@@ -146,7 +145,7 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
                 }
             }
 
-            if (Utils.IsPublicPath(path))
+            if (!passesOn && Utils.IsPublicPath(path))
             {
                 goto Accept;
             }

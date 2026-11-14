@@ -109,6 +109,10 @@ public class ShareMiddleware(RequestDelegate next)
     [Frontend]
     static FrontendResult GetFrontend(HttpContext context)
     {
+        var permission = context.Features.Get<PermissionFeature>();
+        if (permission is { Authorized: false })
+            return default;
+
         var request = context.Request;
         var path = request.Path.ToString();
 
