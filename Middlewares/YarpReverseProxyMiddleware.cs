@@ -1,7 +1,5 @@
 ﻿using System.Collections.Concurrent;
 
-using Microsoft.AspNetCore.Http.Extensions;
-
 using Yarp.ReverseProxy.Forwarder;
 
 namespace Brandmauer;
@@ -19,6 +17,8 @@ public class YarpReverseProxyMiddleware(
     static readonly ConcurrentDictionary<int, Lazy<Client>> clientCache = new();
 
     protected override RequestDelegate Next => next;
+
+    protected override string AuditType => "Proxy (YARP)";
 
     protected override async Task OnPassAsync(HttpContext context)
     {
@@ -70,21 +70,17 @@ public class YarpReverseProxyMiddleware(
 
             if (!upgradeCanceled && canceled)
             {
-                Console.WriteLine(
-                    $"[CANCELED] {error} {context.Request.Method} " +
-                    $"{context.Request.GetDisplayUrl()} {path}"
-                );
+                AuditCanceled(context, error.ToString());
             }
             else if (!upgradeCanceled)
             {
-                Console.WriteLine(
-                    $"[ERROR] {error} {context.Request.Method} " +
-                    $"{context.Request.GetDisplayUrl()} {path} " +
+                var errorFeature = context.GetForwarderErrorFeature();
+                AuditError(
+                    context,
+                    $"Upstream request failed ({error}):",
+                    errorFeature?.Exception,
                     $"Status Code: {response.StatusCode}"
                 );
-
-                var errorFeature = context.GetForwarderErrorFeature();
-                Console.WriteLine(errorFeature.Exception);
             }
 
             await NextAsync(context);

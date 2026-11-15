@@ -11,6 +11,8 @@ public class CustomReverseProxyMiddleware(RequestDelegate next)
 
     protected override RequestDelegate Next => next;
 
+    protected override string AuditType => "Proxy";
+
     protected override async Task OnPassAsync(HttpContext context)
     {
         var feature = context.Features.Get<ReverseProxyFeature>();
@@ -135,25 +137,9 @@ public class CustomReverseProxyMiddleware(RequestDelegate next)
         catch (Exception ex)
         {
             if (context.RequestAborted.IsCancellationRequested)
-            {
-                Console.WriteLine(
-                    $"[CANCELED] {ex.GetType().Name} {context.Request.Method} " +
-                    $"{context.Request.GetDisplayUrl()}"
-                );
-            }
+                AuditCanceled(context, ex.GetType().Name);
             else
-            {
-                try
-                {
-                    Console.WriteLine(ex.ToJson());
-                }
-                catch
-                {
-                    Console.WriteLine(ex.ToString());
-                }
-
-                Console.WriteLine();
-            }
+                AuditError(context, "Upstream request failed:", ex);
 
             if (ex is HttpRequestException _ex)
                 if (_ex.HttpRequestError == HttpRequestError.ConnectionError)
