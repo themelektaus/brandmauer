@@ -183,7 +183,8 @@ public class ShellCommand
         using var scp = new ScpClient(
             remoteOptions.Host,
             remoteOptions.Username,
-            remoteOptions.Password
+            remoteOptions.Password,
+            RemotePathTransformation.ShellQuote
         );
 
         try
