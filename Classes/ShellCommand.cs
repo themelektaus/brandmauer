@@ -36,7 +36,7 @@ public class ShellCommand
                     return Results.Text(StdOut);
 
                 if (output == "stderr")
-                    return Results.Text(StdOut);
+                    return Results.Text(StdErr);
 
                 if (output == "data")
                     return Results.Json(Data);
