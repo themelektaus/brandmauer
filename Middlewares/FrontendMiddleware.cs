@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.StaticFiles;
 
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -55,10 +56,7 @@ public class FrontendMiddleware
             {
                 if (path.EndsWith(".scss"))
                 {
-                    static string OnLoadContent(string x)
-                        => SassCompiler.Compile(x).CompiledContent;
-
-                    await LoadAsync(context, "text/css", path, OnLoadContent);
+                    await SendStyleAsync(context, path);
                 }
                 else
                 {
@@ -103,18 +101,32 @@ public class FrontendMiddleware
         Utils.LogEnd<FrontendMiddleware>(context);
     }
 
-    static async Task LoadAsync(
-        HttpContext context,
-        string contentType,
-        string path,
-        Func<string, string> onLoadContent = null
-    )
-    {
-        var content = await GetWwwRootFileContentAsync(path);
-        if (onLoadContent is not null)
-            content = onLoadContent(content);
+    // Compiled styles per file, keyed by path; an entry is valid as long as
+    // the file's write time and length match, so an edited or updated file
+    // (e.g. by /api/update/wwwroot) is compiled again on its next request.
+    record CompiledStyle(DateTime LastWriteTimeUtc, long Length, string Css);
 
-        await SetAsync(context, contentType, content);
+    static readonly ConcurrentDictionary<string, CompiledStyle> compiledStyles
+        = new(StringComparer.OrdinalIgnoreCase);
+
+    static async Task SendStyleAsync(HttpContext context, string path)
+    {
+        var file = new FileInfo(GetWwwRootFile(path));
+        if (!file.Exists)
+            throw new FileNotFoundException(null, file.FullName);
+
+        var key = file.FullName;
+        if (!compiledStyles.TryGetValue(key, out var style)
+            || style.LastWriteTimeUtc != file.LastWriteTimeUtc
+            || style.Length != file.Length)
+        {
+            var content = await File.ReadAllTextAsync(file.FullName);
+            var css = SassCompiler.Compile(content).CompiledContent;
+            style = new(file.LastWriteTimeUtc, file.Length, css);
+            compiledStyles[key] = style;
+        }
+
+        await SetAsync(context, "text/css", style.Css);
     }
 
     static async Task SetAsync(
