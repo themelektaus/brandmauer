@@ -18,11 +18,13 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="$(Configuration) == 'Linux'">
-        <DefineConstants>LINUX</DefineConstants>
+        <DefineConstants>$(DefineConstants);LINUX;RELEASE</DefineConstants>
+        <Optimize>true</Optimize>
     </PropertyGroup>
 
     <PropertyGroup Condition="$(Configuration) == 'Windows'">
-        <DefineConstants>WINDOWS</DefineConstants>
+        <DefineConstants>$(DefineConstants);WINDOWS;RELEASE</DefineConstants>
+        <Optimize>true</Optimize>
     </PropertyGroup>
 
     <Target Condition="$(Configuration) == 'Linux'" Name="PostPublish-Linux" AfterTargets="AfterPublish">
