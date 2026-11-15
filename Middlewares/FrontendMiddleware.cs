@@ -91,7 +91,7 @@ public class FrontendMiddleware
             }
 
         NotFound:
-            if (!path.StartsWith("/api"))
+            if (!path.StartsWith("/api") && context.GetEndpoint() is null)
                 response.StatusCode = 404;
         }
 

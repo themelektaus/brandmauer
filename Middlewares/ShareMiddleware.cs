@@ -7,7 +7,7 @@ namespace Brandmauer;
 
 public class ShareMiddleware(RequestDelegate next)
 {
-    static readonly string[] PATHS = [ "/share", "/-" ];
+    public static readonly string[] PATHS = [ "/share", "/-" ];
 
     public async Task Invoke(HttpContext context)
     {
@@ -17,34 +17,18 @@ public class ShareMiddleware(RequestDelegate next)
         var path = request.Path.ToString();
         var response = context.Response;
 
-        if (PATHS.Contains(path) && request.Method == "POST")
-        {
-            var (statusCode, token) = Upload(request);
-            if (statusCode == 200)
-            {
-                await response.Body.LoadFromAsync(token);
-                goto Exit;
-            }
-
-            if (statusCode == 400)
-            {
-                response.StatusCode = 400;
-                goto Exit;
-            }
-
-            goto Next;
-        }
-
         var contextParameters = new ContextParameters(in PATHS, path);
         var _fileIndex = contextParameters.fileIndex;
         var _token = contextParameters.token;
         var _password = contextParameters.password;
 
+        // Viewing a share by its link needs no login. Creating one (upload
+        // page and POST, see UploadAsync) passes the checks of the route.
         var isSharePage = _token is not null
             && !_fileIndex.HasValue
             && FindShare(_token) is not null;
 
-        if (IsUploadPage(path) || isSharePage)
+        if (isSharePage)
         {
             context.Features.Set(new PermissionFeature { Authorized = true });
         }
@@ -121,7 +105,7 @@ public class ShareMiddleware(RequestDelegate next)
         var _token = contextParameters.token;
         var _password = contextParameters.password;
 
-        if (IsUploadPage(path))
+        if (IsUploadPage(path) && !HttpMethods.IsPost(request.Method))
         {
             return new()
             {
@@ -267,18 +251,22 @@ public class ShareMiddleware(RequestDelegate next)
         return url;
     }
 
-    static (int statusCode, string token) Upload(HttpRequest request)
+    // Mapped as endpoint (POST /share, POST /-), so it runs only after the
+    // checks of the route, like the API.
+    public static async Task<IResult> UploadAsync(HttpRequest request)
     {
         if (!request.HasFormContentType)
-            return (400, null);
+            return Results.BadRequest();
 
-        if (!request.Form.TryGetValue("text", out var text))
+        var form = await request.ReadFormAsync();
+
+        if (!form.TryGetValue("text", out var text))
             text = string.Empty;
 
-        var formFiles = request.Form.Files;
+        var formFiles = form.Files;
 
         if (text == string.Empty && formFiles.Count == 0)
-            return (400, null);
+            return Results.BadRequest();
 
         var share = Database.Use(x =>
         {
@@ -286,8 +274,6 @@ public class ShareMiddleware(RequestDelegate next)
             x.Shares.Add(newData);
             return newData;
         });
-
-        var form = request.Form;
 
         share.Text = text;
         share.Lifetime = form.TryGetValue("lifetime", out var lifetime)
@@ -306,12 +292,12 @@ public class ShareMiddleware(RequestDelegate next)
 
             using var stream = formFile.OpenReadStream();
             using var fileStream = File.Create(path);
-            stream.CopyTo(fileStream);
+            await stream.CopyToAsync(fileStream);
 
             share.Files.Add(file);
         }
 
-        return (200, GetFileDownloadLink(share, null));
+        return Results.Text(GetFileDownloadLink(share, null));
     }
 
     public class ContextParameters

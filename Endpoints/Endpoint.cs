@@ -185,6 +185,9 @@ public static partial class Endpoint
         app.MapPut($"{API}/shares", Shares.Put);
         app.MapDelete($"{API}/shares/{{id}}", Shares.Delete);
 
+        foreach (var path in ShareMiddleware.PATHS)
+            app.MapPost(path, ShareMiddleware.UploadAsync);
+
         app.MapGet($"{API}/resolve"/*?host={{host}}*/, Resolve);
         app.MapGet($"{API}/whatsmyip", WhatsMyIp);
         app.MapGet($"{API}/time", Time);
