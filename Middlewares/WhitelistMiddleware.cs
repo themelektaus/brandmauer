@@ -15,6 +15,7 @@ public class WhitelistMiddleware(RequestDelegate next)
     const int _208_ALREADY_REPORTED = 208;
     const int _401_UNAUTHORIZED = 401;
     const int _403_FORBIDDEN = 403;
+    const int _404_NOT_FOUND = 404;
 
     public class PendingRequest
     {
@@ -34,27 +35,66 @@ public class WhitelistMiddleware(RequestDelegate next)
         }
     }
     static readonly List<PendingRequest> pendingRequests = new();
+    static readonly object pendingRequestsHandle = new();
 
-    static void CleanupExpiredPendingRequests()
+    // Adds the request unless one for the same route and IP is pending.
+    static bool TryAddPendingRequest(PendingRequest pendingRequest)
     {
         var cutoff = DateTime.Now.AddHours(-24);
-        pendingRequests.RemoveAll(x => x.Timestamp < cutoff);
+
+        lock (pendingRequestsHandle)
+        {
+            pendingRequests.RemoveAll(x => x.Timestamp < cutoff);
+
+            if (
+                pendingRequests.Any(
+                    x => x.ReverseProxyRouteId
+                            == pendingRequest.ReverseProxyRouteId
+                        && x.IpAddress == pendingRequest.IpAddress
+                )
+            )
+            {
+                return false;
+            }
+
+            pendingRequests.Add(pendingRequest);
+            return true;
+        }
+    }
+
+    // Removes and returns the request, so that only one caller gets it.
+    static PendingRequest TakePendingRequest(string token)
+    {
+        lock (pendingRequestsHandle)
+        {
+            var pendingRequest = pendingRequests
+                .FirstOrDefault(x => x.Token == token);
+
+            if (pendingRequest is not null)
+                pendingRequests.Remove(pendingRequest);
+
+            return pendingRequest;
+        }
     }
 
     public static List<PendingRequest> GetPendingRequests()
     {
-        return pendingRequests.ToList();
+        lock (pendingRequestsHandle)
+            return pendingRequests.ToList();
     }
 
     public static IResult ClearPendingRequests()
     {
-        pendingRequests.Clear();
+        lock (pendingRequestsHandle)
+            pendingRequests.Clear();
+
         return Results.Ok();
     }
 
     static PendingRequest GetPendingRequest(string token)
     {
-        return pendingRequests.FirstOrDefault(x => x.Token == token);
+        lock (pendingRequestsHandle)
+            return pendingRequests.FirstOrDefault(x => x.Token == token);
     }
 
     static PendingRequest GetPendingRequest(
@@ -62,10 +102,13 @@ public class WhitelistMiddleware(RequestDelegate next)
         string ipAddress
     )
     {
-        return pendingRequests.FirstOrDefault(
-            x => x.ReverseProxyRouteId == reverseProxyRouteId
-              && x.IpAddress == ipAddress
-        );
+        lock (pendingRequestsHandle)
+        {
+            return pendingRequests.FirstOrDefault(
+                x => x.ReverseProxyRouteId == reverseProxyRouteId
+                  && x.IpAddress == ipAddress
+            );
+        }
     }
 
     static int GetRequestStatus(
@@ -105,9 +148,17 @@ public class WhitelistMiddleware(RequestDelegate next)
         var request = context.Request;
         var hasCorrectPath = request.Path == "/whitelist";
 
-        if (hasCorrectPath && request.Query.TryGetValue("token", out _))
+        if (
+            hasCorrectPath &&
+            request.Query.TryGetValue("token", out var queryToken)
+        )
         {
-            context.Features.Set(new PermissionFeature { Authorized = true });
+            if (GetPendingRequest(queryToken) is not null)
+            {
+                context.Features.Set(
+                    new PermissionFeature { Authorized = true }
+                );
+            }
             goto Next;
         }
 
@@ -121,8 +172,7 @@ public class WhitelistMiddleware(RequestDelegate next)
             headers.TryGetValue(ActionKey, out var action)
         )
         {
-            var pendingRequest = pendingRequests
-                .FirstOrDefault(x => x.Token == token);
+            var pendingRequest = TakePendingRequest(token);
 
             if (pendingRequest is null)
             {
@@ -130,21 +180,32 @@ public class WhitelistMiddleware(RequestDelegate next)
                 goto Exit;
             }
 
-            pendingRequests.Remove(pendingRequest);
-
             if (action == "accept")
             {
                 reverseProxyRouteId = pendingRequest.ReverseProxyRouteId;
 
-                Database.Use(x =>
+                var added = Database.Use(x =>
                 {
                     var route = x.ReverseProxyRoutes.FirstOrDefault(
                         y => y.Identifier.Id == reverseProxyRouteId
                     );
+
+                    // The route may have been deleted since the request.
+                    if (route is null)
+                        return false;
+
                     route.Whitelist.Add(
                         new() { Value = pendingRequest.IpAddress }
                     );
+                    x.Save(logging: true);
+                    return true;
                 });
+
+                if (!added)
+                {
+                    context.Response.StatusCode = _404_NOT_FOUND;
+                    goto Exit;
+                }
             }
 
             context.Response.StatusCode = _202_ACCEPTED;
@@ -159,12 +220,7 @@ public class WhitelistMiddleware(RequestDelegate next)
         {
             var ipAddress = context.Connection.RemoteIpAddress.ToIp();
 
-            if (
-                pendingRequests.Any(
-                    x => x.IpAddress == ipAddress
-                        && x.ReverseProxyRouteId == reverseProxyRouteId
-                )
-            )
+            if (GetPendingRequest(reverseProxyRouteId, ipAddress) is not null)
             {
                 context.Response.StatusCode = _208_ALREADY_REPORTED;
             }
@@ -224,9 +280,10 @@ public class WhitelistMiddleware(RequestDelegate next)
                 }
 
             SkipMail:
-                CleanupExpiredPendingRequests();
-                pendingRequests.Add(pendingRequest);
-                context.Response.StatusCode = _201_CREATED;
+                context.Response.StatusCode
+                    = TryAddPendingRequest(pendingRequest)
+                        ? _201_CREATED
+                        : _208_ALREADY_REPORTED;
             }
 
             goto Exit;
@@ -273,6 +330,9 @@ public class WhitelistMiddleware(RequestDelegate next)
                     y => y.Identifier.Id == request.ReverseProxyRouteId
                 )
             );
+
+            if (route is null)
+                return new() { notFound = true };
 
             return new()
             {

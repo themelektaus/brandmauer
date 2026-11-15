@@ -7,7 +7,7 @@ namespace Brandmauer;
 
 public class ShareMiddleware(RequestDelegate next)
 {
-    static readonly string[] PATHS = [ "/share", "/-" ];
+    public static readonly string[] PATHS = [ "/share", "/-" ];
 
     public async Task Invoke(HttpContext context)
     {
@@ -15,34 +15,23 @@ public class ShareMiddleware(RequestDelegate next)
 
         var request = context.Request;
         var path = request.Path.ToString();
-
-        if (PATHS.Any(path.StartsWith))
-            context.Features.Set(new PermissionFeature { Authorized = true });
-
         var response = context.Response;
-
-        if (PATHS.Contains(path) && request.Method == "POST")
-        {
-            var (statusCode, token) = Upload(request);
-            if (statusCode == 200)
-            {
-                await response.Body.LoadFromAsync(token);
-                goto Exit;
-            }
-
-            if (statusCode == 400)
-            {
-                response.StatusCode = 400;
-                goto Exit;
-            }
-
-            goto Next;
-        }
 
         var contextParameters = new ContextParameters(in PATHS, path);
         var _fileIndex = contextParameters.fileIndex;
         var _token = contextParameters.token;
         var _password = contextParameters.password;
+
+        // Viewing a share by its link needs no login. Creating one (upload
+        // page and POST, see UploadAsync) passes the checks of the route.
+        var isSharePage = _token is not null
+            && !_fileIndex.HasValue
+            && FindShare(_token) is not null;
+
+        if (isSharePage)
+        {
+            context.Features.Set(new PermissionFeature { Authorized = true });
+        }
 
         if (_fileIndex.HasValue)
         {
@@ -104,6 +93,10 @@ public class ShareMiddleware(RequestDelegate next)
     [Frontend]
     static FrontendResult GetFrontend(HttpContext context)
     {
+        var permission = context.Features.Get<PermissionFeature>();
+        if (permission is { Authorized: false })
+            return default;
+
         var request = context.Request;
         var path = request.Path.ToString();
 
@@ -112,7 +105,7 @@ public class ShareMiddleware(RequestDelegate next)
         var _token = contextParameters.token;
         var _password = contextParameters.password;
 
-        if (PATHS.Any(x => x == path.TrimEnd('/')))
+        if (IsUploadPage(path) && !HttpMethods.IsPost(request.Method))
         {
             return new()
             {
@@ -130,17 +123,8 @@ public class ShareMiddleware(RequestDelegate next)
 
         if (_token is not null && !_fileIndex.HasValue)
         {
-            var share = Database.Use(
-                x => x.Shares.FirstOrDefault(
-                    y => y.Token == _token
-                )
-            );
-
+            var share = FindShare(_token);
             if (share is null)
-                return default;
-
-            share.OnDeserialize();
-            if (share.Lifetime > 0 && share.expiresIn.HasExpired())
                 return default;
 
             if (share.Password != _password)
@@ -168,12 +152,17 @@ public class ShareMiddleware(RequestDelegate next)
                 var ext = info.Extension.TrimStart('.');
                 var iconUrl = $"icon?file-extension={ext}";
 
-                var name = share.Files[i].Value;
-                var tooltip = $"<div>{name}</div>" +
-                    $"<div><b>{info.Length.ToHumanizedSize()}</b></div>";
-                name = Path.GetFileNameWithoutExtension(name).Replace('_', ' ');
+                var fileName = share.Files[i].Value;
+                var size = info.Exists ? info.Length.ToHumanizedSize() : "-";
+                var tooltip = WebUtility.HtmlEncode(
+                    $"<div>{WebUtility.HtmlEncode(fileName)}</div>" +
+                    $"<div><b>{size}</b></div>"
+                );
+                var name = WebUtility.HtmlEncode(
+                    Path.GetFileNameWithoutExtension(fileName).Replace('_', ' ')
+                );
 
-                var url = GetFileDownloadLink(share, i);
+                var url = WebUtility.HtmlEncode(GetFileDownloadLink(share, i));
 
                 fileListHtml.AppendLine(
                     $" <div>                                               " +
@@ -213,7 +202,7 @@ public class ShareMiddleware(RequestDelegate next)
                         "create-another-share-display",
                         createAnotherShareDisplay ? "inherit" : "none"
                     },
-                    { "text", share.Text },
+                    { "text", WebUtility.HtmlEncode(share.Text) },
                     { "file-list", fileListHtml.ToString() },
                     { "content", "<!--segment: share-->" }
                 }
@@ -221,6 +210,29 @@ public class ShareMiddleware(RequestDelegate next)
         }
 
         return default;
+    }
+
+    static bool IsUploadPage(string path)
+    {
+        return PATHS.Any(x => x == path.TrimEnd('/'));
+    }
+
+    static Share FindShare(string token)
+    {
+        var share = Database.Use(
+            x => x.Shares.FirstOrDefault(
+                y => y.Token == token
+            )
+        );
+
+        if (share is null)
+            return null;
+
+        share.OnDeserialize();
+        if (share.Lifetime > 0 && share.expiresIn.HasExpired())
+            return null;
+
+        return share;
     }
 
     static string GetFileDownloadLink(Share share, int? i)
@@ -239,18 +251,22 @@ public class ShareMiddleware(RequestDelegate next)
         return url;
     }
 
-    static (int statusCode, string token) Upload(HttpRequest request)
+    // Mapped as endpoint (POST /share, POST /-), so it runs only after the
+    // checks of the route, like the API.
+    public static async Task<IResult> UploadAsync(HttpRequest request)
     {
         if (!request.HasFormContentType)
-            return (400, null);
+            return Results.BadRequest();
 
-        if (!request.Form.TryGetValue("text", out var text))
+        var form = await request.ReadFormAsync();
+
+        if (!form.TryGetValue("text", out var text))
             text = string.Empty;
 
-        var formFiles = request.Form.Files;
+        var formFiles = form.Files;
 
         if (text == string.Empty && formFiles.Count == 0)
-            return (400, null);
+            return Results.BadRequest();
 
         var share = Database.Use(x =>
         {
@@ -258,8 +274,6 @@ public class ShareMiddleware(RequestDelegate next)
             x.Shares.Add(newData);
             return newData;
         });
-
-        var form = request.Form;
 
         share.Text = text;
         share.Lifetime = form.TryGetValue("lifetime", out var lifetime)
@@ -278,12 +292,12 @@ public class ShareMiddleware(RequestDelegate next)
 
             using var stream = formFile.OpenReadStream();
             using var fileStream = File.Create(path);
-            stream.CopyTo(fileStream);
+            await stream.CopyToAsync(fileStream);
 
             share.Files.Add(file);
         }
 
-        return (200, GetFileDownloadLink(share, null));
+        return Results.Text(GetFileDownloadLink(share, null));
     }
 
     public class ContextParameters
@@ -301,7 +315,7 @@ public class ShareMiddleware(RequestDelegate next)
                 if (!path.StartsWith(subPath))
                     continue;
 
-                var tokenLength = Utils.DEFAULT_TOKEN_LENGTH;
+                var tokenLength = Share.TOKEN_LENGTH;
                 var length = subPath.Length + tokenLength;
 
                 if (path.Length < length)

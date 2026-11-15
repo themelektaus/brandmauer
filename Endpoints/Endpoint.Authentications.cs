@@ -58,8 +58,11 @@ public static partial class Endpoint
             {
                 x.Authentications.RemoveAll(x =>
                 {
+                    if (x.Identifier.Id != id)
+                        return false;
+
                     x.Dispose();
-                    return x.Identifier.Id == id;
+                    return true;
                 });
                 x.Save(logging: true);
             });

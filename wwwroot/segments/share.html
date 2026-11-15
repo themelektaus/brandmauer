@@ -260,7 +260,13 @@
                 
                 if (response.ok)
                 {
-                    location.href = await response.text()
+                    // Anything but the link is a page of the route's checks,
+                    // e.g. the login after the session expired
+                    const type = response.headers.get(`content-type`) ?? ``
+                    if (type.startsWith(`text/plain`))
+                        location.href = await response.text()
+                    else
+                        location.reload()
                     return true
                 }
                 

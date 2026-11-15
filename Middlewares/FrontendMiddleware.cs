@@ -91,7 +91,9 @@ public class FrontendMiddleware
             }
 
         NotFound:
-            if (!path.StartsWith("/api"))
+            // Only a mapped endpoint (e.g. POST /share) answers later; the
+            // 405 endpoint of the routing is no RouteEndpoint.
+            if (!path.StartsWith("/api") && context.GetEndpoint() is not RouteEndpoint)
                 response.StatusCode = 404;
         }
 

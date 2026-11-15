@@ -164,23 +164,37 @@ public static class CertificateUtils
         List<IAuthorizationContext> authContexts
     )
     {
-        foreach (var authContext in authContexts)
+        var tokens = new List<string>();
+
+        try
         {
-            var challengeContext = await authContext.Http();
+            foreach (var authContext in authContexts)
+            {
+                var challengeContext = await authContext.Http();
 
-            var token = challengeContext.Token;
-            Audit.Info("ACME", $"Token: {token}");
+                var token = challengeContext.Token;
+                Audit.Info("ACME", $"Token: {token}");
 
-            var keyAuthz = challengeContext.KeyAuthz;
-            Audit.Info("ACME", $"KeyAuthz: {keyAuthz}");
+                var keyAuthz = challengeContext.KeyAuthz;
+                Audit.Info("ACME", $"KeyAuthz: {keyAuthz}");
 
-            acmeChallenges.Use(x => x.Add(token, keyAuthz));
+                tokens.Add(token);
+                acmeChallenges.Use(x => x[token] = keyAuthz);
 
-            if (!await WaitForChallengeAsync(challengeContext))
-                return false;
+                if (!await WaitForChallengeAsync(challengeContext))
+                    return false;
+            }
+
+            return true;
         }
-
-        return true;
+        finally
+        {
+            acmeChallenges.Use(x =>
+            {
+                foreach (var token in tokens)
+                    x.Remove(token);
+            });
+        }
     }
 
     static async Task<bool> ValidateDnsAsync(

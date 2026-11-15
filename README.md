@@ -132,7 +132,8 @@ Optimized for different deployment scenarios:
 **Security and Certificates**
 - **Certes 4.1.0**: ACME protocol client for Let's Encrypt
 - **Portable.BouncyCastle 1.9.0**: Cryptographic operations
-- **System.Formats.Asn1 10.0.12**: ASN.1 encoding for certificates
+- **System.Formats.Asn1**: ASN.1 encoding for certificates (part of the .NET 10 framework)
+- **System.Security.Cryptography.Pkcs 10.0.15**: referenced directly to lift the vulnerable 10.0.0 that MailKit/MimeKit and Microsoft.Data.SqlClient bring in
 - **Otp.NET 1.4.1**: TOTP two-factor authentication
 - **QRCoder 1.8.0**: QR code generation for 2FA setup
 

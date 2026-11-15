@@ -1,7 +1,5 @@
 ﻿using System.Collections.Concurrent;
 
-using Microsoft.AspNetCore.Http.Extensions;
-
 using Yarp.ReverseProxy.Forwarder;
 
 namespace Brandmauer;
@@ -19,6 +17,8 @@ public class YarpReverseProxyMiddleware(
     static readonly ConcurrentDictionary<int, Lazy<Client>> clientCache = new();
 
     protected override RequestDelegate Next => next;
+
+    protected override string AuditType => "Proxy (YARP)";
 
     protected override async Task OnPassAsync(HttpContext context)
     {
@@ -70,21 +70,17 @@ public class YarpReverseProxyMiddleware(
 
             if (!upgradeCanceled && canceled)
             {
-                Console.WriteLine(
-                    $"[CANCELED] {error} {context.Request.Method} " +
-                    $"{context.Request.GetDisplayUrl()} {path}"
-                );
+                AuditCanceled(context, error.ToString());
             }
             else if (!upgradeCanceled)
             {
-                Console.WriteLine(
-                    $"[ERROR] {error} {context.Request.Method} " +
-                    $"{context.Request.GetDisplayUrl()} {path} " +
+                var errorFeature = context.GetForwarderErrorFeature();
+                AuditError(
+                    context,
+                    $"Upstream request failed ({error}):",
+                    errorFeature?.Exception,
                     $"Status Code: {response.StatusCode}"
                 );
-
-                var errorFeature = context.GetForwarderErrorFeature();
-                Console.WriteLine(errorFeature.Exception);
             }
 
             await NextAsync(context);
@@ -113,16 +109,10 @@ public class YarpReverseProxyMiddleware(
                 cancellationToken
             );
 
-            var ip = httpContext.Connection.RemoteIpAddress.ToIp();
-            var scheme = httpContext.Request.Scheme;
-
             var headers = proxyRequest.Headers;
-            headers.TryAddWithoutValidation("X-Real-IP", ip);
-            headers.TryAddWithoutValidation("X-Forwarded-For", ip);
-            headers.TryAddWithoutValidation("X-Forwarded-Proto", scheme);
+            SetForwardedHeaders(httpContext, headers);
 
             var feature = httpContext.Features.Get<ReverseProxyFeature>();
-            headers.TryAddWithoutValidation("X-Source", feature.Source);
 
             switch (feature.Route.HostModification)
             {

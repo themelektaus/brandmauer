@@ -31,8 +31,11 @@ class AuditPage extends Page
         
         const $status = this.$.qAll(`[data-object="selected"] [data-bind="status"]`)
         
+        const statuses = []
+
         for (const $ of $status)
         {
+            statuses.push(+$.innerText)
             $.parentNode.setClass(`info`, true)
             $.innerHTML = `<i class="fas fa-circle-info"></i>`
         }
@@ -61,18 +64,18 @@ class AuditPage extends Page
         
         await delay(1)
         
-        for (const $ of $status)
+        for (const [i, $] of $status.entries())
         {
-            const status = +$.innerText
-            
-            switch (status)
+            switch (statuses[i])
             {
                 case 1:
+                    $.parentNode.setClass(`info`, false)
                     $.parentNode.setClass(`warning`, true)
                     $.innerHTML = `<i class="fas fa-triangle-exclamation"></i>`
                     break
                     
                 case 2:
+                    $.parentNode.setClass(`info`, false)
                     $.parentNode.setClass(`error`, true)
                     $.innerHTML = `<i class="fas fa-circle-exclamation"></i>`
                     break

@@ -11,6 +11,8 @@ public class CustomReverseProxyMiddleware(RequestDelegate next)
 
     protected override RequestDelegate Next => next;
 
+    protected override string AuditType => "Proxy";
+
     protected override async Task OnPassAsync(HttpContext context)
     {
         var feature = context.Features.Get<ReverseProxyFeature>();
@@ -46,14 +48,7 @@ public class CustomReverseProxyMiddleware(RequestDelegate next)
             }
         }
 
-        var ip = context.Connection.RemoteIpAddress.ToIp();
-        var scheme = context.Request.Scheme;
-
-        request.Headers.TryAddWithoutValidation("X-Real-IP", ip);
-        request.Headers.TryAddWithoutValidation("X-Forwarded-For", ip);
-        request.Headers.TryAddWithoutValidation("X-Forwarded-Proto", scheme);
-
-        request.Headers.TryAddWithoutValidation("X-Source", feature.Source);
+        SetForwardedHeaders(context, request.Headers);
 
         switch (feature.Route.HostModification)
         {
@@ -142,25 +137,9 @@ public class CustomReverseProxyMiddleware(RequestDelegate next)
         catch (Exception ex)
         {
             if (context.RequestAborted.IsCancellationRequested)
-            {
-                Console.WriteLine(
-                    $"[CANCELED] {ex.GetType().Name} {context.Request.Method} " +
-                    $"{context.Request.GetDisplayUrl()}"
-                );
-            }
+                AuditCanceled(context, ex.GetType().Name);
             else
-            {
-                try
-                {
-                    Console.WriteLine(ex.ToJson());
-                }
-                catch
-                {
-                    Console.WriteLine(ex.ToString());
-                }
-
-                Console.WriteLine();
-            }
+                AuditError(context, "Upstream request failed:", ex);
 
             if (ex is HttpRequestException _ex)
                 if (_ex.HttpRequestError == HttpRequestError.ConnectionError)

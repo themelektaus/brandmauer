@@ -65,7 +65,7 @@ Middlewares are executed in this specific order:
 **Endpoint System** (`Endpoints/Endpoint.cs`)
 - RESTful API endpoints mapped via `Endpoint.MapAll()`
 - Endpoints are split across multiple partial classes by feature area
-- All API routes use `/api` prefix
+- All API routes use `/api` prefix; the only other endpoints are the share upload (`POST /share`, `POST /-`), mapped as endpoints so that they run behind the route's checks
 - Platform-specific endpoints controlled via `#if LINUX` / `#if DEBUG` directives
 
 **Background Tasks** (`Tasks/IntervalTask.cs`)

@@ -38,6 +38,12 @@
                 font-size: .85em;
                 line-height: 1.25;
             }
+
+            *:nth-child(3) {
+                min-width: 0;
+                overflow-wrap: anywhere;
+                padding-right: .5rem;
+            }
         }
     }
     

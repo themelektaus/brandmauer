@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Text;
 
 namespace Brandmauer;
 
@@ -6,7 +7,11 @@ public class Share : Model, IOnDeserialize
 {
     static readonly string FILES_FOLDER = Path.Combine("Data", "Shared Files");
 
-    public string Token { get; set; } = Utils.GenerateToken();
+    // Share links carry the token at a fixed length (see
+    // ShareMiddleware.ContextParameters); existing links rely on it.
+    public const int TOKEN_LENGTH = 64;
+
+    public string Token { get; set; } = Utils.GenerateToken(TOKEN_LENGTH);
     public string Text { get; set; } = string.Empty;
     public List<StringValue> Files { get; set; } = new();
     public int Lifetime { get; set; }
@@ -27,7 +32,9 @@ public class Share : Model, IOnDeserialize
                     builder.AppendBadge("share", "name", "Name", Name);
 
                 foreach (var file in Files)
-                    builder.AppendBadge("share", "file", file.Value, null);
+                    builder.AppendBadge(
+                        "share", "file", WebUtility.HtmlEncode(file.Value), null
+                    );
             }
             builder.EndBadges();
 
@@ -81,8 +88,28 @@ public class Share : Model, IOnDeserialize
         Directory.CreateDirectory(FILES_FOLDER);
         return Path.Combine(
             FILES_FOLDER,
-            $"{Identifier.Id:000000}-{number:000000}-{fileName}"
+            $"{Identifier.Id:000000}-{number:000000}-{ToLocalFileName(fileName)}"
         );
+    }
+
+    static readonly char[] invalidFileNameChars =
+    [
+        .. Path.GetInvalidFileNameChars(),
+        '/', '\\', ':', '*', '?', '"', '<', '>', '|'
+    ];
+
+    static string ToLocalFileName(string fileName)
+    {
+        fileName = (fileName ?? string.Empty).Replace('\\', '/');
+        fileName = fileName[(fileName.LastIndexOf('/') + 1)..];
+
+        var builder = new StringBuilder(fileName.Length);
+        foreach (var c in fileName)
+            builder.Append(
+                char.IsControl(c) || invalidFileNameChars.Contains(c) ? '_' : c
+            );
+
+        return builder.ToString().TrimEnd('.', ' ');
     }
 
     public void OnDeserialize(Database _ = null)

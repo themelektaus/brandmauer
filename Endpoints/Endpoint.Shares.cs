@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Text;
 
 namespace Brandmauer;
 
@@ -31,8 +32,10 @@ public static partial class Endpoint
                     ? item.expiresIn.ToHumanizedString()
                     : "Never";
 
-                var files = item.Files.JoinWrap("<li>", "</li>");
-                var text = item.Text;
+                var files = item.Files
+                    .Select(x => WebUtility.HtmlEncode(x.Value))
+                    .JoinWrap("<li>", "</li>");
+                var text = WebUtility.HtmlEncode(item.Text);
 
                 rows.AppendLine("<div class=\"row\">");
                 rows.AppendLine($"<div class=\"expires-on\">{expiresOn}</div>");
@@ -114,8 +117,11 @@ public static partial class Endpoint
 
                 x.Shares.RemoveAll(x =>
                 {
+                    if (x.Identifier.Id != id)
+                        return false;
+
                     x.Dispose();
-                    return x.Identifier.Id == id;
+                    return true;
                 });
 
                 x.Save(logging: true);
