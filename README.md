@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/themelektaus/brandmauer/actions/workflows/dotnet.yml/badge.svg)](https://github.com/themelektaus/brandmauer/actions/workflows/dotnet.yml)
 
-**Version:** 0.3.1.8
+**Version:** 0.3.1.9
 **Framework:** .NET 10.0
 **Platform:** Cross-platform (Linux production, Windows development)
 
@@ -559,7 +559,7 @@ While Brandmauer is production-ready, potential enhancements could include:
 ## Support and Documentation
 
 - **Build Status**: Automated CI/CD via GitHub Actions
-- **Version**: 0.3.1.8 (actively developed)
+- **Version**: 0.3.1.9 (actively developed)
 - **License**: Check repository for licensing information
 - **Platform Support**: Linux (primary), Windows (supported)
 
