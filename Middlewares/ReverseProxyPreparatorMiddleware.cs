@@ -119,14 +119,20 @@ public class ReverseProxyPreparatorMiddleware(RequestDelegate next)
         {
             var ip = context.Connection.RemoteIpAddress.ToIp();
 
-            var hostAddressesBundle = source.route.SourceHosts
+            var addresses = source.route.SourceHosts
                 .SelectMany(x => x.Addresses)
+                .Where(x => !string.IsNullOrWhiteSpace(x.Value))
+                .ToList();
+
+            // An address that cannot be resolved matches no one; only hosts
+            // without any address leave the route open.
+            var hostAddressesBundle = addresses
                 .SelectMany(x => x.Value.ToIpAddresses())
                 .ToList();
 
             if (source.route.WhitelistUsage == Usage.Deactivated)
             {
-                if (hostAddressesBundle.Count == 0)
+                if (addresses.Count == 0)
                     goto Accept;
             }
 

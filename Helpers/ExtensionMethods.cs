@@ -140,8 +140,15 @@ public static class ExtensionMethods
 
         protected override TimeSpan? MaxAge => TimeSpan.FromHours(1);
 
+        // A name that could not be resolved is not looked up again for this
+        // long: an unresolved value is not cached, and every request would
+        // otherwise wait for the DNS timeout again (inside the cache's lock).
+        static readonly TimeSpan failedLookupRetryDelay
+            = TimeSpan.FromMinutes(1);
+
         int currentDepth;
         readonly Dictionary<string, string[]> pending = new();
+        readonly Dictionary<string, DateTime> failedLookups = new();
 
         public bool justLocal;
 
@@ -157,6 +164,14 @@ public static class ExtensionMethods
 
             if (!justLocal)
             {
+                if (
+                    failedLookups.TryGetValue(key, out var failedAt)
+                    && DateTime.Now - failedAt < failedLookupRetryDelay
+                )
+                {
+                    goto Hosts;
+                }
+
                 try
                 {
                     var hostEntry = Dns.GetHostEntry(key);
@@ -168,12 +183,23 @@ public static class ExtensionMethods
 
                     if (ipAddress is not null)
                         addresses.Add(ipAddress.ToString());
-                }
-                catch
-                {
 
+                    failedLookups.Remove(key);
+                }
+                catch (Exception ex)
+                {
+                    failedLookups[key] = DateTime.Now;
+
+                    if (Database.Use(x => x.Hosts.Any(x => x.Name == key)))
+                        goto Hosts;
+
+                    Audit.Warning<DnsCache>(
+                        $"Could not resolve {key.ToJson()}: {ex.Message}"
+                    );
                 }
             }
+
+        Hosts:
 
             var host = Database.Use(
                 x => x.Hosts.FirstOrDefault(
@@ -193,7 +219,7 @@ public static class ExtensionMethods
 
                     foreach (var hostAddress in hostAddresses)
                         if (!pending.ContainsKey(hostAddress))
-                            addresses.AddRange(GetUnsafe(hostAddress));
+                            addresses.AddRange(GetUnsafe(hostAddress) ?? []);
 
                     pending.Remove(key);
                 }
@@ -208,16 +234,17 @@ public static class ExtensionMethods
 
     public static string ToIpAddress(this string @this, bool justLocal = false)
     {
-        return @this.ToIpAddresses(justLocal)?.FirstOrDefault();
+        return @this.ToIpAddresses(justLocal).FirstOrDefault();
     }
 
+    // An address that cannot be resolved yields no addresses, never null.
     public static string[] ToIpAddresses(
         this string @this,
         bool justLocal = false
     )
     {
         dnsCache.justLocal = justLocal;
-        return dnsCache.Get(@this);
+        return dnsCache.Get(@this) ?? [];
     }
 
     public static string ToIp(this IPAddress @this)
